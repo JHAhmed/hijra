@@ -54,7 +54,7 @@
 
                 <div class="flex flex-col grow w-full md:flex-row items-center justify-start ">
                     <div class="flex items-center justify-start grow">
-                        <!-- <a href="/our-packages" target="_blank"  class="text-sm">Learn More</a> -->
+                        <!-- <a href="/packages" target="_blank"  class="text-sm">Learn More</a> -->
                         <div class="w-0.5 flex h-4 bg-gray-300 mx-2"></div>
                         <p class="text-sm py-1  text-gray-600 text-center md:text-left">Tuition Fees: <span class="text-black">${uni.fees.toLocaleString()}</span></p>
                     </div>

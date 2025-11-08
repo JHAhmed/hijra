@@ -1,4 +1,5 @@
 <script>
+	import { goto } from '$app/navigation';
 	import { cn } from '$lib/utils.js';
 	import Icon from '@iconify/svelte';
 
@@ -10,6 +11,7 @@
 		size = 'md',
 		disabled = false,
 		loading = false,
+		href = '',
 		class: className = '',
 		onclick = () => {},
 		...rest
@@ -17,11 +19,13 @@
 
 	const variants = {
 		primary:
-			'bg-emerald-600 text-white hover:bg-emerald-700 active:bg-emerald-800 shadow-sm hover:shadow-md',
-		secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200 active:bg-gray-300',
-		ghost: 'text-gray-700 hover:bg-gray-100 active:bg-gray-200',
-		outline: 'border border-gray-300 text-gray-700 hover:bg-gray-50 active:bg-gray-100',
-		destructive: 'bg-red-600 text-white hover:bg-red-700 active:bg-red-800'
+			'bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm hover:shadow-md',
+		secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200',
+		pill: 'border border-gray-300 bg-white  text-gray-700  hover:bg-gray-50 rounded-full',
+
+		ghost: 'text-gray-700 hover:bg-gray-100',
+		outline: 'border border-gray-300 text-gray-700 hover:bg-gray-50',
+		destructive: 'bg-red-600 text-white hover:bg-red-700'
 	};
 
 	const sizes = {
@@ -45,16 +49,24 @@
 	};
 
 	const isIconOnly = iconPos === 'only';
+
+	function handleClick() {
+		if (href) {
+			goto(href);
+		} else {
+			onclick();
+		}
+	}
 </script>
 
 <button
 	{disabled}
-	onclick={disabled || loading ? undefined : onclick}
+	onclick={disabled || loading ? undefined : handleClick}
 	class={cn(
-		'disabled:pointer-events-not-allowed group inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:opacity-50',
+		'disabled:pointer-events-not-allowed group inline-flex cursor-pointer items-center justify-center rounded-lg font-medium transition-all duration-200 focus:ring-0 focus:outline-none disabled:opacity-50',
 		variants[variant],
 		isIconOnly ? iconOnlySizes[size] : sizes[size],
-		focusRings[variant],
+		// focusRings[variant],
 
 		isIconOnly && 'aspect-square',
 		className
@@ -83,6 +95,6 @@
 	{/if}
 
 	{#if icon && iconPos === 'right' && !loading}
-		<Icon {icon} class="h-4 w-4 group-hover:ml-2 transition-all duration-200" />
+		<Icon {icon} class="h-4 w-4 transition-all duration-200 group-hover:ml-2" />
 	{/if}
 </button>

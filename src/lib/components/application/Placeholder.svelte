@@ -26,7 +26,7 @@
 		{/if}
 
 		<a
-			href="/our-packages"
+			href="/packages"
 			class="rounded-full bg-secondary px-6 py-3 text-sm font-medium text-white hover:bg-primary"
 			>Explore Universities</a>
 	</div>
@@ -39,7 +39,7 @@
 			You can return to the home page and continue later.
 		</p>
 		<a
-			href="/our-packages"
+			href="/packages"
 			class="rounded-full bg-secondary px-6 py-3 text-sm font-medium text-white hover:bg-primary"
 			>Explore Universities</a>
 	</div>

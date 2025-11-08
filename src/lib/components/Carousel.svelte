@@ -37,16 +37,13 @@
 						<div class="mt-auto flex flex-col space-y-4">
 							<div class="w-full">
 								<Button
-									onclick={() => goto('/hijra-portal')}
+									href="/hijra-portal"
 									text="Apply Now"
 									moveText={true}
 									icon="heroicons:arrow-right" />
 							</div>
 							<div class="">
-								<Button
-									text="Learn More"
-									onclick={() => goto('/our-packages')}
-									variant="secondary" />
+								<Button text="Learn More" href="/packages" variant="secondary" />
 							</div>
 						</div>
 					</div>

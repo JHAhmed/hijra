@@ -36,11 +36,11 @@
 
 	function animateStats() {
 		const statElements = gsap.utils.toArray('.stat-value');
-		
+
 		statElements.forEach((element, i) => {
 			const endValue = parseInt(element.dataset.value, 10);
 			let counter = { val: 0 };
-			
+
 			gsap.to(counter, {
 				val: endValue,
 				duration: 2,
@@ -64,27 +64,32 @@
 		{
 			icon: 'heroicons:phone',
 			title: 'Free Consultation',
-			description: 'Speak with our certified Hajj/Umrah advisors to understand requirements and choose the right package for your needs.'
+			description:
+				'Speak with our certified Hajj/Umrah advisors to understand requirements and choose the right package for your needs.'
 		},
 		{
 			icon: 'heroicons:document-text',
 			title: 'Documentation & Visa',
-			description: 'We guide you through every document, handle visa processing, and ensure all paperwork is completed accurately.'
+			description:
+				'We guide you through every document, handle visa processing, and ensure all paperwork is completed accurately.'
 		},
 		{
 			icon: 'heroicons:map',
 			title: 'Itinerary Planning',
-			description: 'Customize your journey with flight selections, hotel preferences, and ground transportation arrangements.'
+			description:
+				'Customize your journey with flight selections, hotel preferences, and ground transportation arrangements.'
 		},
 		{
 			icon: 'heroicons:academic-cap',
 			title: 'Pre-Departure Guidance',
-			description: 'Attend our comprehensive workshops covering rituals, health precautions, and travel tips for a blessed journey.'
+			description:
+				'Attend our comprehensive workshops covering rituals, health precautions, and travel tips for a blessed journey.'
 		},
 		{
 			icon: 'heroicons:hand-raised',
 			title: 'Dedicated Support',
-			description: '24/7 on-ground assistance in Saudi Arabia ensures peace of mind throughout your sacred pilgrimage.'
+			description:
+				'24/7 on-ground assistance in Saudi Arabia ensures peace of mind throughout your sacred pilgrimage.'
 		}
 	];
 
@@ -96,12 +101,16 @@
 	];
 
 	onMount(async () => {
-		await loadIcon('heroicons:arrow-right');
+		const icons = quickLinks.map((link) => link.icon).concat(steps.map((step) => step.icon));
+		await Promise.all(icons.map((i) => loadIcon(i)));
+
 		animateStats();
 	});
 </script>
 
-<div class="relative overflow-hidden bg-gradient-to-br from-emerald-50 to-teal-50 py-12 sm:py-16 lg:py-20">
+<!-- TODO: Change hero style -->
+<div
+	class="relative overflow-hidden bg-linear-to-br from-emerald-50 to-teal-50 py-12 sm:py-16 lg:py-20">
 	<div class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 		<div class="grid items-center gap-12 lg:grid-cols-2">
 			<!-- Hero Content -->
@@ -114,31 +123,32 @@
 						Your Sacred Journey <span class="font-medium text-emerald-700">Begins Here</span>
 					</h1>
 				</div>
-				
+
 				<p class="text-lg text-gray-600 lg:text-xl">
-					Experience a blessed Hajj & Umrah with our end-to-end travel solutions. From visa processing to comfortable accommodations, we handle every detail with care and expertise.
+					Experience a blessed Hajj & Umrah with our end-to-end travel solutions. From visa
+					processing to comfortable accommodations, we handle every detail with care and expertise.
 				</p>
 
 				<div class="flex flex-col gap-4 sm:flex-row">
 					<Button
-						onclick={() => goto(auth.isAuthenticated ? '/dashboard' : '/register')}
+						href={auth.isAuthenticated ? '/dashboard' : '/register'}
 						text="Explore Packages"
 						icon="heroicons:arrow-right"
 						width="w-full sm:w-auto"
-						class="justify-center"
-					/>
-					<button
-						onclick={() => goto('/consultation')}
-						class="rounded-full border border-gray-300 bg-white px-8 py-3 text-base font-medium text-gray-700 transition-colors hover:bg-gray-50"
-					>
-						Free Consultation
-					</button>
+						class="justify-center" />
+					<Button
+						href="/contact"
+						text="Contact Us"
+						variant="pill"
+						width="w-full sm:w-auto"
+						class="justify-center px-8 py-3" />
 				</div>
 			</div>
 
 			<!-- Video Section -->
 			<div class="group relative">
-				<div class="aspect-video overflow-hidden rounded-2xl shadow-2xl transition-transform duration-300">
+				<div
+					class="aspect-video overflow-hidden rounded-2xl shadow-2xl transition-transform duration-300">
 					<iframe
 						class="h-full w-full"
 						src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0"
@@ -146,13 +156,12 @@
 						frameborder="0"
 						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
 						referrerpolicy="strict-origin-when-cross-origin"
-						allowfullscreen
-					></iframe>
+						allowfullscreen></iframe>
 				</div>
 			</div>
 		</div>
 	</div>
-	
+
 	<!-- Decorative background pattern -->
 	<div class="pointer-events-none absolute inset-0 opacity-20">
 		<svg class="h-full w-full" xmlns="http://www.w3.org/2000/svg">
@@ -171,8 +180,7 @@
 			{#each quickLinks as link}
 				<a
 					href={link.href}
-					class="group flex justify-center items-center gap-3 rounded-xl bg-gray-50 p-4 transition-all hover:bg-emerald-50 hover:text-emerald-700"
-				>
+					class="group flex items-center justify-center gap-3 rounded-xl bg-gray-50 p-4 transition-all hover:bg-emerald-50 hover:text-emerald-700">
 					<Icon icon={link.icon} class="h-5 w-5 text-gray-600 group-hover:text-emerald-600" />
 					<span class="text-sm font-medium text-gray-900">{link.name}</span>
 				</a>
@@ -192,7 +200,7 @@
 						<span class="text-gray-400">{stat.suffix}</span>
 					</p>
 					<p class="mt-2 text-sm font-medium text-gray-600">{stat.label}</p>
-                    <!-- {#if i < stats.length - 1}
+					<!-- {#if i < stats.length - 1}
                         <div class="hidden lg:block">
                             <div class="mx-auto h-16 w-px bg-gray-200"></div>
                         </div>
@@ -204,7 +212,7 @@
 </div>
 
 <!-- Journey Steps -->
-<section class="bg-gradient-to-b from-gray-50 to-white py-8 sm:py-12 md:py-20">
+<section class="bg-linear-to-b from-gray-50 to-white py-8 sm:py-12 md:py-20">
 	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 		<div class="mb-12 text-center sm:mb-16">
 			<p class="text-sm font-medium tracking-widest text-emerald-700 uppercase">Our Process</p>
@@ -215,12 +223,17 @@
 
 		<div class="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3 lg:gap-10">
 			{#each steps as step, i}
-				<div class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100 transition-all hover:shadow-lg sm:p-8">
-					<div class="absolute left-0 top-0 h-1 w-full origin-left scale-x-0 bg-emerald-600 transition-transform duration-300 group-hover:scale-x-100"></div>
-					<div class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+				<div
+					class="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100 transition-all hover:shadow-lg sm:p-8">
+					<div
+						class="absolute top-0 left-0 h-1 w-full origin-left scale-x-0 bg-emerald-600 transition-transform duration-300 group-hover:scale-x-100">
+					</div>
+					<div
+						class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
 						<Icon icon={step.icon} class="h-6 w-6" />
 					</div>
-					<span class="mb-2 block text-xs font-semibold text-emerald-700 uppercase">Step {i + 1}</span>
+					<span class="mb-2 block text-xs font-semibold text-emerald-700 uppercase"
+						>Step {i + 1}</span>
 					<h3 class="mb-3 text-xl font-medium text-gray-900">{step.title}</h3>
 					<p class="text-sm leading-relaxed text-gray-600">{step.description}</p>
 				</div>
@@ -248,32 +261,30 @@
 </section>
 
 <!-- FAQ -->
-<section class="bg-gradient-to-b from-gray-50 to-white py-8 sm:py-12 md:py-20">
-	<FAQ     />
+<section class="bg-linear-to-b from-gray-50 to-white py-8 sm:py-12 md:py-20">
+	<FAQ />
 </section>
 
 <!-- Final CTA -->
-<section class="bg-gradient-to-r from-emerald-700 to-teal-700 py-16 sm:py-20">
+<section class="bg-linear-to-r from-emerald-700 to-teal-700 py-16 sm:py-20">
 	<div class="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
 		<h2 class="text-3xl font-light text-white sm:text-4xl">Ready to Begin Your Sacred Journey?</h2>
 		<p class="mx-auto mt-4 max-w-2xl text-emerald-100">
-			Join thousands of pilgrims who have trusted us to deliver a seamless, spiritually fulfilling experience.
+			Join thousands of pilgrims who have trusted us to deliver a seamless, spiritually fulfilling
+			experience.
 		</p>
 		<div class="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
 			<Button
-				onclick={() => goto('/packages')}
+				href="/packages"
 				text="View All Packages"
 				icon="heroicons:arrow-right"
-				class="bg-white text-emerald-700 hover:bg-emerald-50"
-			/>
-			<button
-				onclick={() => goto('/contact')}
-				class="rounded-full border border-white/30 bg-transparent px-8 py-3 text-base font-medium text-white transition-colors hover:bg-white/10"
-			>
-				Get in Touch
-			</button>
+				class="bg-white text-emerald-700 hover:bg-emerald-50" />
+
+			<Button
+				href="/contact"
+				text="Get in Touch"
+				variant="pill"
+				class="border-white/30 bg-transparent px-8 py-3 text-white hover:bg-white/10" />
 		</div>
 	</div>
 </section>
-
-

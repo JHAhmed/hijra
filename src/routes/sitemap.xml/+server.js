@@ -8,7 +8,7 @@ export async function GET({ url }) {
 		'/about',
 		'/auth',
 		'/contact',
-		'/our-packages',
+		'/packages',
 		'/hijra-portal',
 		'/hijra-portal/application',
 		'/faq',

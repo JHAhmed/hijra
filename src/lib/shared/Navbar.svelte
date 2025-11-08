@@ -6,6 +6,7 @@
 	import { fade, slide } from 'svelte/transition';
 
 	import Icon, { loadIcon } from '@iconify/svelte';
+	import Button from '$components/ui/Button.svelte';
 
 	let { sticky = true, floating = true } = $props();
 
@@ -29,7 +30,7 @@
 		{ name: 'Hijra Portal', href: '/hijra-portal', icon: 'heroicons:home', adminAccess: false },
 		{
 			name: 'Our Packages',
-			href: '/our-packages',
+			href: '/packages',
 			icon: 'heroicons:cube',
 			adminAccess: true
 		},
@@ -90,14 +91,22 @@
 					</a>
 				{/if}
 			{:else}
-				<a
+
+					<Button 
+						href="/auth/"
+						text="Login"
+						icon="heroicons:arrow-right"
+						class="rounded-full px-6 py-3"
+					 />
+
+			<!-- <a
 					href="/auth/"
 					class="group flex items-center rounded-full bg-secondary px-6 py-3 text-white shadow-lg transition duration-150 hover:bg-primary">
 					Login
 					<Icon
 						icon="heroicons:arrow-right"
 						class="ml-2 size-4 transition-all duration-150 group-hover:ml-4" />
-				</a>
+				</a> -->
 			{/if}
 		</div>
 

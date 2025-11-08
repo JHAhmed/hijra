@@ -7,11 +7,11 @@
 	import { blur } from 'svelte/transition';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { toast, Toaster } from 'svelte-sonner';
-	
+
 	import Icon from '@iconify/svelte';
 	import Input from '$components/ui/Input.svelte';
 
-	let authType = $state('login'); 
+	let authType = $state('login');
 	let errors = $state({});
 	let loading = $state(false);
 
@@ -86,8 +86,7 @@
 	<title>Login | Hijra</title>
 	<meta
 		name="description"
-		content="Login to your account at Hijra to access personalized support for your medical education journey."
-	/>
+		content="Login to your account at Hijra to access personalized support for your medical education journey." />
 	<link rel="canonical" href="https://hijra-portal.vercel.app/auth" />
 	<script type="application/ld+json">
 		{
@@ -104,21 +103,23 @@
 	<meta property="og:url" content="{page.url.origin}/auth" />
 	<meta
 		property="og:description"
-		content="Login to your account at Hijra to access personalized support for your medical education journey."
-	/>
+		content="Login to your account at Hijra to access personalized support for your medical education journey." />
 </svelte:head>
 
 <Toaster richColors />
 
-<div class="flex relative items-center justify-center min-h-screen p-6 pt-0" >
-
-	<div class="absolute  inset-0 bg-gradient-to-b from-emerald-50 to-emerald-100">
-		<img src="https://images.unsplash.com/photo-1639574321485-a13faed965c6" class="w-full h-full object-cover" alt="">
+<div class="relative flex min-h-screen items-center justify-center p-6 pt-0">
+	<div class="absolute inset-0 bg-linear-to-b from-emerald-50 to-emerald-100">
+		<img
+			src="https://images.unsplash.com/photo-1639574321485-a13faed965c6"
+			class="h-full w-full object-cover"
+			alt="" />
 		<!-- <div class="absolute inset-0 bg-white/60 backdrop-blur-md">
 		</div> -->
 	</div>
 
-	<div class="mt-4 z-50 flex flex-col items-center justify-center p-12 md:p-16 md:mt-8 bg-emerald-50/70 backdrop-blur-lg rounded-xl shadow-lg/10 max-w-2xl min-h-[70vh]">
+	<div
+		class="z-50 mt-4 flex min-h-[70vh] max-w-2xl flex-col items-center justify-center rounded-xl border border-emerald-50 bg-emerald-50/70 p-12 shadow-lg/10 backdrop-blur-lg md:mt-8 md:p-16">
 		<a href="/"><img src={favicon} alt="" class="mx-auto mb-8 h-10 sm:mb-12" /></a>
 		{#if auth.isLoggedIn}
 			<div class="flex flex-col items-center justify-center space-y-4">
@@ -131,14 +132,15 @@
 				</h2>
 				<p class="text-sm font-light text-gray-500">
 					Go to your
-						{#if auth.isAdmin}
+					{#if auth.isAdmin}
 						<a href="/admin" class="text-emerald-700 hover:underline">Admin Dashboard</a>
-						{:else}
-							<a href="/hijra-portal" class="text-emerald-700 hover:underline">Hijra Portal</a>
-						{/if}
+					{:else}
+						<a href="/hijra-portal" class="text-emerald-700 hover:underline">Hijra Portal</a>
+					{/if}
 					or
-					<button onclick={() => auth.logout()} class="cursor-pointer text-emerald-700 hover:underline"
-						>Logout</button>
+					<button
+						onclick={() => auth.logout()}
+						class="cursor-pointer text-emerald-700 hover:underline">Logout</button>
 				</p>
 			</div>
 		{:else if authType === 'login'}
@@ -185,7 +187,7 @@
 								class="mb-px ml-2 inline-flex size-5 animate-spin text-white transition-all duration-150 group-hover:ml-4" />
 						{/if}
 					</button>
-					<p class="self-start text-left text-xs mb-2">
+					<p class="mb-2 self-start text-left text-xs">
 						Don't have an account? <button
 							type="button"
 							onclick={() => (authType = 'register')}

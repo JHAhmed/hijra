@@ -11,7 +11,7 @@
             links: [
                 { name: 'Hijra Portal', url: '/hijra-portal' },
                 { name: 'Available Courses', url: '/available-courses' },
-                { name: 'Our Packages', url: '/our-packages' },
+                { name: 'Our Packages', url: '/packages' },
                 { name: 'Profile', url: '/hijra-portal/profile' }
             ]
         },

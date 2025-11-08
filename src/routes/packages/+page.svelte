@@ -51,13 +51,13 @@
 		name="description"
 		content="Discover the world-class institutions we partner with to provide accessible and high-quality medical education."
 	/>
-	<link rel="canonical" href="https://hijra-portal.vercel.app/our-packages" />
+	<link rel="canonical" href="https://hijra-portal.vercel.app/packages" />
 	<script type="application/ld+json">
 		{
 			"@context": "http://schema.org",
 			"@type": "WebPage",
 			"name": "Our Packages | Hijra",
-			"url": "https://hijra-portal.vercel.app/our-packages"
+			"url": "https://hijra-portal.vercel.app/packages"
 		}
 	</script>
 
@@ -83,16 +83,30 @@
         </p>
         
         <!-- Country Filter Dropdown -->
-        <div class="mt-8 flex justify-center">
+        <div class="mt-8 flex justify-center space-x-4">
             <div class="w-64">
                 <label for="country-filter" class="mb-2 block text-sm font-medium text-gray-700">
-                    Filter by Country
+                    Filter by Type
                 </label>
                 <select
                     id="country-filter"
                     bind:value={selectedCountry}
                     class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
-                    <option value="all">All Countries</option>
+                    <option value="all">All Types</option>
+                    {#each uniqueCountries as country}
+                        <option value={country}>{country.toUpperCase()}</option>
+                    {/each}
+                </select>
+            </div>
+            <div class="w-64">
+                <label for="country-filter" class="mb-2 block text-sm font-medium text-gray-700">
+                    Filter by Cost
+                </label>
+                <select
+                    id="country-filter"
+                    bind:value={selectedCountry}
+                    class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
+                    <option value="all">All Prices</option>
                     {#each uniqueCountries as country}
                         <option value={country}>{country.toUpperCase()}</option>
                     {/each}
