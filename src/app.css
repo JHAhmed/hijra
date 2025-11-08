@@ -1,0 +1,37 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+@source inline("group-hover:text-pink-500");
+@source inline("group-hover:text-red-500");
+@source inline("group-hover:text-blue-600");
+@source inline("group-hover:text-blue-400");
+
+
+@theme {
+	--font-sans: 'Poppins', 'sans-serif';
+	--color-primary: #00B77A;
+	--color-secondary: #1B1B1B;
+	--color-background: #EFEFEF;
+	--animate-spin: spin 4s linear infinite;
+
+	--spacing-8xl: 80rem;
+	--spacing-9xl: 88rem;
+	--spacing-10xl: 96rem;
+	--spacing-11xl: 104rem;
+	--spacing-12xl: 112rem;
+
+	--animate-bounce: bounce 2s ease-in-out infinite;
+
+	@keyframes bounce {
+		0%,
+		100% {
+			transform: translateY(-15%);
+			animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+		}
+		50% {
+			transform: none;
+			animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+		}
+	}
+}
