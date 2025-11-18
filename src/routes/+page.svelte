@@ -95,8 +95,8 @@
 
 	const quickLinks = [
 		{ name: '2025 Packages', icon: 'heroicons:calendar', href: '/packages' },
-		{ name: 'Visa Guide', icon: 'heroicons:information-circle', href: '/guides/visa' },
-		{ name: 'Health Tips', icon: 'heroicons:heart', href: '/guides/health' },
+		{ name: 'Journey Guide', icon: 'heroicons:information-circle', href: '/guides/' },
+		{ name: 'Health Tips', icon: 'heroicons:heart', href: '/guides/' },
 		{ name: 'Contact Experts', icon: 'heroicons:chat-bubble-left', href: '/contact' }
 	];
 
@@ -133,7 +133,7 @@
 					<Button
 						href={auth.isAuthenticated ? '/dashboard' : '/register'}
 						text="Explore Packages"
-						icon="heroicons:arrow-right"
+						icon="ph:arrow-right-bold"
 						width="w-full sm:w-auto"
 						class="justify-center" />
 					<Button
@@ -277,7 +277,7 @@
 			<Button
 				href="/packages"
 				text="View All Packages"
-				icon="heroicons:arrow-right"
+				icon="ph:arrow-right-bold"
 				class="bg-white text-emerald-700 hover:bg-emerald-50" />
 
 			<Button

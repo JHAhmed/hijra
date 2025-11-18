@@ -18,6 +18,6 @@
 
 	<button onclick={onNext} class="bg-secondary flex cursor-pointer items-center group justify-center rounded-full px-6 py-2 text-white shadow-lg">
 		Next
-		<Icon icon="heroicons:arrow-right" class="ml-4 size-5 text-white transition-all duration-150 group-hover:ml-6" />
+		<Icon icon="ph:arrow-right-bold" class="ml-4 size-5 text-white transition-all duration-150 group-hover:ml-6" />
 	</button>
 </div>

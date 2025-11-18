@@ -63,7 +63,7 @@
 	{disabled}
 	onclick={disabled || loading ? undefined : handleClick}
 	class={cn(
-		'disabled:pointer-events-not-allowed group inline-flex cursor-pointer items-center justify-center rounded-lg font-medium transition-all duration-200 focus:ring-0 focus:outline-none disabled:opacity-50',
+		'disabled:pointer-events-not-allowed group/button inline-flex cursor-pointer items-center justify-center rounded-lg font-medium transition-all duration-200 focus:ring-0 focus:outline-none disabled:opacity-50',
 		variants[variant],
 		isIconOnly ? iconOnlySizes[size] : sizes[size],
 		// focusRings[variant],
@@ -95,6 +95,6 @@
 	{/if}
 
 	{#if icon && iconPos === 'right' && !loading}
-		<Icon {icon} class="h-4 w-4 transition-all duration-200 group-hover:ml-2" />
+		<Icon {icon} class="h-4 w-4 transition-all duration-200 group-hover/button:ml-2" />
 	{/if}
 </button>

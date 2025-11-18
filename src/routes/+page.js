@@ -1,6 +1,6 @@
 // export async function load({ fetch, params }) {
 
-//     const res = await fetch(`/api/get-universities`, {
+//     const res = await fetch(`/api/packages`, {
 // 		method: 'POST',
 // 		headers: {
 // 			'Content-Type': 'application/json'
@@ -8,7 +8,7 @@
 // 		body: JSON.stringify({ contentType: 'blogPost' })
 // 	});
 
-//     const universities = await res.json();
-//     return { universities };
+//     const packages = await res.json();
+//     return { packages };
 
 // }

@@ -1,7 +1,7 @@
 import { env } from '$env/dynamic/private';
 
-export async function POST({ request }) {
-	let universities = [];
+export async function GET({ request }) {
+	let packages = [];
 
 	const response = await fetch(env.HYGRAPH_PROJECT_ENVIRONMENT, {
 		method: 'POST',
@@ -12,15 +12,12 @@ export async function POST({ request }) {
 		body: JSON.stringify({
 			query: `
         query {
-          universities(first: 50) {
+          packages(first: 50) {
 			id
             name
             image { url }
-            location
-			fees
-			fieldOfStudy
-			country
-			commission
+			price
+			type
 			description 
           }
         }
@@ -30,6 +27,6 @@ export async function POST({ request }) {
 
 	const data = await response.json();
 
-	universities = data.data.universities;
-	return new Response(JSON.stringify(universities));
+	packages = data.data.packages;
+	return new Response(JSON.stringify(packages));
 }

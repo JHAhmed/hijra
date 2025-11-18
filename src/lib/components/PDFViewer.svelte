@@ -12,7 +12,7 @@
 			target="_blank"
 			rel="noopener noreferrer"
 			class="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 tracking-tight text-white transition-colors duration-300 hover:bg-primary/90">
-			<Icon icon="mdi:download" class="h-5 w-5" />
+			<Icon icon="ph:download-simple" class="h-5 w-5" />
 
 			Download PDF
 		</a>

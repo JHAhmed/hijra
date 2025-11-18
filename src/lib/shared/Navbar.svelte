@@ -18,7 +18,7 @@
 			'heroicons:home',
 			'heroicons:cube',
 			'heroicons:phone',
-			'heroicons:arrow-right',
+			'ph:arrow-right-bold',
 			'heroicons:bars-3-20-solid',
 			'heroicons:x-mark-20-solid'
 		];
@@ -26,18 +26,24 @@
 		await Promise.all(icons.map((i) => loadIcon(i)));
 	});
 
-	let links = [
+	let leftLinks = [
+		{ name: 'Home', href: '/', icon: 'heroicons:home', adminAccess: false },
+		{ name: 'About', href: '/about', icon: 'heroicons:home', adminAccess: false },
+		// { name: 'Packages', href: '/packages', icon: 'heroicons:cube', adminAccess: false },
+		{ name: 'Contact', href: '/contact', icon: 'heroicons:phone', adminAccess: false }
+	];
+
+	let rightLinks = [
 		{ name: 'Hijra Portal', href: '/hijra-portal', icon: 'heroicons:home', adminAccess: false },
 		{
 			name: 'Our Packages',
 			href: '/packages',
 			icon: 'heroicons:cube',
 			adminAccess: true
-		},
-		{ name: 'About', href: '/about', icon: 'heroicons:cube', adminAccess: true },
-		// { name: 'Available Courses', href: '/available-courses', icon: 'heroicons:document-duplicate' },
-		{ name: 'Contact', href: '/contact', icon: 'heroicons:phone', adminAccess: false }
+		}
 	];
+
+	let links = [...leftLinks, ...rightLinks];
 
 	let isMobileMenuOpen = $state(false);
 
@@ -46,25 +52,27 @@
 	}
 </script>
 
-<nav
-	class="{sticky
-		? 'fixed inset-x-0 top-4 z-50'
-		: 'relative z-10'} flex w-full items-center justify-center">
+<nav class="flex w-full items-center justify-center">
 	<div
-		class="mx-4 max-w-6xl sm:mx-6 lg:mx-8 {floating
-			? 'rounded-full shadow-md/5'
-			: ''} flex w-full items-center justify-between rounded-full bg-gray-50 px-4 py-3 md:bg-white">
+		class="mx-4 flex w-full max-w-8xl items-center justify-between rounded-full bg-gray-50 px-4 py-3 sm:mx-6 md:bg-white lg:mx-8 lg:max-w-11xl">
+		<div class="mx-12 hidden w-full items-center justify-around space-x-2 md:flex">
+			{#each leftLinks as link}
+				<a
+					href={link.href}
+					class="rounded-full px-3 py-2 text-sm text-gray-800 transition duration-200 hover:bg-gray-100 hover:text-primary">
+					{link.name}
+				</a>
+			{/each}
+		</div>
+
 		<a href="/" aria-label="Return to home" class="shrink-0">
 			<div class="p-2">
-				<img src={favicon} alt="Hijra" class="h-8 text-primary" />
-				<!-- <img src={logoFull} alt="Hijra" class="hidden h-8 text-primary sm:block" /> -->
+				<img src={favicon} alt="Hijra" class="h-10 text-primary" />
 			</div>
-			<!-- <div class="rounded-full bg-primary p-2 px-6 shadow-lg">
-			</div> -->
 		</a>
 
 		<div class="mx-12 hidden w-full items-center justify-around space-x-2 md:flex">
-			{#each links as link}
+			{#each rightLinks as link}
 				<a
 					href={link.href}
 					class="rounded-full {adminLoggedIn && !link.adminAccess
@@ -73,41 +81,30 @@
 					{link.name}
 				</a>
 			{/each}
-		</div>
 
-		<div class="ml-auto hidden items-center md:flex">
-			{#if isAuth}
-				{#if adminLoggedIn}
-					<a
-						href="/hijra-portal/profile"
-						class="rounded-full bg-secondary px-6 py-3 text-white shadow-lg transition duration-150 hover:bg-primary">
-						Admin
-					</a>
+			<div class=" hidden items-center md:flex">
+				{#if isAuth}
+					{#if adminLoggedIn}
+						<a
+							href="/admin"
+							class="rounded-full bg-secondary px-6 py-2 text-white shadow-lg transition duration-150 hover:bg-primary">
+							Admin
+						</a>
+					{:else}
+						<a
+							href="/hijra-portal/profile"
+							class="rounded-full bg-secondary px-6 py-2 text-white shadow-lg transition duration-150 hover:bg-primary">
+							Profile
+						</a>
+					{/if}
 				{:else}
-					<a
-						href="/hijra-portal/profile"
-						class="rounded-full bg-secondary px-6 py-3 text-white shadow-lg transition duration-150 hover:bg-primary">
-						Profile
-					</a>
-				{/if}
-			{:else}
-
-					<Button 
+					<Button
 						href="/auth/"
 						text="Login"
-						icon="heroicons:arrow-right"
-						class="rounded-full px-6 py-3"
-					 />
-
-			<!-- <a
-					href="/auth/"
-					class="group flex items-center rounded-full bg-secondary px-6 py-3 text-white shadow-lg transition duration-150 hover:bg-primary">
-					Login
-					<Icon
-						icon="heroicons:arrow-right"
-						class="ml-2 size-4 transition-all duration-150 group-hover:ml-4" />
-				</a> -->
-			{/if}
+						icon="ph:arrow-right-bold-16-solid"
+						class="rounded-full px-6 py-2" />
+				{/if}
+			</div>
 		</div>
 
 		<div class="flex items-center md:hidden">
@@ -172,7 +169,7 @@
 						class="group flex items-center justify-center rounded-full bg-secondary px-4 py-3 text-center text-white shadow-lg">
 						Login
 						<Icon
-							icon="heroicons:arrow-right"
+							icon="ph:arrow-right-bold"
 							class="ml-2 size-5 transition duration-150 group-hover:ml-4" />
 					</a>
 				{/if}

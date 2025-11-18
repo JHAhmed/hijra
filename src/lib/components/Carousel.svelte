@@ -40,7 +40,7 @@
 									href="/hijra-portal"
 									text="Apply Now"
 									moveText={true}
-									icon="heroicons:arrow-right" />
+									icon="ph:arrow-right-bold" />
 							</div>
 							<div class="">
 								<Button text="Learn More" href="/packages" variant="secondary" />

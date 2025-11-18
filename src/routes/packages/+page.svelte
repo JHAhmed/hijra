@@ -7,30 +7,39 @@
     import { slide } from 'svelte/transition';
     import Package from '$components/Package.svelte';
 	import { page } from '$app/state';
+	import Dropdown from '$components/ui/Dropdown.svelte';
 
     gsap.registerPlugin(SplitText);
 
     let { data } = $props();
     let title = $state(null);
-    let selectedCountry = $state('all');
-    let uniqueCountries = $state([]);
+    let selectedPackage = $state('all');
+    let uniqueTypes = $state([]);
+
+    let packageTypes = $state([
+        { value: 'all', label: 'All Types' },
+        { value: 'hajj', label: 'Hajj' },
+        { value: 'umrah', label: 'Umrah' },
+    ]);
 
     // $effect(() => {
     //     if (data.universities) {
-    //         uniqueCountries = [...new Set(data.universities.map(u => u.country))].sort();
+    //         uniqueTypes = [...new Set(data.universities.map(u => u.country))].sort();
     //     }
     // });
 
-    // let uniqueCountries = $state([]);
+    // let uniqueTypes = $state([]);
 
-    let filteredUniversities = $state([]);
-    // let filteredUniversities = $derived(
-    //     selectedCountry === 'all' 
-    //         ? data.universities 
-    //         : data.universities.filter(u => u.country === selectedCountry)
-    // );
+    // let filteredPackages = $state([]);
+    let filteredPackages = $derived(
+        selectedPackage === 'all' 
+            ? data.packages 
+            : data.packages.filter(u => u.type === selectedPackage)
+    );
 
     onMount(() => {
+        console.log('Packages Data:', data);
+
         if (!title) return;
         const split = new SplitText(title, { type: 'words' });
 
@@ -78,52 +87,39 @@
             Our Packages
         </h1>
         <p class="mx-auto mt-8 max-w-3xl text-lg font-normal tracking-[-0.015em] text-gray-700">
-            Discover the world-class institutions we partner with to provide accessible and high-quality
-            medical education.
+            Choose from a variety of thoughtfully curated travel packages designed to provide enriching spiritual journeys. Whether you're seeking the profound experience of Hajj or the serene devotion of Umrah, our packages cater to all your needs with comfort and convenience.
         </p>
         
         <!-- Country Filter Dropdown -->
         <div class="mt-8 flex justify-center space-x-4">
             <div class="w-64">
-                <label for="country-filter" class="mb-2 block text-sm font-medium text-gray-700">
-                    Filter by Type
-                </label>
-                <select
-                    id="country-filter"
-                    bind:value={selectedCountry}
-                    class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
-                    <option value="all">All Types</option>
-                    {#each uniqueCountries as country}
-                        <option value={country}>{country.toUpperCase()}</option>
-                    {/each}
-                </select>
+                <Dropdown
+                    label="Select Package Type"
+                    name="package-type"
+                    items={packageTypes}
+                    bind:value={selectedPackage}
+                />
             </div>
-            <div class="w-64">
-                <label for="country-filter" class="mb-2 block text-sm font-medium text-gray-700">
-                    Filter by Cost
-                </label>
-                <select
-                    id="country-filter"
-                    bind:value={selectedCountry}
-                    class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
-                    <option value="all">All Prices</option>
-                    {#each uniqueCountries as country}
-                        <option value={country}>{country.toUpperCase()}</option>
-                    {/each}
-                </select>
-            </div>
+            <!-- <div class="w-64">
+                <Dropdown
+                    label="Select Package Type"
+                    name="package-type"
+                    items={packageTypes}
+                    bind:value={selectedPackage}
+                    />
+            </div> -->
         </div>
         
         <!-- Results Count -->
         <p class="mt-4 text-sm text-gray-600">
-            Showing {filteredUniversities.length} {filteredUniversities.length === 1 ? 'university' : 'universities'}
+            Showing {filteredPackages.length} {filteredPackages.length === 1 ? 'package' : 'packages'}
         </p>
 
-        <div class="p-6 border-dashed border rounded-xl border-gray-400 mt-6 w-fit mx-auto">
+        <!-- <div class="p-6 border-dashed border rounded-xl border-gray-400 mt-6 w-fit mx-auto">
             <p class="text-xs md:text-sm text-gray-600">
-                <span class="font-semibold">Note:</span> Kindly check the fields of study offered by each university before making a selection.
+                <span class="font-semibold">Note:</span> Kindly check the details of each package before making a selection.
             </p>
-        </div>
+        </div> -->
     </div>
 </section>
 
@@ -132,9 +128,9 @@
         <div class="">
             <Accordion.Root
                 type="multiple"
-                class="grid grid-cols-2 gap-6 space-y-6 md:grid-cols-2 md:gap-12 lg:grid-cols-3 lg:gap-16">
-                {#each filteredUniversities as university}
-                    <Package {university} />
+                class="grid grid-cols-1 gap-6 space-y-6 md:grid-cols-1 md:gap-12 lg:grid-cols-1 lg:gap-16">
+                {#each filteredPackages as travelPackage}
+                    <Package {travelPackage} />
                 {/each}
             </Accordion.Root>
         </div>
@@ -145,7 +141,7 @@
     <div class="mx-auto max-w-4xl">
         <p class="mb-4 text-sm tracking-widest text-gray-600 uppercase">Our Commitment</p>
         <h2 class="text-4xl font-medium tracking-tighter text-black lg:text-5xl">
-            Partnering with top universities to empower the next generation of medical professionals.
+            Your Spiritual Journey Begins Here
         </h2>
     </div>
 </section>

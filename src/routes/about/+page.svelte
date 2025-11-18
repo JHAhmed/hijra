@@ -312,7 +312,7 @@
 			<Button
 				href="/packages"
 				text="Explore Packages"
-				icon="heroicons:arrow-right"
+				icon="ph:arrow-right-bold"
 				class="bg-white text-emerald-700 hover:bg-emerald-50" />
 			<Button
 				href="/contact"

@@ -132,7 +132,7 @@
     <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
         <button onclick={onNext} class="bg-secondary flex cursor-pointer items-center group justify-center rounded-full px-4 py-2 md:px-6 md:py-2 text-white shadow-lg">
             Next
-            <Icon icon="heroicons:arrow-right" class="ml-2 md:ml-4 size-5 text-white transition-all duration-150 group-hover:ml-3 md:group-hover:ml-6" />
+            <Icon icon="ph:arrow-right-bold" class="ml-2 md:ml-4 size-5 text-white transition-all duration-150 group-hover:ml-3 md:group-hover:ml-6" />
         </button>
     </div>
 </div>

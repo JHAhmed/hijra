@@ -67,7 +67,7 @@
 					>
 						<span class="text-base font-medium text-gray-900">{item.title}</span>
 						<span
-							class="ml-4 inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-emerald-50 transition-colors group-hover:bg-emerald-100"
+							class="ml-4 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-50 transition-colors group-hover:bg-emerald-100"
 						>
 							<Icon icon="heroicons:plus" class="h-5 w-5 text-emerald-700 transition-transform duration-200 [.group[data-state=open]_&]:rotate-45" />
 						</span>

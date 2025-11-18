@@ -4,12 +4,12 @@
 	let {
 		label,
 		name = 'Input',
-        icon = 'heroicons:chevron-down',
+		icon = 'heroicons:chevron-down',
 		value = $bindable(),
-		items,
+		error = '',
 		contentProps,
 		placeholder,
-		error = "",
+		items,
 		...restProps
 	} = $props();
 
@@ -24,36 +24,46 @@
 	{#if label}
 		<label
 			for={name.toLowerCase().replace(/\s+/g, '-')}
-			class="mb-0.5 block text-sm font-medium text-gray-700">{label}</label
-		>
+			class="mb-0.5 block text-xs font-medium text-gray-700 sm:text-sm">{label}</label>
 	{/if}
-	
-	<Select.Root name={name.toLowerCase().replace(/\s+/g, '-')} type="single" bind:value {...restProps}>
+
+	<Select.Root
+		name={name.toLowerCase().replace(/\s+/g, '-')}
+		type="single"
+		bind:value
+		{...restProps}>
 		<Select.Trigger
-			class="w-full text-left relative rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-gray-900 placeholder-gray-400 focus:ring-0 focus:outline-none text-xs md:text-sm focus:border-gray-400"
-		>
+			class="relative w-full rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-left text-xs text-gray-900 placeholder-gray-400 focus:border-gray-400 focus:ring-0 focus:outline-none sm:text-sm">
 			{selectedLabel ? selectedLabel : placeholder}
-	
+
 			{#if icon}
 				<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
 					<Icon {icon} class="h-6 w-fit text-gray-400" />
 				</div>
 			{/if}
-	
 		</Select.Trigger>
 		<Select.Portal>
-			<Select.Content {...contentProps} class="min-w-[var(--bits-select-anchor-width)] w-[var(--bits-select-anchor-width)] rounded-lg border border-gray-300 bg-white mt-1 text-xs md:text-sm">
+			<Select.Content
+				{...contentProps}
+				class="mt-1 w-(--bits-select-anchor-width) min-w-(--bits-select-anchor-width) rounded-lg border border-gray-300 bg-white text-xs sm:text-sm">
 				<!-- <Select.ScrollUpButton>up</Select.ScrollUpButton> -->
-				<Select.Viewport>
+				<Select.Viewport class="space-y-1 p-1">
 					{#each items as { value, label, disabled } (value)}
-						<Select.Item {value} {label} {disabled} class="p-3 w-full my-1 mx-1 rounded-md text-xs md:text-sm flex justify-between items-center hover:bg-gray-100 {label === selectedLabel ? 'bg-gray-50' : ''} {disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}">
+						<Select.Item
+							{value}
+							{label}
+							{disabled}
+							class="flex w-full  items-center justify-between rounded-md p-3 text-xs hover:bg-gray-100 sm:text-sm {label ===
+							selectedLabel
+								? 'bg-gray-50'
+								: ''} {disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}">
 							{#snippet children({ selected })}
 								<!-- {selected ? '✅' : ''} -->
 								<!-- {selected ? '✅' : ''} -->
-								<p class="text-left text-xs md:text-sm">{label}</p>
-								 {#if selected}
-									<Icon icon="mdi:check" class="inline-block" />
-								 {/if}
+								<p class="text-left text-xs sm:text-sm">{label}</p>
+								{#if selected}
+									<Icon icon="ph:check" class="inline-block" />
+								{/if}
 							{/snippet}
 						</Select.Item>
 					{/each}
@@ -62,7 +72,7 @@
 			</Select.Content>
 		</Select.Portal>
 	</Select.Root>
-		{#if error}
-        <p class="mt-1 text-xs md:text-sm text-red-500">{error}</p>
-    {/if}
+	{#if error}
+		<p class="mt-1 text-xs text-red-500 sm:text-sm">{error}</p>
+	{/if}
 </div>

@@ -22,6 +22,9 @@
 		rows: []
 	});
 
+	onMount(() => {
+		isLoading = false;
+	});
 
 </script>
 

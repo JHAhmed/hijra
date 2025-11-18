@@ -75,7 +75,7 @@
 				<PhoneInput bind:value={phone} bind:countryCode label=""  />
 				<!-- <Input bind:value={phone} icon="heroicons:phone" placeholder="Phone" type="tel" /> -->
 			</div>
-			<Button {onclick} text="Get Started" icon="heroicons:arrow-right" width="w-full md:w-1/4" />
+			<Button {onclick} text="Get Started" icon="ph:arrow-right-bold" width="w-full md:w-1/4" />
 		</div>
 	</div>
 
