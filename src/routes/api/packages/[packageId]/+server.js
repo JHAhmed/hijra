@@ -7,7 +7,7 @@ export async function GET({ params }) {
 		return new Response(JSON.stringify({ error: 'packageId required' }), { status: 400 });
 	}
 
-	let package = null;
+	let travelPackage = null;
 
 	const response = await fetch(env.HYGRAPH_PROJECT_ENVIRONMENT, {
 		method: 'POST',
@@ -31,7 +31,7 @@ export async function GET({ params }) {
 	});
 
 	const data = await response.json();
-	package = data.data.package;
+	travelPackage = data.data.package;
 
-	return new Response(JSON.stringify(package));
+	return new Response(JSON.stringify(travelPackage));
 }

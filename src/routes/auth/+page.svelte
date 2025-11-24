@@ -1,22 +1,27 @@
 <script>
 	import favicon from '$lib/assets/favicon.svg';
-
 	import { z } from 'zod';
 	import { page } from '$app/state';
 	import { auth } from '$lib/auth.svelte';
-	import { blur } from 'svelte/transition';
+	import { fade, fly } from 'svelte/transition';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { toast, Toaster } from 'svelte-sonner';
-
 	import Icon from '@iconify/svelte';
 	import Input from '$components/ui/Input.svelte';
+
+	import makkahSkyline from '$lib/assets/images/makkah-skyline.jpg';
+	import Button from '$components/ui/Button.svelte';
+
+	// Animation constants
+	const TRANSITION_y = 20;
+	const TRANSITION_DURATION = 400;
 
 	let authType = $state('login');
 	let errors = $state({});
 	let loading = $state(false);
 
 	let data = $state({
-		// name: '',
+		name: '',
 		email: '',
 		password: ''
 	});
@@ -26,6 +31,11 @@
 		email: z.string().email('Please enter a valid email'),
 		password: z.string().min(6, 'Password must be at least 6 characters long')
 	});
+
+	function toggleAuthType() {
+		errors = {};
+		authType = authType === 'login' ? 'register' : 'login';
+	}
 
 	async function handleSubmit(e) {
 		e.preventDefault();
@@ -57,18 +67,6 @@
 				await auth.login(data.email, data.password);
 			} else {
 				await auth.register(data.email, data.password, data.name);
-				// const res = await fetch('/api/register-user', {
-				// 	method: 'POST',
-				// 	headers: {
-				// 		'Content-Type': 'application/json'
-				// 	},
-				// 	body: JSON.stringify({ email: auth.user.email, name: auth.user.name, userId: auth.user.$id })
-				// });
-				// if (!res.ok) {
-				// 	throw new Error('Failed to register user in the database.');
-				// } else {
-				// 	const resData = await res.json();
-				// }
 			}
 
 			toast.success(`Successfully ${authType === 'login' ? 'logged in' : 'registered'}!`);
@@ -106,182 +104,181 @@
 		content="Login to your account at hijrah to access personalized support for your medical education journey." />
 </svelte:head>
 
-<Toaster richColors />
+<Toaster richColors position="top-center" />
 
-<div class="relative flex min-h-screen items-center justify-center p-6 pt-0">
-	<div class="absolute inset-0 bg-linear-to-b from-emerald-50 to-emerald-100">
-		<img
-			src="https://images.unsplash.com/photo-1639574321485-a13faed965c6"
-			class="h-full w-full object-cover"
-			alt="" />
-		<!-- <div class="absolute inset-0 bg-white/60 backdrop-blur-md">
-		</div> -->
-	</div>
+<div
+	class="flex min-h-screen w-full bg-white text-secondary selection:bg-primary selection:text-white">
+	<div class="relative flex w-full flex-col justify-center px-6 py-12 lg:w-1/2 lg:px-20 xl:px-24">
+		<div class="relative z-10 mx-auto w-full max-w-md">
+			<a href="/" class="group/logo my-8 inline-flex items-center gap-3">
+				<img
+					src={favicon}
+					alt="hijrah Logo"
+					class="h-8 w-8 object-contain transition-transform duration-300 md:h-10 md:w-10" />
+				<span class="text-3xl font-bold tracking-tighter text-black md:text-4xl">
+					hijrah<span class="text-primary">.</span>
+				</span>
+			</a>
 
-	<div
-		class="z-50 mt-4 flex min-h-[70vh] max-w-2xl flex-col items-center justify-center rounded-xl border border-emerald-50 bg-emerald-50/70 p-12 shadow-lg/10 backdrop-blur-lg md:mt-8 md:p-16">
-		<a href="/"><img src={favicon} alt="" class="mx-auto mb-8 h-10 sm:mb-12" /></a>
-		{#if auth.isLoggedIn}
-			<div class="flex flex-col items-center justify-center space-y-4">
-				<h2 class="text-2xl font-light tracking-tight text-gray-700 sm:text-3xl">
-					{#if authType === 'login'}
-						You are logged in!
-					{:else}
-						You have successfully registered!
-					{/if}
-				</h2>
-				<p class="text-sm font-light text-gray-500">
-					Go to your
-					{#if auth.isAdmin}
-						<a href="/admin" class="text-emerald-700 hover:underline">Admin Dashboard</a>
-					{:else}
-						<a href="/hijrah-portal" class="text-emerald-700 hover:underline">hijrah Portal</a>
-					{/if}
-					or
-					<button
-						onclick={() => auth.logout()}
-						class="cursor-pointer text-emerald-700 hover:underline">Logout</button>
-				</p>
-			</div>
-		{:else if authType === 'login'}
-			<form class="space-y-4 sm:space-y-6" onsubmit={handleSubmit}>
-				<div
-					class="mx-auto mb-6 flex w-full flex-col items-start justify-center space-y-2 sm:mb-8 md:px-8 lg:px-20">
-					<h2 class="self-start text-2xl font-light tracking-tight text-gray-700 sm:text-3xl">
-						Login To Your Account
-					</h2>
-					<p class="self-start text-sm font-light text-gray-500">
-						Please enter your credentials to continue.
-					</p>
+			{#if auth.isLoggedIn}
+				<div in:fade={{ duration: 300 }} class="text-center">
+					<div
+						class="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-green-50 text-green-600">
+						<Icon icon="heroicons:check-circle-solid" class="h-10 w-10" />
+					</div>
+					<h2 class="text-3xl font-medium tracking-tight text-secondary">Welcome Back!</h2>
+					<p class="mt-4 text-gray-500">You are currently signed in.</p>
+
+					<div class="mt-8 flex flex-col gap-3">
+						<a
+							href={auth.isAdmin ? '/admin' : '/dashboard'}
+							class="flex w-full items-center justify-center rounded-xl bg-primary px-4 py-3 text-sm font-bold tracking-wide text-white uppercase transition-transform hover:scale-[1.02] active:scale-[0.98]">
+							Go to Dashboard
+						</a>
+						<button
+							onclick={() => auth.logout()}
+							class="text-sm font-medium text-gray-400 hover:text-secondary">
+							Sign out
+						</button>
+					</div>
 				</div>
+			{:else}
+				<div in:fly={{ y: TRANSITION_y, duration: TRANSITION_DURATION }}>
+					<div class="mb-10">
+						<span class="mb-3 block text-xs font-bold tracking-widest text-primary uppercase">
+							{authType === 'login' ? 'Welcome Back' : 'Start your Journey'}
+						</span>
+						<h1 class="text-4xl font-medium tracking-tighter text-secondary md:text-5xl">
+							{authType === 'login' ? 'Login to Portal' : 'Create Account'}
+						</h1>
+						<p class="mt-3 text-lg text-gray-500">
+							{authType === 'login'
+								? 'Enter your credentials to access your journey details.'
+								: 'Join thousands of pilgrims planning their sacred journey.'}
+						</p>
+					</div>
 
-				<div
-					class="mx-auto flex w-full flex-col items-center justify-center space-y-4 sm:space-y-6 md:px-8 lg:px-20">
-					<Input
-						icon="heroicons:envelope"
-						error={errors.email}
-						label="Email"
-						type="email"
-						name="email"
-						id="email"
-						placeholder="Enter your email"
-						bind:value={data.email} />
-					<Input
-						icon="heroicons:lock-closed"
-						error={errors.password}
-						label="Password"
-						type="password"
-						name="password"
-						id="password"
-						allowView={true}
-						placeholder="Enter your password"
-						bind:value={data.password} />
-					<button
-						disabled={loading}
-						type="submit"
-						class="w-full cursor-pointer rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60">
-						Login
-						{#if loading}
-							<Icon
-								icon="ph:circle-notch"
-								class="mb-px ml-2 inline-flex size-5 animate-spin text-white transition-all duration-150 group-hover:ml-4" />
+					<form onsubmit={handleSubmit} class="flex flex-col gap-5">
+						{#if authType === 'register'}
+							<div in:slide|local>
+								<Input
+									icon="heroicons:user"
+									error={errors.name}
+									label="Full Name"
+									type="text"
+									name="name"
+									id="name"
+									placeholder="e.g. Yusuf Ahmed"
+									bind:value={data.name}
+									class="bg-white" />
+							</div>
 						{/if}
-					</button>
-					<p class="mb-2 self-start text-left text-xs">
-						Don't have an account? <button
-							type="button"
-							onclick={() => (authType = 'register')}
-							class="cursor-pointer text-emerald-700 hover:underline">Register</button>
-					</p>
-					<p class="self-start text-left text-xs">
-						Forgot Password? <a
-							href="/auth/forgot-password"
-							class="cursor-pointer text-emerald-700 hover:underline">Reset</a>
-					</p>
-				</div>
-			</form>
-		{:else}
-			<form class="space-y-4 sm:space-y-6" onsubmit={handleSubmit}>
-				<div
-					class="mx-auto mb-6 flex w-full flex-col items-start justify-center space-y-2 sm:mb-8 md:px-8 lg:px-20">
-					<h2 class="self-start text-2xl font-light tracking-tight text-gray-700 sm:text-3xl">
-						Get Started Now!
-					</h2>
-					<p class="self-start text-sm font-light text-gray-500">
-						Please enter your credentials to create an account.
-					</p>
-				</div>
 
-				<div
-					class="mx-auto flex w-full flex-col items-center justify-center space-y-4 sm:space-y-6 md:px-8 lg:px-20">
-					<Input
-						icon="heroicons:user"
-						error={errors.name}
-						label="Name"
-						type="text"
-						name="name"
-						id="name"
-						placeholder="Enter your name"
-						bind:value={data.name} />
-					<Input
-						icon="heroicons:envelope"
-						error={errors.email}
-						label="Email"
-						type="email"
-						name="email"
-						id="email"
-						placeholder="Enter your email"
-						bind:value={data.email} />
-					<Input
-						icon="heroicons:lock-closed"
-						error={errors.password}
-						label="Password"
-						type="password"
-						name="password"
-						id="password"
-						allowView={true}
-						placeholder="Enter your password"
-						bind:value={data.password} />
-					<Input
-						icon="heroicons:lock-closed"
-						label="Confirm Password"
-						type="password"
-						name="confirmPassword"
-						id="confirmPassword"
-						allowView={true}
-						placeholder="Re-enter your password" />
-					<button
-						type="submit"
-						class="{loading
-							? 'cursor-not-allowed opacity-70'
-							: ''} w-full cursor-pointer rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/90"
-						>Register</button>
-					<p class="self-start text-left text-xs">
-						Already have an account? <button
-							type="button"
-							onclick={() => (authType = 'login')}
-							class="cursor-pointer text-emerald-700 hover:underline">Login</button>
-					</p>
+						<Input
+							icon="heroicons:envelope"
+							error={errors.email}
+							label="Email Address"
+							type="email"
+							name="email"
+							id="email"
+							placeholder="name@example.com"
+							bind:value={data.email}
+							class="bg-white" />
+
+						<Input
+							icon="heroicons:lock-closed"
+							error={errors.password}
+							label="Password"
+							type="password"
+							name="password"
+							id="password"
+							allowView={true}
+							placeholder="••••••••"
+							bind:value={data.password}
+							class="bg-white" />
+
+						{#if authType === 'register'}
+							<div in:slide|local>
+								<Input
+									icon="heroicons:lock-closed"
+									label="Confirm Password"
+									type="password"
+									name="confirmPassword"
+									id="confirmPassword"
+									allowView={true}
+									placeholder="••••••••"
+									class="bg-white" />
+							</div>
+						{/if}
+
+						<div class="mt-2">
+							<Button
+								type="submit"
+								disabled={loading}
+								variant="primary"
+								text={authType === 'login' ? 'Sign In' : 'Create Account'}
+								class="w-full px-4 py-4 text-sm font-bold text-white  capitalize " />
+						</div>
+
+						<div class="flex items-center justify-between text-sm">
+							<button
+								type="button"
+								onclick={toggleAuthType}
+								class="cursor-pointer font-medium text-gray-500 transition-colors hover:text-primary">
+								{authType === 'login' ? "Don't have an account?" : 'Already a member?'}
+								<span class="ml-1 underline underline-offset-4"
+									>{authType === 'login' ? 'Register' : 'Login'}</span>
+							</button>
+
+							{#if authType === 'login'}
+								<a href="/auth/forgot-password" class="text-gray-400 hover:text-gray-600"
+									>Forgot Password?</a>
+							{/if}
+						</div>
+					</form>
 				</div>
-			</form>
-		{/if}
+			{/if}
+		</div>
+
+		<div class="absolute bottom-6 left-0 w-full text-center">
+			<p class="text-xs text-gray-300">© 2025 Hijrah. All rights reserved.</p>
+		</div>
 	</div>
 
-	<!-- <div
-		class="hidden flex-col items-center justify-center space-y-2 rounded-3xl bg-primary p-4 md:flex">
-		<div class="flex flex-1 flex-col items-start justify-center space-y-2 px-4 sm:px-6">
-			<p class="text-left text-xl tracking-tight text-white md:text-3xl">
-				The easiest way to start your education journey!
-			</p>
-			<p class="text-left text-base font-light tracking-tight text-gray-200 sm:text-lg">
-				Join us today and unlock your potential.
-			</p>
+	<div class="relative hidden w-1/2 bg-gray-100 lg:block">
+		<img src={makkahSkyline} alt="The Holy Kaaba" class="h-full w-full object-cover" />
+
+		<div class="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent"></div>
+
+		<div class="absolute right-12 bottom-20 left-12 max-w-xl">
+			<div class="mb-6 text-primary">
+				<Icon icon="ph:quotes-fill" class="h-12 w-12" />
+			</div>
+			<blockquote class="text-3xl leading-tight font-medium tracking-tight text-white">
+				"The guidance I received here made my Umrah not just a trip, but a spiritual
+				transformation."
+			</blockquote>
+			<div class="mt-8 flex items-center gap-4">
+				<div class="h-px w-12 bg-white/30"></div>
+				<div class="flex flex-col">
+					<span class="text-sm font-bold text-white">Ahmed Al-Farsi</span>
+					<span class="text-xs text-white/60">Umrah Package 2024</span>
+				</div>
+			</div>
 		</div>
-		<div class="w-full flex-1">
-			<img
-				src="https://images.unsplash.com/photo-1492538368677-f6e0afe31dcc?q=80&w=1170&auto=format&fit=crop"
-				class="aspect-video h-auto w-full rounded-2xl object-cover shadow-lg/20"
-				alt="" />
-		</div>
-	</div> -->
+	</div>
 </div>
+
+<style>
+	/* Add Svelte transition for slide if needed, or import from svelte/transition */
+	@keyframes slideDown {
+		from {
+			opacity: 0;
+			transform: translateY(-10px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+</style>
