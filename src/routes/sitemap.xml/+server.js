@@ -9,8 +9,8 @@ export async function GET({ url }) {
 		'/auth',
 		'/contact',
 		'/packages',
-		'/hijra-portal',
-		'/hijra-portal/application',
+		'/hijrah-portal',
+		'/hijrah-portal/application',
 		'/faq',
 	]; 
     

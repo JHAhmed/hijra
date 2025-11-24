@@ -1,179 +1,151 @@
 <script>
-	import favicon from '$lib/assets/favicon.svg';
-
+	import Icon from '@iconify/svelte';
+	import logo from '$lib/assets/favicon.svg';
 	import { onMount } from 'svelte';
-	import { auth } from '$lib/auth.svelte.js';
-	import { fade, slide } from 'svelte/transition';
-
-	import Icon, { loadIcon } from '@iconify/svelte';
 	import Button from '$components/ui/Button.svelte';
 
-	let { sticky = true, floating = true } = $props();
+	let isScrolled = false;
+	let isMobileMenuOpen = false;
 
-	let isAuth = $derived(auth.isLoggedIn);
-	let adminLoggedIn = $derived(auth.isAdmin);
+	const toggleMobileMenu = () => (isMobileMenuOpen = !isMobileMenuOpen);
 
-	onMount(async () => {
-		const icons = [
-			'heroicons:home',
-			'heroicons:cube',
-			'heroicons:phone',
-			'ph:arrow-right-bold',
-			'heroicons:bars-3-20-solid',
-			'heroicons:x-mark-20-solid'
-		];
-
-		await Promise.all(icons.map((i) => loadIcon(i)));
-	});
-
-	let leftLinks = [
-		{ name: 'Home', href: '/', icon: 'heroicons:home', adminAccess: false },
-		{ name: 'About', href: '/about', icon: 'heroicons:home', adminAccess: false },
-		// { name: 'Packages', href: '/packages', icon: 'heroicons:cube', adminAccess: false },
-		{ name: 'Contact', href: '/contact', icon: 'heroicons:phone', adminAccess: false }
+	const navLinks = [
+		{ label: 'Home', href: '/' },
+		{ label: 'About', href: '/about' },
+		{ label: 'Packages', href: '/packages' },
+		{ label: 'Contact', href: '/contact' }
 	];
 
-	let rightLinks = [
-		{ name: 'Hijra Portal', href: '/hijra-portal', icon: 'heroicons:home', adminAccess: false },
-		{
-			name: 'Our Packages',
-			href: '/packages',
-			icon: 'heroicons:cube',
-			adminAccess: true
-		}
-	];
-
-	let links = [...leftLinks, ...rightLinks];
-
-	let isMobileMenuOpen = $state(false);
-
-	function closeMenu() {
-		isMobileMenuOpen = false;
-	}
+	// onMount(() => {
+	// 	const handleScroll = () => {
+	// 		isScrolled = window.scrollY > 10;
+	// 	};
+	// 	window.addEventListener('scroll', handleScroll);
+	// 	return () => window.removeEventListener('scroll', handleScroll);
+	// });
 </script>
 
-<nav class="flex w-full items-center justify-center">
-	<div
-		class="mx-4 flex w-full max-w-8xl items-center justify-between rounded-full bg-gray-50 px-4 py-3 sm:mx-6 md:bg-white lg:mx-8 lg:max-w-11xl">
-		<div class="mx-12 hidden w-full items-center justify-around space-x-2 md:flex">
-			{#each leftLinks as link}
-				<a
-					href={link.href}
-					class="rounded-full px-3 py-2 text-sm text-gray-800 transition duration-200 hover:bg-gray-100 hover:text-primary">
-					{link.name}
-				</a>
-			{/each}
-		</div>
+<nav
+	class="fixed top-0 left-0 z-50 w-full antialiased transition-all duration-200 ease-out border-b border-gray-100 bg-white h-20">
+	<!-- <div
+		class="pointer-events-none absolute inset-0 h-full w-full border-b border-gray-100/0 transition-all duration-200 ease-out
+    {isScrolled ? 'border-gray-100! bg-white opacity-100!' : 'opacity-0'}">
+	</div> -->
 
-		<a href="/" aria-label="Return to home" class="shrink-0">
-			<div class="p-2">
-				<img src={favicon} alt="Hijra" class="h-10 text-primary" />
-			</div>
+	<div
+		class="relative mx-auto flex h-full max-w-8xl items-center justify-between px-6 md:px-12">
+		<a href="/" class="group relative z-50 flex shrink-0 items-center gap-3 select-none">
+			<img src={logo} alt="Hijra Logo" class="h-9 w-9 object-contain" />
+			<span class="text-2xl font-bold tracking-tighter text-secondary">
+				Hijrah<span class="text-primary">.</span>
+			</span>
 		</a>
 
-		<div class="mx-12 hidden w-full items-center justify-around space-x-2 md:flex">
-			{#each rightLinks as link}
+		<div
+			class="absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-1 md:flex">
+			{#each navLinks as link}
 				<a
 					href={link.href}
-					class="rounded-full {adminLoggedIn && !link.adminAccess
-						? 'hidden'
-						: ''} px-3 py-2 text-sm text-gray-800 transition duration-200 hover:bg-gray-100 hover:text-primary">
-					{link.name}
+					class="relative rounded-full px-5 py-2 font-medium text-gray-500 transition-all duration-200 hover:bg-gray-50/50 hover:text-secondary">
+					{link.label}
 				</a>
 			{/each}
+		</div>
 
-			<div class=" hidden items-center md:flex">
-				{#if isAuth}
-					{#if adminLoggedIn}
-						<a
-							href="/admin"
-							class="rounded-full bg-secondary px-6 py-2 text-white shadow-lg transition duration-150 hover:bg-primary">
-							Admin
-						</a>
-					{:else}
-						<a
-							href="/hijra-portal/profile"
-							class="rounded-full bg-secondary px-6 py-2 text-white shadow-lg transition duration-150 hover:bg-primary">
-							Profile
-						</a>
-					{/if}
-				{:else}
-					<Button
-						href="/auth/"
-						text="Login"
-						icon="ph:arrow-right-bold-16-solid"
-						class="rounded-full px-6 py-2" />
-				{/if}
+		<div class="relative z-50 flex shrink-0 items-center gap-6">
+			<Button
+				href="/login"
+				text="Log In"
+				variant="secondary"
+				size="md"
+				class="hidden sm:inline-block" />
+
+			<!-- <a 
+        href="/login" 
+        class="hidden sm:block text-[15px] font-bold text-secondary hover:text-primary transition-colors duration-200"
+      >
+        Log in
+      </a> -->
+
+			<Button
+				href="/contact"
+				text="Get Started"
+				variant="primary"
+				size="md"
+				class="hidden sm:inline-block" />
+
+			<!-- <a 
+        href="/contact" 
+        class="hidden sm:flex items-center gap-2 bg-secondary text-white px-6 py-2.5 rounded-full text-sm font-bold tracking-tight border border-secondary
+               transition-all duration-200 ease-out
+               shadow-none
+               hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[4px_4px_0px_0px_#00B77A]
+               active:translate-x-0 active:translate-y-0 active:shadow-none"
+      >
+        <span>Get Started</span>
+        <Icon icon="heroicons:arrow-right" class="w-4 h-4" />
+      </a> -->
+
+			<button
+				on:click={toggleMobileMenu}
+				class="relative z-60 flex h-10 w-10 flex-col items-center justify-center gap-1.5 md:hidden"
+				aria-label="Menu">
+				<span
+					class="h-0.5 w-6 rounded-full bg-black transition-all duration-300 {isMobileMenuOpen
+						? 'translate-y-2 rotate-45'
+						: ''}"></span>
+				<span
+					class="h-0.5 w-6 rounded-full bg-black transition-all duration-300 {isMobileMenuOpen
+						? 'opacity-0'
+						: 'opacity-100'}"></span>
+				<span
+					class="h-0.5 w-6 rounded-full bg-black transition-all duration-300 {isMobileMenuOpen
+						? '-translate-y-2 -rotate-45'
+						: ''}"></span>
+			</button>
+		</div>
+	</div>
+
+	{#if isMobileMenuOpen}
+		<div
+			class="animate-fade-in fixed inset-0 z-40 flex flex-col items-center justify-center overflow-y-auto bg-white pt-24 pb-10 md:hidden">
+			<div class="flex w-full flex-col gap-8 px-6 text-center">
+				{#each navLinks as link}
+					<a
+						href={link.href}
+						class="text-3xl font-medium tracking-tight text-secondary transition-colors hover:text-primary"
+						on:click={toggleMobileMenu}>
+						{link.label}
+					</a>
+				{/each}
+
+				<div class="mx-auto my-4 h-px w-16 bg-gray-100"></div>
+
+				<a
+					href="/login"
+					class="text-xl font-medium text-gray-500 transition-colors hover:text-black"
+					on:click={toggleMobileMenu}>
+					Log In
+				</a>
+
+				<a href="/contact" class="text-xl font-bold text-primary" on:click={toggleMobileMenu}>
+					Get Started
+				</a>
 			</div>
 		</div>
-
-		<div class="flex items-center md:hidden">
-			<span class="text-sm font-medium text-gray-800">Hijra</span>
-		</div>
-
-		<button
-			class="ml-4 rounded-full p-1 transition duration-200 hover:bg-gray-100 md:hidden"
-			onclick={() => (isMobileMenuOpen = !isMobileMenuOpen)}
-			aria-label="Toggle menu"
-			aria-expanded={isMobileMenuOpen}>
-			<Icon
-				icon={isMobileMenuOpen ? 'heroicons:x-mark-20-solid' : 'heroicons:bars-3-20-solid'}
-				class="size-8 p-1" />
-		</button>
-	</div>
+	{/if}
 </nav>
 
-{#if isMobileMenuOpen}
-	<!-- svelte-ignore a11y_click_events_have_key_events -->
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div
-		transition:fade={{ duration: 200 }}
-		class="fixed inset-0 z-40 bg-gray-900/20"
-		onclick={closeMenu}>
-	</div>
-	<div
-		transition:slide={{ duration: 300, axis: 'y' }}
-		class="fixed inset-x-0 top-28 z-50 mx-4 max-w-7xl rounded-3xl bg-white p-6 shadow-lg sm:mx-6 lg:mx-8">
-		<div class="flex flex-col space-y-4">
-			{#each links as link}
-				<a
-					href={link.href}
-					onclick={closeMenu}
-					class="py-2 text-xs font-medium text-gray-800 {adminLoggedIn && !link.adminAccess
-						? 'hidden'
-						: ''} hover:text-primary sm:text-sm">
-					{link.name}
-				</a>
-			{/each}
-			<div class="pt-2">
-				{#if isAuth}
-					{#if adminLoggedIn}
-						<a
-							href="/admin"
-							onclick={closeMenu}
-							class="block rounded-full bg-secondary px-4 py-3 text-center text-white shadow-lg">
-							Admin
-						</a>
-					{:else}
-						<a
-							href="/hijra-portal/profile"
-							onclick={closeMenu}
-							class="block rounded-full bg-secondary px-4 py-3 text-center text-white shadow-lg">
-							Profile
-						</a>
-					{/if}
-				{:else}
-					<a
-						href="/auth/"
-						onclick={closeMenu}
-						class="group flex items-center justify-center rounded-full bg-secondary px-4 py-3 text-center text-white shadow-lg">
-						Login
-						<Icon
-							icon="ph:arrow-right-bold"
-							class="ml-2 size-5 transition duration-150 group-hover:ml-4" />
-					</a>
-				{/if}
-			</div>
-		</div>
-	</div>
-{/if}
+<style>
+	.animate-fade-in {
+		animation: fadeIn 0.2s ease-out forwards;
+	}
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+</style>

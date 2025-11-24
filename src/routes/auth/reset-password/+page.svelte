@@ -89,28 +89,28 @@
 </script>
 
 <svelte:head>
-    <title>Reset Password | Hijra</title>
+    <title>Reset Password | hijrah</title>
     <meta
         name="description"
-        content="Set a new password for your Hijra account."
+        content="Set a new password for your hijrah account."
     />
-    <link rel="canonical" href="https://hijra-portal.vercel.app/auth/reset-password" />
+    <link rel="canonical" href="https://hijrah-portal.vercel.app/auth/reset-password" />
     <script type="application/ld+json">
         {
             "@context": "http://schema.org",
             "@type": "WebPage",
-            "name": "Reset Password | Hijra",
-            "url": "https://hijra-portal.vercel.app/auth/reset-password"
+            "name": "Reset Password | hijrah",
+            "url": "https://hijrah-portal.vercel.app/auth/reset-password"
         }
     </script>
 
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Reset Password | Hijra" />
+    <meta property="og:title" content="Reset Password | hijrah" />
     <meta property="og:image" content="{page.url.origin}/ogimage.png" />
     <meta property="og:url" content="{page.url.origin}/auth/reset-password" />
     <meta
         property="og:description"
-        content="Set a new password for your Hijra account."
+        content="Set a new password for your hijrah account."
     />
 </svelte:head>
 

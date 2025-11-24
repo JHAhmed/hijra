@@ -12,26 +12,31 @@
 		disabled = false,
 		loading = false,
 		href = '',
+		fullWidth = false,
 		class: className = '',
 		onclick = () => {},
 		...rest
 	} = $props();
 
 	const variants = {
-		primary:
-			'bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm hover:shadow-md',
-		secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200',
-		pill: 'border border-gray-300 bg-white  text-gray-700  hover:bg-gray-50 rounded-full',
-
+		primary: 'border border-secondary bg-secondary text-white shadow-none font-bold',
+		secondary: 'border border-gray-200 bg-white text-secondary shadow-none font-bold',
+		pill: 'border border-gray-300 bg-white text-gray-700 shadow-none',
 		ghost: 'text-gray-700 hover:bg-gray-100',
 		outline: 'border border-gray-300 text-gray-700 hover:bg-gray-50',
 		destructive: 'bg-red-600 text-white hover:bg-red-700'
 	};
 
 	const sizes = {
-		sm: 'px-3 py-1.5 text-sm gap-1.5',
-		md: 'px-4 py-2 text-base gap-2',
-		lg: 'px-6 py-3 text-lg gap-3'
+		sm: 'px-3 py-1.5 text-sm gap-1.5 h-10',
+		md: 'px-4 py-2 text-base gap-2 h-11',
+		lg: 'px-6 py-3 text-lg gap-3 h-12'
+	};
+
+	const buttonSizes = {
+		sm: 'px-4 py-2 text-sm gap-2 h-10',
+		md: 'px-10 py-3.5 text-sm gap-3 h-14', // Matches examples
+		lg: 'px-12 py-4 text-base gap-4 h-16'
 	};
 
 	const iconOnlySizes = {
@@ -40,14 +45,7 @@
 		lg: 'p-3'
 	};
 
-	const focusRings = {
-		primary: 'focus:ring-emerald-500 focus:ring-offset-emerald-50',
-		secondary: 'focus:ring-gray-500 focus:ring-offset-gray-50',
-		ghost: 'focus:ring-gray-500 focus:ring-offset-white',
-		outline: 'focus:ring-gray-500 focus:ring-offset-white',
-		destructive: 'focus:ring-red-500 focus:ring-offset-red-50'
-	};
-
+	const isLargePill = ['primary', 'secondary'].includes(variant);
 	const isIconOnly = iconPos === 'only';
 
 	function handleClick() {
@@ -63,11 +61,18 @@
 	{disabled}
 	onclick={disabled || loading ? undefined : handleClick}
 	class={cn(
-		'disabled:pointer-events-not-allowed group/button inline-flex cursor-pointer items-center justify-center rounded-lg font-medium transition-all duration-200 focus:ring-0 focus:outline-none disabled:opacity-50',
+		'group/button inline-flex items-center justify-center rounded-full font-medium focus:ring-0 focus:outline-none disabled:pointer-events-none disabled:opacity-50',
+		fullWidth && 'w-full sm:w-auto',
 		variants[variant],
-		isIconOnly ? iconOnlySizes[size] : sizes[size],
-		// focusRings[variant],
-
+		isLargePill ? buttonSizes[size] : isIconOnly ? iconOnlySizes[size] : sizes[size],
+		variant === 'primary' &&
+			'transition-all duration-200 ease-out hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_#00B77A] active:hover:shadow-[2px_2px_0px_0px_#00B77A] active:translate-x-0 active:translate-y-0 active:shadow-none',
+		variant === 'secondary' &&
+			'group transition-all duration-300 hover:-translate-x-1 hover:-translate-y-1 hover:border-secondary hover:bg-gray-50 active:hover:shadow-[2px_2px_0px_0px_#000] hover:shadow-[4px_4px_0px_0px_#000] active:translate-x-0 active:translate-y-0 active:shadow-none',
+		variant === 'pill' &&
+			'transition-all duration-200 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-sm active:translate-x-0 active:translate-y-0 active:shadow-none',
+		variant === 'outline' &&
+			'transition-all duration-200 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-sm active:translate-x-0 active:translate-y-0 active:shadow-none',
 		isIconOnly && 'aspect-square',
 		className
 	)}
@@ -95,6 +100,13 @@
 	{/if}
 
 	{#if icon && iconPos === 'right' && !loading}
-		<Icon {icon} class="h-4 w-4 transition-all duration-200 group-hover/button:ml-2" />
+		<Icon
+			{icon}
+			class={cn(
+				'h-4 w-4',
+				variant === 'primary'
+					? ''
+					: 'transition-transform duration-300 group-hover/button:translate-x-1'
+			)} />
 	{/if}
 </button>

@@ -45,7 +45,7 @@
 		<Select.Portal>
 			<Select.Content
 				{...contentProps}
-				class="mt-1 w-(--bits-select-anchor-width) min-w-(--bits-select-anchor-width) rounded-lg border border-gray-300 bg-white text-xs sm:text-sm">
+				class="mt-1 w-(--bits-select-anchor-width) min-w-(--bits-select-anchor-width) z-50 rounded-lg border border-gray-300 bg-white text-xs sm:text-sm">
 				<!-- <Select.ScrollUpButton>up</Select.ScrollUpButton> -->
 				<Select.Viewport class="space-y-1 p-1">
 					{#each items as { value, label, disabled } (value)}

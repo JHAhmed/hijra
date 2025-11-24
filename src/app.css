@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap');
+
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
@@ -9,7 +11,7 @@
 
 
 @theme {
-	--font-sans: 'Poppins', 'sans-serif';
+	--font-sans: 'Urbanist', 'sans-serif';
 	--color-primary: #00B77A;
 	--color-secondary: #1B1B1B;
 	--color-background: #EFEFEF;
@@ -34,4 +36,39 @@
 			animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
 		}
 	}
+}
+
+@utility hard-shadow-sm {
+    --tw-shadow: 2px 2px 0px var(--tw-shadow-color, #000000);
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+	transform: translate(-0.10rem, -0.10rem);
+	border-color: var(--tw-shadow-color, #000000);
+}
+
+@utility hard-shadow-md {
+    --tw-shadow: 3px 3px 0px var(--tw-shadow-color, #000000);
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+	transform: translate(-0.15rem, -0.15rem);
+	border-color: var(--tw-shadow-color, #000000);
+}
+
+@utility hard-shadow-base {
+    --tw-shadow: 4px 4px 0px var(--tw-shadow-color, #000000);
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+	transform: translate(-0.25rem, -0.25rem);
+	border-color: var(--tw-shadow-color, #000000);
+}
+
+@utility hard-shadow-lg {
+    --tw-shadow: 6px 6px 0px var(--tw-shadow-color, #000000);
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+	transform: translate(-0.375rem, -0.375rem);
+	border-color: var(--tw-shadow-color, #000000);
+}
+
+@utility hard-shadow-xl {
+    --tw-shadow: 8px 8px 0px var(--tw-shadow-color, #000000);
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+	transform: translate(-0.5rem, -0.5rem);
+	border-color: var(--tw-shadow-color, #000000);
 }

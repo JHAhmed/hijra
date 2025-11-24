@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "hijra",
+      "name": "hijrah",
       "dependencies": {
         "@internationalized/date": "^3.9.0",
         "appwrite": "^19.0.0",

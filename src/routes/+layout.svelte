@@ -6,27 +6,27 @@
 	import { auth } from '$lib/auth.svelte';
 	import { fade } from 'svelte/transition';
 	import { toast, Toaster } from 'svelte-sonner';
-	import { Footer, Navbar, WhatsAppIcon } from '$shared';
+	import { Footer, Navbar, WhatsAppIcon, CTA } from '$shared';
 
 	let { children, data } = $props();
 </script>
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
-	<title>Hijra Portal - Hajj & Umrah Portal</title>
+	<title>hijrah Portal - Hajj & Umrah Portal</title>
 	<meta
 		name="description"
-		content="Hijra Portal is your trusted partner for Hajj and Umrah services. We provide expert guidance and support for your spiritual journey." />
-	<meta property="og:title" content="Hijra Portal - Hajj & Umrah Portal" />
+		content="hijrah Portal is your trusted partner for Hajj and Umrah services. We provide expert guidance and support for your spiritual journey." />
+	<meta property="og:title" content="hijrah Portal - Hajj & Umrah Portal" />
 	<meta property="og:type" content="website" />
 	<meta property="og:image" content="{page.url.origin}/ogimage.png" />
 	<meta property="og:url" content="{page.url.origin}/" />
 	<meta
 		property="og:description"
-		content="Hijra Portal is your trusted partner for Hajj and Umrah services. We provide expert guidance and support for your spiritual journey." />
+		content="hijrah Portal is your trusted partner for Hajj and Umrah services. We provide expert guidance and support for your spiritual journey." />
 </svelte:head>
 
-{#if !auth.isLoading}
+<!-- {#if !auth.isLoading} -->
 	<div transition:fade>
 		<div
 			class="mt-8 mb-4 {page.url.pathname.startsWith('/auth') || page.url.pathname.startsWith('/admin')
@@ -43,6 +43,7 @@
 			class={page.url.pathname.startsWith('/auth') || page.url.pathname.startsWith('/admin')
 				? 'hidden'
 				: ''}>
+			<CTA />
 			<Footer />
 		</div>
 		
@@ -53,4 +54,4 @@
 			<WhatsAppIcon />
 		</div>
 	</div>
-{/if}
+<!-- {/if} -->

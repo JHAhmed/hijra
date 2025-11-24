@@ -1,16 +1,7 @@
-# Allow all friendly search engines
 User-agent: *
 Allow: /
 
-# Disallow admin areas or other private sections
 Disallow: /admin
 Disallow: /api/*
 
-# Optional: Conserve crawl budget by disallowing build assets
-# This is an advanced tip and may not be necessary for all sites
-Disallow: /_app/
-Disallow: /*.js$
-Disallow: /*.json$
-
-# Location of your sitemap
-Sitemap: https://hijra-portal.vercel.app/sitemap.xml
+Sitemap: https://hijrah-portal.vercel.app/sitemap.xml

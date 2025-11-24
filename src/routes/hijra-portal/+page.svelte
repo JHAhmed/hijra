@@ -12,7 +12,7 @@
 		{
 			text: 'Our Packages',
 			description: 'Browse and select your preferred Hajj or Umrah package.',
-			url: '/hijra-portal/packages',
+			url: '/hijrah-portal/packages',
 			icon: 'ph:package',
 			visible: true,
 			image:
@@ -21,7 +21,7 @@
 		{
 			text: 'Application Form',
 			description: 'Fill out and submit your application form.',
-			url: '/hijra-portal/application',
+			url: '/hijrah-portal/application',
 			icon: 'ph:users-four',
 			visible: true,
 			image:
@@ -30,7 +30,7 @@
 		{
 			text: 'Document Upload',
 			description: 'Upload and manage your necessary documents.',
-			url: '/hijra-portal/document-upload',
+			url: '/hijrah-portal/document-upload',
 			icon: 'ph:files',
 			visible: true,
 			image:
@@ -39,7 +39,7 @@
 		{
 			text: 'Payment',
 			description: 'View payment details and upload payment receipts.',
-			url: '/hijra-portal/payment',
+			url: '/hijrah-portal/payment',
 			icon: 'ph:credit-card',
 			visible: false,
 			image:
@@ -48,7 +48,7 @@
 		{
 			text: 'Journey Dates & Departure',
 			description: 'Check your travel dates and departure information.',
-			url: '/hijra-portal/journey-details',
+			url: '/hijrah-portal/journey-details',
 			icon: 'ph:calendar-check',
 			visible: false,
 			image:
@@ -57,7 +57,7 @@
 		{
 			text: 'Pilgrim Tracking',
 			description: 'Track your pilgrimage journey in real-time.',
-			url: '/hijra-portal/pilgrim-tracking',
+			url: '/hijrah-portal/pilgrim-tracking',
 			icon: 'ph:clipboard-text',
 			visible: false,
 			image:

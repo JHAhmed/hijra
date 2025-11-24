@@ -37,7 +37,7 @@
 						<div class="mt-auto flex flex-col space-y-4">
 							<div class="w-full">
 								<Button
-									href="/hijra-portal"
+									href="/hijrah-portal"
 									text="Apply Now"
 									moveText={true}
 									icon="ph:arrow-right-bold" />

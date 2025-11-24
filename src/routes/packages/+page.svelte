@@ -1,147 +1,119 @@
 <script>
-    import { gsap } from 'gsap';
-    import { onMount } from 'svelte';
-    import { SplitText } from 'gsap/SplitText';
-    import Icon from '@iconify/svelte';
-    import { Accordion } from 'bits-ui';
-    import { slide } from 'svelte/transition';
-    import Package from '$components/Package.svelte';
-	import { page } from '$app/state';
-	import Dropdown from '$components/ui/Dropdown.svelte';
+	import { Accordion } from 'bits-ui';
+	import { onMount } from 'svelte';
+	import Dropdown from '$components/ui/Dropdown.svelte'; // Assuming this path
+	import Package from '$components/Package.svelte'; // Assuming this path
 
-    gsap.registerPlugin(SplitText);
+	// Mock data for display purposes (replace with your actual data loader)
+	let packageTypes = [
+		{ value: 'all', label: 'All Journeys' },
+		{ value: 'hajj', label: 'Hajj Packages' },
+		{ value: 'umrah', label: 'Umrah Packages' },
+		{ value: 'tourism', label: 'Halal Tourism' }
+	];
 
-    let { data } = $props();
-    let title = $state(null);
-    let selectedPackage = $state('all');
-    let uniqueTypes = $state([]);
+	let selectedPackage = 'all';
+	
+	// Assuming you pass data via data prop or load it here
+	export let data; 
+	// Fallback if data isn't loaded for this example
+	let packages = data?.packages || [
+		{ name: 'Premium Hajj Shifting', type: 'hajj', price: 850000, description: 'A complete spiritual immersion with shifting accommodation close to Haram.', image: { url: 'https://images.unsplash.com/photo-1565552645632-d725f8bfc19a?q=80&w=1000' } },
+		{ name: 'Economy Umrah Saver', type: 'umrah', price: 95000, description: 'Affordable spiritual journey focusing on the essentials.', image: { url: 'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?q=80&w=800' } }
+	];
 
-    let packageTypes = $state([
-        { value: 'all', label: 'All Types' },
-        { value: 'hajj', label: 'Hajj' },
-        { value: 'umrah', label: 'Umrah' },
-    ]);
-
-    // $effect(() => {
-    //     if (data.universities) {
-    //         uniqueTypes = [...new Set(data.universities.map(u => u.country))].sort();
-    //     }
-    // });
-
-    // let uniqueTypes = $state([]);
-
-    // let filteredPackages = $state([]);
-    let filteredPackages = $derived(
-        selectedPackage === 'all' 
-            ? data.packages 
-            : data.packages.filter(u => u.type === selectedPackage)
-    );
-
-    onMount(() => {
-        console.log('Packages Data:', data);
-
-        if (!title) return;
-        const split = new SplitText(title, { type: 'words' });
-
-        gsap.from(split.words, {
-            y: 10,
-            opacity: 0,
-            duration: 1.0,
-            delay: 0.5,
-            ease: 'power2.out',
-            stagger: 0.15
-        });
-    });
+	$: filteredPackages = selectedPackage === 'all' 
+		? packages 
+		: packages.filter(p => p.type === selectedPackage);
 </script>
 
-<svelte:head>
-	<title>Our Packages | Hijra</title>
-	<meta
-		name="description"
-		content="Discover the world-class institutions we partner with to provide accessible and high-quality medical education."
-	/>
-	<link rel="canonical" href="https://hijra-portal.vercel.app/packages" />
-	<script type="application/ld+json">
-		{
-			"@context": "http://schema.org",
-			"@type": "WebPage",
-			"name": "Our Packages | Hijra",
-			"url": "https://hijra-portal.vercel.app/packages"
+<div class="relative min-h-screen w-full bg-white text-secondary selection:bg-primary selection:text-white">
+	
+	<section class="relative z-10 mx-auto flex w-full max-w-8xl flex-col items-center justify-center px-6 py-12 md:py-16 text-center">
+		<div class="animate-fade-in-up mb-8 inline-flex translate-y-4 items-center gap-3 rounded-full border border-gray-200 bg-white px-5 py-2.5 opacity-0">
+			<div class="flex items-center gap-2">
+				<div class="h-1.5 w-1.5 rounded-full bg-primary"></div>
+				<span class="text-sm font-bold tracking-widest text-secondary uppercase">2026</span>
+			</div>
+			<span class="h-3.5 w-px bg-gray-200"></span>
+			<span class="text-sm font-medium text-gray-500">Bookings Open</span>
+		</div>
+
+		<h1 class="animate-fade-in-up mb-8 translate-y-4 text-5xl leading-tight text-secondary opacity-0 delay-100 md:text-7xl lg:text-8xl">
+			<span class="block font-normal tracking-tight">Curated</span>
+			<span class="-mt-2 block font-light tracking-tighter text-primary md:-mt-4">
+				Spiritual Paths.
+			</span>
+		</h1>
+
+		<p class="animate-fade-in-up mx-auto mb-12 max-w-2xl translate-y-4 text-lg leading-relaxed font-normal text-gray-500 opacity-0 delay-200 md:text-xl">
+			Whether you seek the profound obligation of Hajj or the serene devotion of Umrah, 
+			our packages are designed to provide comfort, proximity, and peace of mind.
+		</p>
+
+		<div class="animate-fade-in-up w-full max-w-sm translate-y-4 opacity-0 delay-300">
+			<Dropdown
+				label="Filter by Journey"
+				name="package-type"
+				items={packageTypes}
+				bind:value={selectedPackage}
+				class="w-full bg-white shadow-primary/10" 
+			/>
+			<p class="mt-4 text-xs font-medium tracking-wide text-gray-400 uppercase">
+				Showing {filteredPackages.length} {filteredPackages.length === 1 ? 'Package' : 'Packages'}
+			</p>
+		</div>
+	</section>
+
+	<section class="relative z-10 w-full border-t border-gray-100 bg-white/50 px-6 py-20 backdrop-blur-sm md:px-12">
+		<div class="mx-auto max-w-5xl">
+			<Accordion.Root
+				type="multiple"
+				class="flex flex-col gap-6 md:gap-8">
+				{#each filteredPackages as travelPackage}
+					<Package {travelPackage} />
+				{/each}
+				
+				{#if filteredPackages.length === 0}
+					<div class="py-20 text-center">
+						<p class="text-xl text-gray-400">No packages found for this category.</p>
+					</div>
+				{/if}
+			</Accordion.Root>
+		</div>
+	</section>
+
+	<section class="border-t border-gray-100 bg-white py-24 text-center">
+		<div class="mx-auto max-w-4xl px-6">
+			<p class="mb-4 text-sm font-bold tracking-[0.2em] text-primary uppercase">Custom Requests</p>
+			<h2 class="text-3xl font-medium tracking-tight text-secondary md:text-5xl">
+				Need a tailored itinerary?
+			</h2>
+			<p class="mx-auto mt-6 max-w-xl text-gray-500">
+				We understand that every family has unique needs. Contact our experts to build a custom package.
+			</p>
+		</div>
+	</section>
+</div>
+
+<style>
+	/* Reusing the animation logic from your Landing Page */
+	.animate-fade-in-up {
+		animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+	}
+
+	.delay-100 { animation-delay: 0.1s; }
+	.delay-200 { animation-delay: 0.2s; }
+	.delay-300 { animation-delay: 0.3s; }
+
+	@keyframes fadeInUp {
+		from {
+			opacity: 0;
+			transform: translateY(30px);
 		}
-	</script>
-
-	<meta property="og:type" content="website" />
-	<meta property="og:title" content="Our Packages | Hijra" />
-	<meta property="og:image" content="{page.url.origin}/ogimage.png" />
-	<meta property="og:url" content="{page.url.origin}/" />
-	<meta
-		property="og:description"
-		content="Discover the world-class institutions we partner with to provide accessible and high-quality medical education."
-	/>
-</svelte:head>
-
-<section class="bg-white px-8 py-16 text-center">
-    <div class="mx-auto max-w-5xl">
-        <p class="mb-4 text-sm tracking-widest text-gray-600 uppercase">Explore</p>
-        <h1 bind:this={title} class="text-5xl font-medium tracking-tighter text-black lg:text-7xl">
-            Our Packages
-        </h1>
-        <p class="mx-auto mt-8 max-w-3xl text-lg font-normal tracking-[-0.015em] text-gray-700">
-            Choose from a variety of thoughtfully curated travel packages designed to provide enriching spiritual journeys. Whether you're seeking the profound experience of Hajj or the serene devotion of Umrah, our packages cater to all your needs with comfort and convenience.
-        </p>
-        
-        <!-- Country Filter Dropdown -->
-        <div class="mt-8 flex justify-center space-x-4">
-            <div class="w-64">
-                <Dropdown
-                    label="Select Package Type"
-                    name="package-type"
-                    items={packageTypes}
-                    bind:value={selectedPackage}
-                />
-            </div>
-            <!-- <div class="w-64">
-                <Dropdown
-                    label="Select Package Type"
-                    name="package-type"
-                    items={packageTypes}
-                    bind:value={selectedPackage}
-                    />
-            </div> -->
-        </div>
-        
-        <!-- Results Count -->
-        <p class="mt-4 text-sm text-gray-600">
-            Showing {filteredPackages.length} {filteredPackages.length === 1 ? 'package' : 'packages'}
-        </p>
-
-        <!-- <div class="p-6 border-dashed border rounded-xl border-gray-400 mt-6 w-fit mx-auto">
-            <p class="text-xs md:text-sm text-gray-600">
-                <span class="font-semibold">Note:</span> Kindly check the details of each package before making a selection.
-            </p>
-        </div> -->
-    </div>
-</section>
-
-<section class="border border-gray-300 bg-gray-50 px-8 py-20">
-    <div class="mx-auto max-w-7xl">
-        <div class="">
-            <Accordion.Root
-                type="multiple"
-                class="grid grid-cols-1 gap-6 space-y-6 md:grid-cols-1 md:gap-12 lg:grid-cols-1 lg:gap-16">
-                {#each filteredPackages as travelPackage}
-                    <Package {travelPackage} />
-                {/each}
-            </Accordion.Root>
-        </div>
-    </div>
-</section>
-
-<section class="bg-white px-8 py-20 text-center">
-    <div class="mx-auto max-w-4xl">
-        <p class="mb-4 text-sm tracking-widest text-gray-600 uppercase">Our Commitment</p>
-        <h2 class="text-4xl font-medium tracking-tighter text-black lg:text-5xl">
-            Your Spiritual Journey Begins Here
-        </h2>
-    </div>
-</section>
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+</style>

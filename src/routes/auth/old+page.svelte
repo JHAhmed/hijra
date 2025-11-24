@@ -101,28 +101,28 @@
 </script>
 
 <svelte:head>
-	<title>Login | Hijra</title>
+	<title>Login | hijrah</title>
 	<meta
 		name="description"
-		content="Login to your account at Hijra to access personalized support for your medical education journey."
+		content="Login to your account at hijrah to access personalized support for your medical education journey."
 	/>
-	<link rel="canonical" href="https://hijra-portal.vercel.app/auth" />
+	<link rel="canonical" href="https://hijrah-portal.vercel.app/auth" />
 	<script type="application/ld+json">
 		{
 			"@context": "http://schema.org",
 			"@type": "WebPage",
-			"name": "Login | Hijra",
-			"url": "https://hijra-portal.vercel.app/auth"
+			"name": "Login | hijrah",
+			"url": "https://hijrah-portal.vercel.app/auth"
 		}
 	</script>
 
 	<meta property="og:type" content="website" />
-	<meta property="og:title" content="Login | Hijra" />
+	<meta property="og:title" content="Login | hijrah" />
 	<meta property="og:image" content="{page.url.origin}/ogimage.png" />
 	<meta property="og:url" content="{page.url.origin}/auth" />
 	<meta
 		property="og:description"
-		content="Login to your account at Hijra to access personalized support for your medical education journey."
+		content="Login to your account at hijrah to access personalized support for your medical education journey."
 	/>
 </svelte:head>
 
@@ -146,7 +146,7 @@
 						{#if auth.isAdmin}
 						<a href="/admin" class="text-primary hover:underline">Admin Dashboard</a>
 						{:else}
-							<a href="/hijra-portal" class="text-primary hover:underline">Hijra Portal</a>
+							<a href="/hijrah-portal" class="text-primary hover:underline">hijrah Portal</a>
 						{/if}
 					or
 					<button onclick={() => auth.logout()} class="cursor-pointer text-primary hover:underline"
