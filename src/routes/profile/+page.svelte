@@ -3,6 +3,7 @@
 	import Icon from '@iconify/svelte';
 	import Button from '$components/ui/Button.svelte';
 	import { authStore } from '$lib/auth.svelte';
+	import { enhance } from '$app/forms';
 
 	// Helper to format dates
 	const formatDate = (dateString) => {
@@ -66,11 +67,13 @@
 					</h1>
 				</div>
 
-				<Button
-					onclick={handleLogout}
-					variant="secondary"
-					text="Sign Out"
-					class="border-red-100 text-red-600 shadow-red-500 hover:border-red-200 hover:bg-red-50" />
+				<form method="POST" action="?/logout" use:enhance>
+					<Button
+						type="submit"
+						variant="secondary"
+						text="Sign Out"
+						class="border-red-100 text-red-600 shadow-red-500 hover:border-red-200 hover:bg-red-50" />
+				</form>
 			</div>
 
 			<div class="grid grid-cols-1 gap-8 lg:grid-cols-3">

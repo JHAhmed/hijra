@@ -5,6 +5,7 @@
 	import { onMount } from 'svelte';
 	import Icon from '@iconify/svelte';
 	import favicon from '$lib/assets/favicon.svg';
+	import { enhance } from '$app/forms';
 
 	let { children } = $props();
 
@@ -138,8 +139,11 @@
 			</a>
 		{/each}
 
+		<form method="POST" action="?/logout" use:enhance>
+			<!-- <Button type="submit" text="Sign out" class="w-full" /> -->
+
 		<button
-			onclick={handleLogout}
+			type="submit"
 			class="group relative flex h-12 w-full cursor-pointer items-center overflow-hidden rounded-xl transition-colors duration-200 hover:bg-red-50">
 			<div class="flex min-w-64 items-center">
 				<div class="flex w-14 shrink-0 items-center justify-center">
@@ -154,6 +158,9 @@
 				</span>
 			</div>
 		</button>
+
+		</form>
+
 
 		{#if !isMobile}
 			<div class="mt-2 border-t border-gray-50 pt-2">

@@ -16,7 +16,9 @@
 	// });
 
 	$effect(() => {
-		authStore.init();
+		authStore.initFromServer(data.user);
+
+		// authStore.init();
 	});
 </script>
 
@@ -46,7 +48,7 @@
 	</div>
 
 	{#key data.url}
-		<div class="mt-4 md:mt-8">{@render children?.()}</div>
+		<div class="">{@render children?.()}</div>
 	{/key}
 
 	<div

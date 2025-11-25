@@ -87,3 +87,9 @@ async function ensureDatabaseEntries(appwriteUser) {
 //         url: url.pathname
 //     };
 // }
+
+export async function load({ locals }) {
+    return {
+        user: locals.user
+    };
+}

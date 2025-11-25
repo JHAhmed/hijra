@@ -1,86 +1,41 @@
 <script>
-	import favicon from '$lib/assets/favicon.svg';
-	import { z } from 'zod';
+    import { enhance } from '$app/forms';
+    import { authStore } from '$lib/auth.svelte';
+    import Icon from '@iconify/svelte';
+    import Button from '$components/ui/Button.svelte';
+    import Input from '$components/ui/Input.svelte';
+    import favicon from '$lib/assets/favicon.svg';
+    import makkahSkyline from '$lib/assets/images/makkah-skyline.jpg';
 	import { page } from '$app/state';
-	import { fade, fly, slide } from 'svelte/transition';
-	import { goto, invalidateAll } from '$app/navigation';
-	import { toast, Toaster } from 'svelte-sonner';
-	import Icon from '@iconify/svelte';
-	import Input from '$components/ui/Input.svelte';
+	import { Toaster } from 'svelte-sonner';
+	import { goto } from '$app/navigation';
 
-	import makkahSkyline from '$lib/assets/images/makkah-skyline.jpg';
-	import Button from '$components/ui/Button.svelte';
-	import { text } from '@sveltejs/kit';
-	import { authStore } from '$lib/auth.svelte';
+    let { form } = $props();
+    let errors = form?.errors || {};
+    let authType = $state('login');
+    let loading = $state(false);
+    
+    let data = $state({
+        name: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
+    });
 
-	// Animation constants
-	const TRANSITION_y = 20;
-	const TRANSITION_DURATION = 400;
+    function toggleAuthType() {
+        authType = authType === 'login' ? 'register' : 'login';
+    }
 
-	let authType = $state('login');
-	let errors = $state({});
-	let loading = $state(false);
-
-	let data = $state({
-		email: '',
-		password: ''
-	});
-
-	const detailsSchema = z.object({
-		name: z.string().min(2, 'Name must be at least 2 characters long').optional(),
-		email: z.string().email('Please enter a valid email'),
-		password: z.string().min(6, 'Password must be at least 6 characters long')
-	});
-
-	function toggleAuthType() {
-		errors = {};
-		authType = authType === 'login' ? 'register' : 'login';
-	}
-
-	async function handleSubmit(e) {
-		e.preventDefault();
-		loading = true;
-		errors = {};
-		const result = detailsSchema.safeParse(data);
-
-		if (!result.success) {
-			result.error.issues.forEach((issue) => {
-				errors[issue.path[0]] = issue.message;
-			});
-			console.log(errors);
-			toast.error('Please fix the errors before proceeding.');
-			loading = false;
-			return;
-		}
-
-		if (authType === 'register') {
-			const confirmPassword = e.target.confirmPassword.value;
-			if (data.password !== confirmPassword) {
-				errors.password = 'Passwords do not match';
-				toast.error('Passwords do not match');
-				loading = false;
-				return;
+    function handleEnhance() {
+        loading = true;
+        return async ({ update }) => {
+            await update();
+            loading = false;
+			if (authStore.isAuthenticated) {
+				goto('/');
 			}
-		}
-
-		try {
-			if (authType === 'login') {
-				// await auth.login(data.email, data.password);
-				await authStore.login(data.email, data.password);
-			} else {
-				// await auth.register(data.email, data.password, data.name);
-				await authStore.register(data.email, data.password, data.name);
-			}
-
-			toast.success(`Successfully ${authType === 'login' ? 'logged in' : 'registered'}!`);
-			await invalidateAll();
-			await goto('/');
-		} catch (error) {
-			console.error('Authentication failed:', error);
-			toast.error(error.message || 'An unknown error occurred.');
-			loading = false;
-		}
-	}
+        };
+    }
 </script>
 
 <svelte:head>
@@ -111,33 +66,84 @@
 
 <div
 	class="flex min-h-screen w-full bg-white text-secondary selection:bg-primary selection:text-white">
-	<div class="relative flex w-full flex-col justify-center px-6 py-12 lg:w-1/2 lg:px-20 xl:px-24">
-		<div class="relative z-10 mx-auto w-full max-w-md">
-			<a href="/" class="group/logo my-8 inline-flex items-center gap-3">
-				<img
-					src={favicon}
-					alt="Hijrah Portal Logo"
-					class="h-8 w-8 object-contain transition-transform duration-300 md:h-10 md:w-10" />
-				<span class="text-3xl font-bold tracking-tighter text-black md:text-4xl">
-					Hijrah<span class="text-primary">.</span>
-				</span>
-			</a>
+	{#if authStore.isLoading}
+		<!-- Loading state - prevents flash -->
+		<div class="flex w-full items-center justify-center">
+			<div class="text-center">
+				<div
+					class="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-primary">
+				</div>
+				<p class="text-sm text-gray-500">Loading...</p>
+			</div>
+		</div>
+	{:else if authStore.isAuthenticated}
+		<!-- Already logged in view -->
+		<div class="relative flex w-full flex-col justify-center px-6 py-12 lg:w-1/2 lg:px-20 xl:px-24">
+            <div class="relative z-10 mx-auto w-full max-w-md">
+                <a href="/" class="group/logo my-8 inline-flex items-center gap-3">
+                    <img src={favicon} alt="Hijrah Portal Logo" class="h-8 w-8 object-contain transition-transform duration-300 md:h-10 md:w-10" />
+                    <span class="text-3xl font-bold tracking-tighter text-black md:text-4xl">
+                        Hijrah<span class="text-primary">.</span>
+                    </span>
+                </a>
 
-			{#if authStore.isAuthenticated}
-				<div class="text-center">
-					<div
-						class="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-green-50 text-green-600">
-						<Icon icon="heroicons:check-circle-solid" class="h-10 w-10" />
-					</div>
-					<h2 class="text-3xl font-medium tracking-tight text-secondary">Welcome Back!</h2>
-					<p class="mt-4 text-gray-500">You are currently signed in.</p>
+                <div class="text-center">
+                    <div class="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-green-50 text-green-600">
+                        <Icon icon="heroicons:check-circle-solid" class="h-10 w-10" />
+                    </div>
+                    <h2 class="text-3xl font-medium tracking-tight text-secondary">Welcome Back!</h2>
+                    <p class="mt-4 text-gray-500">You are currently signed in.</p>
 
-					<div class="mt-8 flex flex-col gap-3">
-						<Button onclick={() => authStore.logout()} text="Sign out" />
-						<Button variant="secondary" href="/hijrah-portal" text="Go to Portal" />
+                    <div class="mt-8 flex flex-col gap-3">
+                        <form method="POST" action="?/logout" use:enhance>
+                            <Button type="submit" text="Sign out" class="w-full" />
+                        </form>
+                        <Button variant="secondary" href="/hijrah-portal" text="Go to Portal" />
+                    </div>
+                </div>
+            </div>
+
+			<div class="absolute bottom-6 left-0 w-full text-center">
+				<p class="text-xs text-gray-300">© 2025 Hijrah. All rights reserved.</p>
+			</div>
+		</div>
+
+		<div class="relative hidden w-1/2 bg-gray-100 lg:block">
+			<img src={makkahSkyline} alt="The Holy Kaaba" class="h-full w-full object-cover" />
+
+			<div class="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent"></div>
+
+			<div class="absolute right-12 bottom-20 left-12 max-w-xl">
+				<div class="mb-6 text-primary">
+					<Icon icon="ph:quotes-fill" class="h-12 w-12" />
+				</div>
+				<blockquote class="text-3xl leading-tight font-medium tracking-tight text-white">
+					"The guidance I received here made my Umrah not just a trip, but a spiritual
+					transformation."
+				</blockquote>
+				<div class="mt-8 flex items-center gap-4">
+					<div class="h-px w-12 bg-white/30"></div>
+					<div class="flex flex-col">
+						<span class="text-sm font-bold text-white">Ahmed Al-Farsi</span>
+						<span class="text-xs text-white/60">Umrah Package 2024</span>
 					</div>
 				</div>
-			{:else}
+			</div>
+		</div>
+	{:else}
+		<!-- Login/Register form -->
+		<div class="relative flex w-full flex-col justify-center px-6 py-12 lg:w-1/2 lg:px-20 xl:px-24">
+			<div class="relative z-10 mx-auto w-full max-w-md">
+				<a href="/" class="group/logo my-8 inline-flex items-center gap-3">
+					<img
+						src={favicon}
+						alt="Hijrah Portal Logo"
+						class="h-8 w-8 object-contain transition-transform duration-300 md:h-10 md:w-10" />
+					<span class="text-3xl font-bold tracking-tighter text-black md:text-4xl">
+						Hijrah<span class="text-primary">.</span>
+					</span>
+				</a>
+
 				<div>
 					<div class="mb-10">
 						<span class="mb-3 block text-xs font-bold tracking-widest text-primary uppercase">
@@ -153,7 +159,11 @@
 						</p>
 					</div>
 
-					<form onsubmit={handleSubmit} class="flex flex-col gap-5">
+					<form 
+                        method="POST" 
+                        action="?/{authType}" 
+                        use:enhance={handleEnhance}
+                        class="flex flex-col gap-5">
 						{#if authType === 'register'}
 							<div>
 								<Input
@@ -213,7 +223,7 @@
 								disabled={loading}
 								variant="primary"
 								text={authType === 'login' ? 'Sign In' : 'Create Account'}
-								class="w-full px-4 py-4 text-sm font-bold text-white  capitalize " />
+								class="w-full px-4 py-4 text-sm font-bold text-white capitalize" />
 						</div>
 
 						<div class="flex items-center justify-between text-sm">
@@ -233,36 +243,36 @@
 						</div>
 					</form>
 				</div>
-			{/if}
-		</div>
-
-		<div class="absolute bottom-6 left-0 w-full text-center">
-			<p class="text-xs text-gray-300">© 2025 Hijrah. All rights reserved.</p>
-		</div>
-	</div>
-
-	<div class="relative hidden w-1/2 bg-gray-100 lg:block">
-		<img src={makkahSkyline} alt="The Holy Kaaba" class="h-full w-full object-cover" />
-
-		<div class="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent"></div>
-
-		<div class="absolute right-12 bottom-20 left-12 max-w-xl">
-			<div class="mb-6 text-primary">
-				<Icon icon="ph:quotes-fill" class="h-12 w-12" />
 			</div>
-			<blockquote class="text-3xl leading-tight font-medium tracking-tight text-white">
-				"The guidance I received here made my Umrah not just a trip, but a spiritual
-				transformation."
-			</blockquote>
-			<div class="mt-8 flex items-center gap-4">
-				<div class="h-px w-12 bg-white/30"></div>
-				<div class="flex flex-col">
-					<span class="text-sm font-bold text-white">Ahmed Al-Farsi</span>
-					<span class="text-xs text-white/60">Umrah Package 2024</span>
+
+			<div class="absolute bottom-6 left-0 w-full text-center">
+				<p class="text-xs text-gray-300">© 2025 Hijrah. All rights reserved.</p>
+			</div>
+		</div>
+
+		<div class="relative hidden w-1/2 bg-gray-100 lg:block">
+			<img src={makkahSkyline} alt="The Holy Kaaba" class="h-full w-full object-cover" />
+
+			<div class="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent"></div>
+
+			<div class="absolute right-12 bottom-20 left-12 max-w-xl">
+				<div class="mb-6 text-primary">
+					<Icon icon="ph:quotes-fill" class="h-12 w-12" />
+				</div>
+				<blockquote class="text-3xl leading-tight font-medium tracking-tight text-white">
+					"The guidance I received here made my Umrah not just a trip, but a spiritual
+					transformation."
+				</blockquote>
+				<div class="mt-8 flex items-center gap-4">
+					<div class="h-px w-12 bg-white/30"></div>
+					<div class="flex flex-col">
+						<span class="text-sm font-bold text-white">Ahmed Al-Farsi</span>
+						<span class="text-xs text-white/60">Umrah Package 2024</span>
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
+	{/if}
 </div>
 
 <style>

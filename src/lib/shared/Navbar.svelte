@@ -53,8 +53,16 @@
 			{/each}
 		</div>
 
-		{#if !authStore.isLoading}
-			<div transition:blur class="relative z-50 flex shrink-0 items-center gap-6">
+		<div class="relative z-50 flex shrink-0 items-center gap-6">
+			{#if authStore.isLoading}
+				<Button
+					href="/auth"
+					text="Log In"
+					variant="secondary"
+					size="md"
+					class="hidden sm:inline-block" />
+			{/if}
+			{#if !authStore.isLoading}
 				{#if !authStore.isAuthenticated}
 					<Button
 						href="/auth"
@@ -62,7 +70,6 @@
 						variant="secondary"
 						size="md"
 						class="hidden sm:inline-block" />
-
 					<Button
 						href="/contact"
 						text="Get Started"
@@ -109,8 +116,8 @@
 							? '-translate-y-2 -rotate-45'
 							: ''}"></span>
 				</button>
-			</div>
-		{/if}
+			{/if}
+		</div>
 	</div>
 
 	{#if isMobileMenuOpen}
