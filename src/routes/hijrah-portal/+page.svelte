@@ -1,12 +1,12 @@
 <script>
 	import { auth } from '$lib/auth.svelte';
 
-    import Card from '$components/portal/Card.svelte';
+	import Card from '$components/portal/Card.svelte';
 	import Icon from '@iconify/svelte';
 	import Timeline from '$components/portal/Timeline.svelte';
 	import Progress from '$components/portal/Progress.svelte';
 
-    let isLoading = $state(false);
+	let isLoading = $state(false);
 
 	const cards = $state([
 		{
@@ -67,33 +67,52 @@
 
 	// const steps = [{}];
 
-const steps = $derived(cards.map((card, i) => ({
-		text: card.text,
-		completed: i < cards.findIndex(c => c.visible) // Adjust: completed before current visible
-	})));
-
+	const steps = $derived(
+		cards.map((card, i) => ({
+			text: card.text,
+			completed: i < cards.findIndex((c) => c.visible) // Adjust: completed before current visible
+		}))
+	);
 </script>
 
-<section>
+<section class="min-h-screen bg-white text-secondary">
 	{#if auth?.user}
-		<div class="mx-4 mb-4 rounded-2xl bg-gray-50 p-4 sm:p-6">
-			<div class="flex flex-col items-center justify-center space-y-2 text-center sm:text-left">
+		<div class="mx-auto max-w-8xl px-6 pt-12 md:px-12 md:pt-16">
+			<div class="my-4 md:my-8">
+				<span class="mb-4 block text-xs font-bold tracking-widest text-primary uppercase">
+					Hijrah Portal
+				</span>
 				{#if auth?.user?.name}
-					<p class="px-4 text-lg font-medium md:text-xl">{auth?.user?.name}</p>
-					<p class="px-4 text-sm text-gray-600 md:text-base">{auth?.user?.email}</p>
+					<h1 class="text-4xl font-medium tracking-tighter text-secondary md:text-5xl">
+						Welcome back, <br />
+						<span class="text-primary">{auth.user.name}.</span>
+					</h1>
+					<p class="mt-4 w-fit rounded-full bg-gray-100 px-4 py-1 text-sm text-gray-500">
+						{auth.user.email}
+					</p>
 				{:else}
-					<p class="text-gray-600">Loading details...</p>
+					<p class="text-lg text-gray-500">Loading your details...</p>
 				{/if}
 			</div>
 		</div>
 	{/if}
 
-	<!-- <Progress /> -->
 	<Timeline {cards} />
 
-	<div class="mx-auto grid max-w-7xl grid-cols-1 gap-6 p-4 md:grid-cols-2 xl:grid-cols-3">
-		{#each cards as card (card.url)}
-			<Card {card} />
-		{/each}
+	<div class="mx-auto max-w-8xl px-6 pb-12 md:px-12 md:pb-16">
+		<div class="mb-10">
+			<h2 class="text-3xl font-semibold tracking-tight text-secondary md:text-4xl">
+				Your Journey <span class="text-primary">Modules</span>
+			</h2>
+			<p class="mt-3 text-gray-500">
+				Access your personalized resources and complete each step of your sacred journey.
+			</p>
+		</div>
+
+		<div class="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
+			{#each cards as card (card.url)}
+				<Card {card} />
+			{/each}
+		</div>
 	</div>
 </section>

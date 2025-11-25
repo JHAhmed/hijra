@@ -61,14 +61,14 @@
 	{disabled}
 	onclick={disabled || loading ? undefined : handleClick}
 	class={cn(
-		'group/button inline-flex items-center justify-center rounded-full font-medium focus:ring-0 focus:outline-none disabled:pointer-events-none disabled:opacity-50',
+		'group/button inline-flex cursor-pointer items-center justify-center rounded-full font-medium focus:ring-0 focus:outline-none disabled:pointer-events-none disabled:opacity-50',
 		fullWidth && 'w-full sm:w-auto',
 		variants[variant],
 		isLargePill ? buttonSizes[size] : isIconOnly ? iconOnlySizes[size] : sizes[size],
 		variant === 'primary' &&
-			'transition-all duration-200 ease-out hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_#00B77A] active:hover:shadow-[2px_2px_0px_0px_#00B77A] active:translate-x-0 active:translate-y-0 active:shadow-none',
+			'transition-all duration-200 ease-out hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_#00B77A] active:translate-x-0 active:translate-y-0 active:shadow-none active:hover:shadow-[2px_2px_0px_0px_#00B77A]',
 		variant === 'secondary' &&
-			'group transition-all duration-300 hover:-translate-x-1 hover:-translate-y-1 hover:border-secondary hover:bg-gray-50 active:hover:shadow-[2px_2px_0px_0px_#000] hover:shadow-[4px_4px_0px_0px_#000] active:translate-x-0 active:translate-y-0 active:shadow-none',
+			'group transition-all duration-300 hover:-translate-x-1 hover:-translate-y-1 hover:border-secondary hover:bg-gray-50 hover:shadow-[4px_4px_0px_0px_#000] active:translate-x-0 active:translate-y-0 active:shadow-none active:hover:shadow-[2px_2px_0px_0px_#000]',
 		variant === 'pill' &&
 			'transition-all duration-200 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-sm active:translate-x-0 active:translate-y-0 active:shadow-none',
 		variant === 'outline' &&

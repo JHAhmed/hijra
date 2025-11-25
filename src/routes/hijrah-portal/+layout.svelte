@@ -4,10 +4,10 @@
 
 	import Modal from '$components/ui/Modal.svelte';
 	import { goto } from '$app/navigation';
-	
+
 	let { children } = $props();
 	let isLoading = $state(true);
-	
+
 	onMount(async () => {
 		if (!auth.isLoggedIn) {
 			goto('/auth');
@@ -20,4 +20,4 @@
 	<Modal text="Loading..." />
 {/if}
 
-{@render children?.()}
+<div class="mt-6 md:mt-16">{@render children?.()}</div>

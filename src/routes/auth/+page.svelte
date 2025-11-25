@@ -3,7 +3,7 @@
 	import { z } from 'zod';
 	import { page } from '$app/state';
 	import { auth } from '$lib/auth.svelte';
-	import { fade, fly } from 'svelte/transition';
+	import { fade, fly, slide } from 'svelte/transition';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { toast, Toaster } from 'svelte-sonner';
 	import Icon from '@iconify/svelte';
@@ -11,6 +11,7 @@
 
 	import makkahSkyline from '$lib/assets/images/makkah-skyline.jpg';
 	import Button from '$components/ui/Button.svelte';
+	import { text } from '@sveltejs/kit';
 
 	// Animation constants
 	const TRANSITION_y = 20;
@@ -21,7 +22,6 @@
 	let loading = $state(false);
 
 	let data = $state({
-		name: '',
 		email: '',
 		password: ''
 	});
@@ -47,6 +47,7 @@
 			result.error.issues.forEach((issue) => {
 				errors[issue.path[0]] = issue.message;
 			});
+			console.log(errors);
 			toast.error('Please fix the errors before proceeding.');
 			loading = false;
 			return;
@@ -121,7 +122,7 @@
 			</a>
 
 			{#if auth.isLoggedIn}
-				<div in:fade={{ duration: 300 }} class="text-center">
+				<div class="text-center">
 					<div
 						class="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-green-50 text-green-600">
 						<Icon icon="heroicons:check-circle-solid" class="h-10 w-10" />
@@ -130,20 +131,12 @@
 					<p class="mt-4 text-gray-500">You are currently signed in.</p>
 
 					<div class="mt-8 flex flex-col gap-3">
-						<a
-							href={auth.isAdmin ? '/admin' : '/dashboard'}
-							class="flex w-full items-center justify-center rounded-xl bg-primary px-4 py-3 text-sm font-bold tracking-wide text-white uppercase transition-transform hover:scale-[1.02] active:scale-[0.98]">
-							Go to Dashboard
-						</a>
-						<button
-							onclick={() => auth.logout()}
-							class="text-sm font-medium text-gray-400 hover:text-secondary">
-							Sign out
-						</button>
+						<Button onclick={() => auth.logout()} text="Sign out" />
+						<Button variant="secondary" href="/hijrah-portal" text="Go to Portal" />
 					</div>
 				</div>
 			{:else}
-				<div in:fly={{ y: TRANSITION_y, duration: TRANSITION_DURATION }}>
+				<div>
 					<div class="mb-10">
 						<span class="mb-3 block text-xs font-bold tracking-widest text-primary uppercase">
 							{authType === 'login' ? 'Welcome Back' : 'Start your Journey'}
@@ -160,7 +153,7 @@
 
 					<form onsubmit={handleSubmit} class="flex flex-col gap-5">
 						{#if authType === 'register'}
-							<div in:slide|local>
+							<div>
 								<Input
 									icon="heroicons:user"
 									error={errors.name}
@@ -198,7 +191,7 @@
 							class="bg-white" />
 
 						{#if authType === 'register'}
-							<div in:slide|local>
+							<div>
 								<Input
 									icon="heroicons:lock-closed"
 									label="Confirm Password"
@@ -206,6 +199,7 @@
 									name="confirmPassword"
 									id="confirmPassword"
 									allowView={true}
+									bind:value={data.confirmPassword}
 									placeholder="••••••••"
 									class="bg-white" />
 							</div>

@@ -3,6 +3,7 @@
 	import logo from '$lib/assets/favicon.svg';
 	import { onMount } from 'svelte';
 	import Button from '$components/ui/Button.svelte';
+	import { auth } from '$lib/auth.svelte';
 
 	let isScrolled = false;
 	let isMobileMenuOpen = false;
@@ -26,16 +27,15 @@
 </script>
 
 <nav
-	class="fixed top-0 left-0 z-50 w-full antialiased transition-all duration-200 ease-out border-b border-gray-100 bg-white h-20">
+	class="fixed top-0 left-0 z-50 h-20 w-full border-b border-gray-100 bg-white antialiased transition-all duration-200 ease-out">
 	<!-- <div
 		class="pointer-events-none absolute inset-0 h-full w-full border-b border-gray-100/0 transition-all duration-200 ease-out
     {isScrolled ? 'border-gray-100! bg-white opacity-100!' : 'opacity-0'}">
 	</div> -->
 
-	<div
-		class="relative mx-auto flex h-full max-w-8xl items-center justify-between px-6 md:px-12">
+	<div class="relative mx-auto flex h-full max-w-8xl items-center justify-between px-6 md:px-12">
 		<a href="/" class="group relative z-50 flex shrink-0 items-center gap-3 select-none">
-			<img src={logo} alt="Hijra Logo" class="h-9 w-9 object-contain" />
+			<img src={logo} alt="Hijrah Logo" class="h-9 w-9 object-contain" />
 			<span class="text-2xl font-bold tracking-tighter text-secondary">
 				Hijrah<span class="text-primary">.</span>
 			</span>
@@ -53,38 +53,35 @@
 		</div>
 
 		<div class="relative z-50 flex shrink-0 items-center gap-6">
-			<Button
-				href="/login"
-				text="Log In"
-				variant="secondary"
-				size="md"
-				class="hidden sm:inline-block" />
+			{#if !auth.isLoggedIn}
+				<Button
+					href="/auth"
+					text="Log In"
+					variant="secondary"
+					size="md"
+					class="hidden sm:inline-block" />
 
-			<!-- <a 
-        href="/login" 
-        class="hidden sm:block text-[15px] font-bold text-secondary hover:text-primary transition-colors duration-200"
-      >
-        Log in
-      </a> -->
+				<Button
+					href="/contact"
+					text="Get Started"
+					variant="primary"
+					size="md"
+					class="hidden sm:inline-block" />
+			{:else}
+				<Button
+					onclick={() => auth.logout()}
+					text="Log Out"
+					variant="secondary"
+					size="md"
+					class="hidden sm:inline-block" />
 
-			<Button
-				href="/contact"
-				text="Get Started"
-				variant="primary"
-				size="md"
-				class="hidden sm:inline-block" />
-
-			<!-- <a 
-        href="/contact" 
-        class="hidden sm:flex items-center gap-2 bg-secondary text-white px-6 py-2.5 rounded-full text-sm font-bold tracking-tight border border-secondary
-               transition-all duration-200 ease-out
-               shadow-none
-               hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[4px_4px_0px_0px_#00B77A]
-               active:translate-x-0 active:translate-y-0 active:shadow-none"
-      >
-        <span>Get Started</span>
-        <Icon icon="heroicons:arrow-right" class="w-4 h-4" />
-      </a> -->
+				<Button
+					href="/hijrah-portal"
+					text="Portal"
+					variant="primary"
+					size="md"
+					class="hidden sm:inline-block" />
+			{/if}
 
 			<button
 				on:click={toggleMobileMenu}

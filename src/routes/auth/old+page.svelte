@@ -146,7 +146,7 @@
 						{#if auth.isAdmin}
 						<a href="/admin" class="text-primary hover:underline">Admin Dashboard</a>
 						{:else}
-							<a href="/hijrah-portal" class="text-primary hover:underline">hijrah Portal</a>
+							<a href="/hijrah-portal" class="text-primary hover:underline">Hijrah Portal</a>
 						{/if}
 					or
 					<button onclick={() => auth.logout()} class="cursor-pointer text-primary hover:underline"

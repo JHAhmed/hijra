@@ -96,7 +96,7 @@
 
 		<div class="flex flex-col items-center justify-between gap-6 pt-8 md:flex-row">
 			<p class="text-center text-xs font-medium text-gray-400 md:text-left">
-				© {currentYear} hijrah Portal. All rights reserved.
+				© {currentYear} Hijrah Portal. All rights reserved.
 			</p>
 
 			<a

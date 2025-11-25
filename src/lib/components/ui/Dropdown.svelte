@@ -1,6 +1,8 @@
 <script>
 	import Icon from '@iconify/svelte';
 	import { Select } from 'bits-ui';
+	import { cn } from '$lib/utils.js';
+
 	let {
 		label,
 		name = 'Input',
@@ -13,8 +15,6 @@
 		...restProps
 	} = $props();
 
-	// const selectedLabel = $derived(items.find((item) => item.value === value)?.label);
-
 	const selectedLabel = $derived(
 		value ? items.find((item) => item.value === value)?.label : 'Select an option'
 	);
@@ -24,7 +24,9 @@
 	{#if label}
 		<label
 			for={name.toLowerCase().replace(/\s+/g, '-')}
-			class="mb-0.5 block text-xs font-medium text-gray-700 sm:text-sm">{label}</label>
+			class="mb-2 block text-sm font-medium text-secondary">
+			{label}
+		</label>
 	{/if}
 
 	<Select.Root
@@ -33,46 +35,52 @@
 		bind:value
 		{...restProps}>
 		<Select.Trigger
-			class="relative w-full rounded-lg border border-gray-300 bg-white px-4 py-3 pr-10 text-left text-xs text-gray-900 placeholder-gray-400 focus:border-gray-400 focus:ring-0 focus:outline-none sm:text-sm">
-			{selectedLabel ? selectedLabel : placeholder}
+			class={cn(
+				'relative w-full rounded-xl border border-gray-200 bg-white px-4 py-3.5 pr-10 text-left text-sm text-secondary placeholder-gray-400 transition-all duration-200',
+				'focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none',
+				'hover:border-gray-300',
+				error && 'border-red-500 focus:border-red-500 focus:ring-red-500'
+			)}>
+			<span class={!value ? 'text-gray-400' : ''}>
+				{selectedLabel ? selectedLabel : placeholder}
+			</span>
 
 			{#if icon}
 				<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-					<Icon {icon} class="h-6 w-fit text-gray-400" />
+					<Icon {icon} class="h-5 w-5 text-gray-400" />
 				</div>
 			{/if}
 		</Select.Trigger>
+
 		<Select.Portal>
 			<Select.Content
 				{...contentProps}
-				class="mt-1 w-(--bits-select-anchor-width) min-w-(--bits-select-anchor-width) z-50 rounded-lg border border-gray-300 bg-white text-xs sm:text-sm">
-				<!-- <Select.ScrollUpButton>up</Select.ScrollUpButton> -->
-				<Select.Viewport class="space-y-1 p-1">
+				class="z-50 mt-1 w-(--bits-select-anchor-width) min-w-(--bits-select-anchor-width) rounded-xl border border-gray-100 bg-white p-1 text-sm shadow-xl shadow-gray-200/50">
+				<Select.Viewport class="space-y-0.5">
 					{#each items as { value, label, disabled } (value)}
 						<Select.Item
 							{value}
 							{label}
 							{disabled}
-							class="flex w-full  items-center justify-between rounded-md p-3 text-xs hover:bg-gray-100 sm:text-sm {label ===
-							selectedLabel
-								? 'bg-gray-50'
-								: ''} {disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}">
+							class="flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2.5 text-sm transition-colors outline-none
+                            data-[highlighted]:bg-gray-50 data-[highlighted]:text-primary
+                            {disabled ? 'cursor-not-allowed opacity-50' : ''}">
 							{#snippet children({ selected })}
-								<!-- {selected ? '✅' : ''} -->
-								<!-- {selected ? '✅' : ''} -->
-								<p class="text-left text-xs sm:text-sm">{label}</p>
+								<p class="text-left font-medium {selected ? 'text-primary' : 'text-secondary'}">
+									{label}
+								</p>
 								{#if selected}
-									<Icon icon="ph:check" class="inline-block" />
+									<Icon icon="heroicons:check-16-solid" class="h-4 w-4 text-primary" />
 								{/if}
 							{/snippet}
 						</Select.Item>
 					{/each}
 				</Select.Viewport>
-				<!-- <Select.ScrollDownButton>down</Select.ScrollDownButton> -->
 			</Select.Content>
 		</Select.Portal>
 	</Select.Root>
+
 	{#if error}
-		<p class="mt-1 text-xs text-red-500 sm:text-sm">{error}</p>
+		<p class="mt-1.5 text-xs text-red-500">{error}</p>
 	{/if}
 </div>

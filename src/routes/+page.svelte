@@ -59,7 +59,7 @@
 	const testimonials = [
 		{
 			quote:
-				'“Hijra helped me get my dream college in Russia. They were really helpful in every step of the process!”',
+				'“Hijrah helped me get my dream college in Russia. They were really helpful in every step of the process!”',
 			name: 'Sathish Kumar',
 			college: 'University of Moscow'
 		},
@@ -168,7 +168,7 @@
 <div
 	class="relative flex min-h-screen w-full flex-col overflow-hidden bg-white text-secondary selection:bg-primary selection:text-white">
 	<main
-		class="relative z-10 mx-auto flex w-full max-w-8xl flex-1 flex-col items-center justify-center px-6 py-12 md:py-16 text-center">
+		class="relative z-10 mx-auto flex w-full max-w-8xl flex-1 flex-col items-center justify-center px-6 py-12 text-center md:py-16">
 		<div
 			class="animate-fade-in-up mb-8 inline-flex translate-y-4 items-center gap-3 rounded-full border border-gray-200 bg-white px-5 py-2.5 opacity-0">
 			<div class="flex items-center gap-2">
@@ -435,6 +435,8 @@
 <section class="bg-linear-to-b from-gray-50 to-white py-12 md:py-26">
 	<FAQ />
 </section>
+
+<CTA />
 
 <style>
 	.animate-fade-in-up {

@@ -5,7 +5,7 @@
 		{
 			name: 'Packages',
 			icon: 'ph:package',
-			status: 'completed' // completed, current, upcoming
+			status: 'completed'
 		},
 		{
 			name: 'Application',
@@ -38,86 +38,110 @@
 		switch (status) {
 			case 'completed':
 				return {
-					circle: 'bg-green-500 border-green-500',
+					circle: 'bg-primary border-primary',
 					icon: 'text-white',
-					text: 'text-green-600 font-medium',
-					line: 'bg-green-500'
+					text: 'text-primary font-bold',
+					connector: 'bg-primary'
 				};
 			case 'current':
 				return {
-					circle: 'bg-blue-500 border-blue-500 ring-4 ring-blue-100',
+					circle: 'bg-secondary border-secondary shadow-[0_0_0_4px_rgba(0,0,0,0.1)]',
 					icon: 'text-white',
-					text: 'text-blue-600 font-semibold',
-					line: 'bg-gray-300'
+					text: 'text-secondary font-bold',
+					connector: 'bg-gray-200'
 				};
 			default:
 				return {
-					circle: 'bg-white border-gray-300',
+					circle: 'bg-white border-gray-200',
 					icon: 'text-gray-400',
-					text: 'text-gray-500',
-					line: 'bg-gray-300'
+					text: 'text-gray-400',
+					connector: 'bg-gray-200'
 				};
 		}
 	}
 </script>
 
-<div class="overflow-hidden mx-4 md:mx-8 lg:mx-16 mb-4 rounded-2xl bg-gray-50 p-4 sm:p-6">
-	<h3 class="mb-6 text-center text-lg font-medium text-gray-800 ">
-		Your Application Progress
-	</h3>
+<section class="my-8 w-full border-y border-gray-100 bg-gray-50 py-8 md:py-12">
+	<div class="mx-auto max-w-8xl px-6 md:px-12">
+		<div class="mb-12">
+			<span class="mb-3 block text-xs font-bold tracking-widest text-primary uppercase">
+				Track Progress
+			</span>
+			<h2 class="text-3xl font-semibold tracking-tight text-secondary md:text-4xl">
+				Your Application <span class="text-primary">Journey</span>
+			</h2>
+		</div>
 
-	<!-- Desktop & Tablet View -->
-	<div class="">
 		<div class="relative">
-			<div class="flex flex-col md:flex-row space-y-8 md:space-y-0 items-center justify-between">
-				{#each steps as step, index}
-					{@const classes = getStepClasses(step.status)}
-					<div class="flex flex-1 flex-col items-center justify-center">
-						<!-- Step Circle -->
-						<div class="relative z-10">
+			<!-- Desktop Layout -->
+			<div class="hidden md:block">
+				<div class="relative flex items-center justify-between">
+					{#each steps as step, index}
+						{@const classes = getStepClasses(step.status)}
+
+						<div class="relative flex flex-col items-center">
+							<!-- Circle -->
 							<div
-								class="flex h-12 w-12 items-center justify-center rounded-full border-2 transition-all duration-300 {classes.circle}"
-							>
+								class="relative z-10 flex h-14 w-14 items-center justify-center rounded-full border-2 transition-all duration-300 {classes.circle}">
 								{#if step.status === 'completed'}
-									<Icon icon="ph:check-bold" class="h-5 w-5 {classes.icon}" />
+									<Icon icon="heroicons:check-16-solid" class="h-6 w-6 {classes.icon}" />
+								{:else}
+									<Icon icon={step.icon} class="h-6 w-6 {classes.icon}" />
+								{/if}
+							</div>
+
+							<!-- Label -->
+							<div class="mt-4 text-center">
+								<p class="text-sm transition-colors duration-300 {classes.text}">
+									{step.name}
+								</p>
+							</div>
+
+							<!-- Connector Line -->
+							<!-- {#if index < steps.length - 1}
+								<div
+									class="absolute top-7 left-7 h-0.5 w-[calc(100vw/6-3.5rem)] {classes.connector} transition-colors duration-300">
+								</div>
+							{/if} -->
+						</div>
+					{/each}
+				</div>
+			</div>
+
+			<!-- Mobile Layout -->
+			<div class="md:hidden">
+				<div class="space-y-6">
+					{#each steps as step, index}
+						{@const classes = getStepClasses(step.status)}
+
+						<div class="relative flex items-center gap-4">
+							<!-- Circle -->
+							<div
+								class="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 transition-all duration-300 {classes.circle}">
+								{#if step.status === 'completed'}
+									<Icon icon="heroicons:check-16-solid" class="h-5 w-5 {classes.icon}" />
 								{:else}
 									<Icon icon={step.icon} class="h-5 w-5 {classes.icon}" />
 								{/if}
 							</div>
+
+							<!-- Content -->
+							<div class="flex-1">
+								<p class="text-base transition-colors duration-300 {classes.text}">
+									{step.name}
+								</p>
+							</div>
+
+							<!-- Connector Line -->
+							{#if index < steps.length - 1}
+								<div
+									class="absolute top-12 left-6 h-6 w-0.5 {classes.connector} transition-colors duration-300">
+								</div>
+							{/if}
 						</div>
-
-						<!-- Step Name -->
-						<p class="mt-3 text-center text-xs transition-colors duration-300 {classes.text} sm:text-sm">
-							{step.name}
-						</p>
-
-						<!-- Connection Line -->
-						<!-- {#if index < steps.length - 1}
-							<div
-								class="absolute left-0 top-6 z-0 h-0.5 w-full transition-colors duration-300 {classes.line}"
-								style="left: {(index / (steps.length - 1)) * 100}%; width: {100 / (steps.length - 1)}%"
-							></div>
-						{/if} -->
-					</div>
-				{/each}
+					{/each}
+				</div>
 			</div>
 		</div>
 	</div>
-
-
-	<!-- Progress Percentage -->
-	<!-- {@const completedCount = steps.filter((s) => s.status === 'completed').length}
-	{@const progressPercent = (completedCount / steps.length) * 100}
-	<div class="mt-6 pt-6 border-t border-gray-100">
-		<div class="flex items-center justify-between mb-2">
-			<span class="text-sm font-medium text-gray-700">Overall Progress</span>
-			<span class="text-sm font-semibold text-blue-600">{Math.round(progressPercent)}%</span>
-		</div>
-		<div class="h-2 w-full overflow-hidden rounded-full bg-gray-200">
-			<div
-				class="h-full rounded-full bg-gradient-to-r from-blue-500 to-green-500 transition-all duration-500"
-				style="width: {progressPercent}%"
-			></div>
-		</div>
-	</div> -->
-</div>
+</section>

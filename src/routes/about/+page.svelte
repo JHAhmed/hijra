@@ -4,6 +4,7 @@
 	import islamicBuilding from '$lib/assets/images/islamic-building.jpg';
 	import masjidEntrance from '$lib/assets/images/masjid-entrance.jpg';
 	import minar from '$lib/assets/images/minar.jpg';
+	import CTA from '$shared/CTA.svelte';
 	onMount();
 
 	const team = [
@@ -201,6 +202,8 @@
 		</div>
 	</div>
 </section>
+
+<CTA />
 
 <style>
 	.animate-fade-in-up {
