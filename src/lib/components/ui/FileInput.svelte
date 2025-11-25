@@ -1,5 +1,5 @@
 <script>
-	import { auth } from '$lib/auth.svelte.js';
+	import { authStore } from '$lib/auth.svelte.js';
 	import Icon from '@iconify/svelte';
 	import { cn } from '$lib/utils.js';
 
@@ -47,7 +47,7 @@
 	function generateCustomFileName(file) {
 		const timestamp = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
 		const extension = file.name.split('.').pop();
-		const userName = auth.user?.name ? auth.user?.name.replace(/\s+/g, '-') : 'user';
+		const userName = authStore.user?.name ? authStore.user?.name.replace(/\s+/g, '-') : 'user';
 		return `${userName} ${uploadName}.${extension}`;
 	}
 </script>

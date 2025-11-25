@@ -87,12 +87,12 @@
 </script>
 
 <svelte:head>
-	<title>Reset Password | hijrah</title>
+	<title>Reset Password | Hijrah Portal</title>
 	<meta name="description" content="Set a new password for your hijrah account." />
 	<link rel="canonical" href="https://hijrah-portal.vercel.app/auth/reset-password" />
 
 	<meta property="og:type" content="website" />
-	<meta property="og:title" content="Reset Password | hijrah" />
+	<meta property="og:title" content="Reset Password | Hijrah Portal" />
 	<meta property="og:image" content="{page.url.origin}/ogimage.png" />
 	<meta property="og:url" content="{page.url.origin}/auth/reset-password" />
 </svelte:head>

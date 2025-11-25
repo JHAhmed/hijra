@@ -1,10 +1,12 @@
 <script>
 	import { Button } from '$components';
 	import { onMount } from 'svelte';
-
-	// Optional: If you want to use Iconify for a visual element
-	import Icon from '@iconify/svelte';
 </script>
+
+<svelte:head>
+	<title>Oops! Page Not Found</title>
+	<meta name="description" content="Oops! Page Not Found" />
+</svelte:head>
 
 <div
 	class="relative flex min-h-[50vh] w-full flex-col items-center justify-center overflow-hidden bg-white px-6 text-center text-secondary selection:bg-primary selection:text-white">
@@ -18,7 +20,8 @@
 			class="animate-fade-in-up mb-8 inline-flex items-center gap-3 rounded-full border border-gray-200 bg-white px-5 py-2.5 opacity-0">
 			<div class="flex items-center gap-2">
 				<div class="h-1.5 w-1.5 rounded-full bg-primary"></div>
-				<span class="text-sm font-bold tracking-widest text-secondary uppercase">Error 404</span>
+				<span class="text-sm font-bold tracking-wide text-secondary uppercase"
+					><span class="text-gray-600">Error</span> 404</span>
 			</div>
 		</div>
 
@@ -38,9 +41,10 @@
 
 		<div
 			class="animate-fade-in-up flex w-full flex-col items-center justify-center gap-4 opacity-0 delay-300 sm:w-auto sm:flex-row">
-			<Button href="/" text="Return Home" size="lg" />
-
-			<Button href="/packages" text="View Packages" variant="secondary" size="lg" />
+			<!-- <Button href="/" text="Return Home" size="sm" />
+			<Button href="/packages" text="View Packages" variant="secondary" size="sm" /> -->
+			<Button text="Return Home" size="sm" />
+			<Button text="View Packages" variant="secondary" size="sm" />
 		</div>
 	</main>
 </div>

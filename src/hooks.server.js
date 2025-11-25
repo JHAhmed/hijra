@@ -1,10 +1,20 @@
-// import { account } from '$lib/server/appwrite';
+import { Account } from 'node-appwrite';
+import { createAdminClient } from '$lib/server/appwrite';
 
-// export const handle = async ({ event, resolve }) => {
-// 	try {
-// 		event.locals.user = await account.get();
-// 	} catch {
-// 		event.locals.user = null;
-// 	}
-// 	return resolve(event);
-// };
+export async function handle({ event, resolve }) {
+	const sessionCookie = event.cookies.get('session');
+
+	event.locals.user = null;
+
+	if (sessionCookie) {
+		try {
+			const { account } = createAdminClient();
+			account.setSession(sessionCookie);
+			event.locals.user = await account.get();
+		} catch (error) {
+			event.cookies.delete('session', { path: '/' });
+		}
+	}
+
+	return resolve(event);
+}

@@ -52,7 +52,7 @@
 	];
 </script>
 
-<section class="w-full bg-white px-6 py-12 text-secondary antialiased md:px-12 md:py-26">
+<section class="w-full bg-white px-6 py-12 text-secondary antialiased md:px-12 md:py-16">
 	<div class="mx-auto max-w-8xl">
 		<div class="mb-16 border-b border-gray-100 pb-10 md:mb-20">
 			<h1 class="mb-4 text-4xl font-medium tracking-tight text-black md:text-6xl">

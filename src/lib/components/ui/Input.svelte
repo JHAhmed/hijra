@@ -1,5 +1,4 @@
 <script>
-	import { auth } from '$lib/auth.svelte.js';
 	import Icon from '@iconify/svelte';
 	import { cn } from '$lib/utils.js'; // Assuming you have this, otherwise just use string interpolation
 

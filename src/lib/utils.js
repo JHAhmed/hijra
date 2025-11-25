@@ -2,13 +2,13 @@ import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
 import { redirect } from '@sveltejs/kit';
-import { auth } from '$lib/auth.svelte';
+import { authStore } from '$lib/auth.svelte';
 
 /**
  * @param {string} [redirectTo='/auth'] - The path to redirect to if the user is not logged in.
  */
 export function requireAuth(redirectTo = '/auth') {
-	if (!auth.isLoggedIn) {
+	if (!authStore.isAuthenticated) {
 		throw redirect(303, redirectTo);
 	}
 }
@@ -17,7 +17,7 @@ export function requireAuth(redirectTo = '/auth') {
  * @param {string} [redirectTo='/'] - The path to redirect to if the user is logged in.
  */
 export function requireGuest(redirectTo = '/') {
-	if (auth.isLoggedIn) {
+	if (authStore.isAuthenticated) {
 		throw redirect(303, redirectTo);
 	}
 }
@@ -27,7 +27,7 @@ export function requireGuest(redirectTo = '/') {
  * @returns {string} The merged and optimized class string.
  */
 export function cn(...inputs) {
-  return twMerge(clsx(inputs));
+	return twMerge(clsx(inputs));
 }
 
 /**

@@ -4,10 +4,10 @@
 	import { gsap } from 'gsap';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { auth } from '$lib/auth.svelte';
 	import Testimonial from '$components/Testimonial.svelte';
 	import FAQ from '$components/FAQ.svelte';
 	import CTA from '$shared/CTA.svelte';
+	import { page } from '$app/state';
 
 	const items = [
 		// --- ROW 1 ---
@@ -53,32 +53,6 @@
 			location: 'Cape Town, SA',
 			quote:
 				"I have led groups for 10 years. hijrah's attention to logistical detail is unmatched in the industry."
-		}
-	];
-
-	const testimonials = [
-		{
-			quote:
-				'“Hijrah helped me get my dream college in Russia. They were really helpful in every step of the process!”',
-			name: 'Sathish Kumar',
-			college: 'University of Moscow'
-		},
-		{
-			quote: '“Studying abroad was a dream come true that hijrah helped me achieve”',
-			name: 'Saghana Subramaniam',
-			college: 'Russian Medical University'
-		},
-		{
-			quote:
-				"“From paperwork to admission, hijrah guided me at every step. I couldn't have asked for better support!”",
-			name: 'Amanullah Mallick',
-			college: 'St. Petersburg State University'
-		},
-		{
-			quote:
-				'“Getting into a medical college in Russia seemed impossible, but hijrah guided me all the way.”',
-			name: 'Eswar Clinton',
-			college: 'Belgorod Research University'
 		}
 	];
 
@@ -155,7 +129,23 @@
 	});
 </script>
 
-<div
+<svelte:head>
+	<title>Hijrah Portal - Your Gateway to The journey of a lifetime.</title>
+	<meta
+		name="description"
+		content="Experience the sacred pilgrimage with a focus on spirituality and comfort. We handle the complex logistics; you focus on the divine connection." />
+
+	<meta property="og:title" content="Hijrah Portal - Your Gateway to The journey of a lifetime." />
+	<meta
+		property="og:description"
+		content="Experience the sacred pilgrimage with a focus on spirituality and comfort. We handle the complex logistics; you focus on the divine connection." />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content={page.url.origin} />
+	<meta property="og:image" content="{page.url.origin}/ogimage.png" />
+</svelte:head>
+
+<!-- Hero Section -->
+<section
 	class="relative flex min-h-screen w-full flex-col overflow-hidden bg-white text-secondary selection:bg-primary selection:text-white">
 	<main
 		class="relative z-10 mx-auto flex w-full max-w-8xl flex-1 flex-col items-center justify-center px-6 py-12 text-center md:py-16">
@@ -203,7 +193,7 @@
 			</div>
 		</div>
 	</div>
-</div>
+</section>
 
 <!-- Stats Section -->
 <section class="w-full border-b border-gray-100 bg-white py-12 text-secondary md:py-16">
@@ -422,7 +412,7 @@
 </section>
 
 <!-- FAQ -->
-<section class="bg-linear-to-b from-gray-50 to-white py-12 md:py-26">
+<section class="bg-linear-to-b from-gray-50 to-white py-8 md:py-16">
 	<FAQ />
 </section>
 

@@ -5,7 +5,6 @@
 	import masjidEntrance from '$lib/assets/images/masjid-entrance.jpg';
 	import minar from '$lib/assets/images/minar.jpg';
 	import CTA from '$shared/CTA.svelte';
-	onMount();
 
 	const team = [
 		{ name: 'Sheikh Abdullah', role: 'Head of Guidance' },
@@ -115,6 +114,7 @@
 
 		<div class="group relative h-[400px] w-full overflow-hidden rounded-2xl md:h-[550px]">
 			<img
+				loading="lazy"
 				src={makkahSkyline}
 				alt="Makkah Skyline"
 				class="h-full w-full object-cover transition-transform duration-700 ease-out" />
@@ -143,6 +143,7 @@
 					class="group relative h-[500px] w-full overflow-hidden rounded-3xl bg-gray-100 md:h-full">
 					<img
 						src={item.img}
+						loading="lazy"
 						alt={item.title}
 						class="h-full w-full object-cover transition-transform duration-1000 ease-out will-change-transform" />
 

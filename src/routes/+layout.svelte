@@ -3,12 +3,21 @@
 	import favicon from '$lib/assets/favicon.svg';
 
 	import { page } from '$app/state';
-	import { auth } from '$lib/auth.svelte';
 	import { fade } from 'svelte/transition';
 	import { toast, Toaster } from 'svelte-sonner';
 	import { Footer, Navbar, WhatsAppIcon, CTA } from '$shared';
+	import { onMount } from 'svelte';
+	import { authStore } from '$lib/auth.svelte';
 
 	let { children, data } = $props();
+
+	// onMount(() => {
+	// 	authStore.init();
+	// });
+
+	$effect(() => {
+		authStore.init();
+	});
 </script>
 
 <svelte:head>
@@ -48,11 +57,11 @@
 		<Footer />
 	</div>
 
-	<div
+	<!-- <div
 		class={page.url.pathname.startsWith('/auth') || page.url.pathname.startsWith('/admin')
 			? 'hidden'
 			: ''}>
 		<WhatsAppIcon />
-	</div>
+	</div> -->
 </div>
 <!-- {/if} -->

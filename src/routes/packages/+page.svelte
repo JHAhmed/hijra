@@ -4,6 +4,7 @@
 	import Dropdown from '$components/ui/Dropdown.svelte'; // Assuming this path
 	import Package from '$components/Package.svelte'; // Assuming this path
 	import Button from '$components/ui/Button.svelte';
+	import { page } from '$app/state';
 
 	// Mock data for display purposes (replace with your actual data loader)
 	let packageTypes = [
@@ -14,17 +15,26 @@
 
 	let selectedPackage = $state('all');
 
-	// Assuming you pass data via data prop or load it here
 	let { data } = $props();
-
 	let packages = data?.packages || [];
-
-	console.log(packages);
 
 	let filteredPackages = $derived(
 		selectedPackage === 'all' ? packages : packages.filter((p) => p.type === selectedPackage)
 	);
 </script>
+
+<svelte:head>
+	<title>Our Packages | Hijrah Portal</title>
+	<meta
+		name="description"
+		content="Explore our curated collection of Hajj and Umrah packages, designed to provide comfort, proximity, and peace of mind." />
+	<meta
+		property="og:description"
+		content="Explore our curated collection of Hajj and Umrah packages, designed to provide comfort, proximity, and peace of mind." />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content={page.url.origin} />
+	<meta property="og:image" content="{page.url.origin}/ogimage.png" />
+</svelte:head>
 
 <div
 	class="relative min-h-screen w-full bg-white text-secondary selection:bg-primary selection:text-white">

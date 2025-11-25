@@ -8,7 +8,6 @@
 	import Icon from '@iconify/svelte';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { page } from '$app/state';
-	import { auth } from '$lib/auth.svelte';
 
 	let authType = $state('login'); // 'login' or 'register'
 	let errors = $state({});
@@ -80,7 +79,7 @@
 				// 	headers: {
 				// 		'Content-Type': 'application/json'
 				// 	},
-				// 	body: JSON.stringify({ email: auth.user.email, name: auth.user.name, userId: auth.user.$id })
+				// 	body: JSON.stringify({ email: authStore.user.email, name: authStore.user.name, userId: authStore.user.$id })
 				// });
 				// if (!res.ok) {
 				// 	throw new Error('Failed to register user in the database.');
@@ -104,8 +103,7 @@
 	<title>Login | hijrah</title>
 	<meta
 		name="description"
-		content="Login to your account at hijrah to access personalized support for your medical education journey."
-	/>
+		content="Login to your account at hijrah to access personalized support for your medical education journey." />
 	<link rel="canonical" href="https://hijrah-portal.vercel.app/auth" />
 	<script type="application/ld+json">
 		{
@@ -122,17 +120,15 @@
 	<meta property="og:url" content="{page.url.origin}/auth" />
 	<meta
 		property="og:description"
-		content="Login to your account at hijrah to access personalized support for your medical education journey."
-	/>
+		content="Login to your account at hijrah to access personalized support for your medical education journey." />
 </svelte:head>
 
 <Toaster richColors />
 
-<div class="grid min-h-screen grid-cols-1 gap-4 p-4 sm:p-6 md:grid-cols-2 md:p-8" >
-
-	<div class="mt-4 p-6 md:mt-8 ">
+<div class="grid min-h-screen grid-cols-1 gap-4 p-4 sm:p-6 md:grid-cols-2 md:p-8">
+	<div class="mt-4 p-6 md:mt-8">
 		<a href="/"><img src={favicon} alt="" class="mx-auto mb-8 h-10 sm:mb-12" /></a>
-		{#if auth.isLoggedIn}
+		{#if authStore.isAuthenticated}
 			<div class="flex flex-col items-center justify-center space-y-4">
 				<h2 class="text-2xl font-light tracking-tight text-gray-700 sm:text-3xl">
 					{#if authType === 'login'}
@@ -143,11 +139,11 @@
 				</h2>
 				<p class="text-sm font-light text-gray-500">
 					Go to your
-						{#if auth.isAdmin}
+					{#if authStore.isAdmin}
 						<a href="/admin" class="text-primary hover:underline">Admin Dashboard</a>
-						{:else}
-							<a href="/hijrah-portal" class="text-primary hover:underline">Hijrah Portal</a>
-						{/if}
+					{:else}
+						<a href="/hijrah-portal" class="text-primary hover:underline">Hijrah Portal</a>
+					{/if}
 					or
 					<button onclick={() => auth.logout()} class="cursor-pointer text-primary hover:underline"
 						>Logout</button>
@@ -197,7 +193,7 @@
 								class="mb-px ml-2 inline-flex size-5 animate-spin text-white transition-all duration-150 group-hover:ml-4" />
 						{/if}
 					</button>
-					<p class="self-start text-left text-xs mb-2">
+					<p class="mb-2 self-start text-left text-xs">
 						Don't have an account? <button
 							type="button"
 							onclick={() => (authType = 'register')}

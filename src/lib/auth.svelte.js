@@ -1,68 +1,57 @@
-import { goto, invalidateAll } from '$app/navigation';
-import { account, ID } from '$lib/appwrite'; // Your Appwrite client setup
-import { redirect } from '@sveltejs/kit';
+import { goto } from '$app/navigation';
+import { account } from '$lib/appwrite';
 
-// Create a reactive auth state
-class AuthStore {
-	user = $state(null);
-    isLoading = $state(true);
-	
-	// Derived value for easy checking
-	isAdmin = $derived(this.user?.labels?.[0] === 'admin');
-	isLoggedIn = $derived(this.user !== null);
+function createAuthStore() {
+	let user = $state(null);
+	let isLoading = $state(true);
+	let isAdmin = $derived(user?.labels?.[0] === 'admin');
+	let isAuthenticated = $derived(user !== null);
 
-	constructor() {
-		// Auto-initialize on client
-		if (typeof window !== 'undefined') {
-			this.init();
-		}
-	}
-
-	async init() {
-		this.isLoading = true;
+	async function init() {
 		try {
-			const user = await account.get();
-			this.user = user;
+			const currentUser = await account.get();
+			user = currentUser;
 		} catch (error) {
-			this.user = null;
+			user = null;
 		} finally {
-			this.isLoading = false;
+			isLoading = false;
 		}
 	}
 
-	async register(email, password, name) {
-		try {
-			await account.create(ID.unique(), email, password, name);
-			await this.login(email, password); 
-		} catch (error) {
-			this.user = null;
-			console.error('Login error:', error);
-			throw error;
-		}
+	async function register(email, password, name) {
+		await account.create(ID.unique(), email, password, name);
+		await login(email, password);
 	}
 
-	async login(email, password) {
-		try {
-			await account.createEmailPasswordSession(email, password);
-			await this.init(); 
-            goto('/');
-		} catch (error) {
-			this.user = null;
-			console.error('Login error:', error);
-			throw error;
-		}
+	async function login(email, password) {
+		await account.createEmailPasswordSession(email, password);
+		user = await account.get();
+		goto('/');
 	}
 
-	async logout() {
-		try {
-			await account.deleteSession('current');
-		} catch (error) {
-			console.error('Logout error:', error);
-		} finally {
-			this.user = null;
-            goto('/');
-		}
+	async function logout() {
+		await account.deleteSession('current');
+		user = null;
+		goto('/');
 	}
+
+	return {
+		get user() {
+			return user;
+		},
+		get isLoading() {
+			return isLoading;
+		},
+		get isAuthenticated() {
+			return isAuthenticated;
+		},
+		get isAdmin() {
+			return isAdmin;
+		},
+		init,
+		login,
+		logout
+	};
 }
 
-export const auth = new AuthStore();
+export const authStore = createAuthStore();

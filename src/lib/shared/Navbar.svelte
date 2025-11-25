@@ -3,7 +3,8 @@
 	import logo from '$lib/assets/favicon.svg';
 	import { onMount } from 'svelte';
 	import Button from '$components/ui/Button.svelte';
-	import { auth } from '$lib/auth.svelte';
+	import { authStore } from '$lib/auth.svelte';
+	import { blur, fade, scale } from 'svelte/transition';
 
 	let isScrolled = false;
 	let isMobileMenuOpen = false;
@@ -52,55 +53,64 @@
 			{/each}
 		</div>
 
-		<div class="relative z-50 flex shrink-0 items-center gap-6">
-			{#if !auth.isLoggedIn}
-				<Button
-					href="/auth"
-					text="Log In"
-					variant="secondary"
-					size="md"
-					class="hidden sm:inline-block" />
+		{#if !authStore.isLoading}
+			<div transition:blur class="relative z-50 flex shrink-0 items-center gap-6">
+				{#if !authStore.isAuthenticated}
+					<Button
+						href="/auth"
+						text="Log In"
+						variant="secondary"
+						size="md"
+						class="hidden sm:inline-block" />
 
-				<Button
-					href="/contact"
-					text="Get Started"
-					variant="primary"
-					size="md"
-					class="hidden sm:inline-block" />
-			{:else}
-				<Button
-					href="/profile"
-					text="Profile"
-					variant="secondary"
-					size="md"
-					class="hidden sm:inline-block" />
+					<Button
+						href="/contact"
+						text="Get Started"
+						variant="primary"
+						size="md"
+						class="hidden sm:inline-block" />
+				{:else if authStore.isAdmin}
+					<Button
+						href="/admin"
+						text="Admin"
+						variant="primary"
+						size="md"
+						class="hidden sm:inline-block" />
+				{:else}
+					<Button
+						href="/profile"
+						text="Profile"
+						variant="secondary"
+						size="md"
+						class="hidden sm:inline-block" />
 
-				<Button
-					href="/hijrah-portal"
-					text="Portal"
-					variant="primary"
-					size="md"
-					class="hidden sm:inline-block" />
-			{/if}
+					<Button
+						href="/hijrah-portal"
+						text="Portal"
+						variant="primary"
+						size="md"
+						class="hidden sm:inline-block" />
+				{/if}
 
-			<button
-				on:click={toggleMobileMenu}
-				class="relative z-60 flex h-10 w-10 flex-col items-center justify-center gap-1.5 md:hidden"
-				aria-label="Menu">
-				<span
-					class="h-0.5 w-6 rounded-full bg-black transition-all duration-300 {isMobileMenuOpen
-						? 'translate-y-2 rotate-45'
-						: ''}"></span>
-				<span
-					class="h-0.5 w-6 rounded-full bg-black transition-all duration-300 {isMobileMenuOpen
-						? 'opacity-0'
-						: 'opacity-100'}"></span>
-				<span
-					class="h-0.5 w-6 rounded-full bg-black transition-all duration-300 {isMobileMenuOpen
-						? '-translate-y-2 -rotate-45'
-						: ''}"></span>
-			</button>
-		</div>
+				<button
+					on:click={toggleMobileMenu}
+					class="relative z-60 flex h-10 w-10 flex-col items-center justify-center gap-1.5 md:hidden"
+					aria-label="Menu">
+					<span
+						class="h-0.5 w-6 rounded-full bg-black transition-all duration-300 {isMobileMenuOpen
+							? 'translate-y-2 rotate-45'
+							: ''}"></span>
+					<span
+						class="h-0.5 w-6 rounded-full bg-black transition-all duration-300 {isMobileMenuOpen
+							? 'opacity-0'
+							: 'opacity-100'}"></span>
+					<span
+						class="h-0.5 w-6 rounded-full bg-black transition-all duration-300 {isMobileMenuOpen
+							? '-translate-y-2 -rotate-45'
+							: ''}"></span>
+				</button>
+			</div>
+		{/if}
 	</div>
 
 	{#if isMobileMenuOpen}
@@ -118,7 +128,7 @@
 
 				<div class="mx-auto my-4 h-px w-16 bg-gray-100"></div>
 
-				{#if !auth.isLoggedIn}
+				{#if !authStore.isAuthenticated}
 					<a
 						href="/login"
 						class="text-xl font-medium text-gray-500 transition-colors hover:text-black"

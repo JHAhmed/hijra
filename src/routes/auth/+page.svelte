@@ -2,7 +2,6 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import { z } from 'zod';
 	import { page } from '$app/state';
-	import { auth } from '$lib/auth.svelte';
 	import { fade, fly, slide } from 'svelte/transition';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { toast, Toaster } from 'svelte-sonner';
@@ -12,6 +11,7 @@
 	import makkahSkyline from '$lib/assets/images/makkah-skyline.jpg';
 	import Button from '$components/ui/Button.svelte';
 	import { text } from '@sveltejs/kit';
+	import { authStore } from '$lib/auth.svelte';
 
 	// Animation constants
 	const TRANSITION_y = 20;
@@ -65,9 +65,11 @@
 
 		try {
 			if (authType === 'login') {
-				await auth.login(data.email, data.password);
+				// await auth.login(data.email, data.password);
+				await authStore.login(data.email, data.password);
 			} else {
-				await auth.register(data.email, data.password, data.name);
+				// await auth.register(data.email, data.password, data.name);
+				await authStore.register(data.email, data.password, data.name);
 			}
 
 			toast.success(`Successfully ${authType === 'login' ? 'logged in' : 'registered'}!`);
@@ -82,7 +84,7 @@
 </script>
 
 <svelte:head>
-	<title>Login | hijrah</title>
+	<title>Login | Hijrah Portal</title>
 	<meta
 		name="description"
 		content="Login to your account at hijrah to access personalized support for your medical education journey." />
@@ -121,7 +123,7 @@
 				</span>
 			</a>
 
-			{#if auth.isLoggedIn}
+			{#if authStore.isAuthenticated}
 				<div class="text-center">
 					<div
 						class="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-green-50 text-green-600">
@@ -131,7 +133,7 @@
 					<p class="mt-4 text-gray-500">You are currently signed in.</p>
 
 					<div class="mt-8 flex flex-col gap-3">
-						<Button onclick={() => auth.logout()} text="Sign out" />
+						<Button onclick={() => authStore.logout()} text="Sign out" />
 						<Button variant="secondary" href="/hijrah-portal" text="Go to Portal" />
 					</div>
 				</div>

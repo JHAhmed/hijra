@@ -1,10 +1,9 @@
 <script>
-	import { auth } from '$lib/auth.svelte';
-
 	import Card from '$components/portal/Card.svelte';
 	import Icon from '@iconify/svelte';
 	import Timeline from '$components/portal/Timeline.svelte';
 	import Progress from '$components/portal/Progress.svelte';
+	import { authStore } from '$lib/auth.svelte';
 
 	let isLoading = $state(false);
 
@@ -75,20 +74,27 @@
 	);
 </script>
 
+<svelte:head>
+	<title>Travel Portal | Hijrah Portal</title>
+	<meta
+		name="description"
+		content="Plan your Hajj and Umrah journey with ease. Book your package now!" />
+</svelte:head>
+
 <section class="min-h-screen bg-white text-secondary">
-	{#if auth?.user}
+	{#if authStore?.user}
 		<div class="mx-auto max-w-8xl px-6 pt-12 md:px-12 md:pt-16">
 			<div class="my-4 md:my-8">
 				<span class="mb-4 block text-xs font-bold tracking-widest text-primary uppercase">
 					Hijrah Portal
 				</span>
-				{#if auth?.user?.name}
+				{#if authStore?.user?.name}
 					<h1 class="text-4xl font-medium tracking-tighter text-secondary md:text-5xl">
 						Welcome back, <br />
-						<span class="text-primary">{auth.user.name}.</span>
+						<span class="text-primary">{authStore.user.name}.</span>
 					</h1>
 					<p class="mt-4 w-fit rounded-full bg-gray-100 px-4 py-1 text-sm text-gray-500">
-						{auth.user.email}
+						{authStore.user.email}
 					</p>
 				{:else}
 					<p class="text-lg text-gray-500">Loading your details...</p>
