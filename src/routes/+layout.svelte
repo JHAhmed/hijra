@@ -37,7 +37,7 @@
 	</div>
 
 	{#key data.url}
-		{@render children?.()}
+		<div class="mt-4 md:mt-8">{@render children?.()}</div>
 	{/key}
 
 	<div

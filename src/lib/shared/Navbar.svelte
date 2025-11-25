@@ -69,8 +69,8 @@
 					class="hidden sm:inline-block" />
 			{:else}
 				<Button
-					onclick={() => auth.logout()}
-					text="Log Out"
+					href="/profile"
+					text="Profile"
 					variant="secondary"
 					size="md"
 					class="hidden sm:inline-block" />
@@ -118,16 +118,32 @@
 
 				<div class="mx-auto my-4 h-px w-16 bg-gray-100"></div>
 
-				<a
-					href="/login"
-					class="text-xl font-medium text-gray-500 transition-colors hover:text-black"
-					on:click={toggleMobileMenu}>
-					Log In
-				</a>
+				{#if !auth.isLoggedIn}
+					<a
+						href="/login"
+						class="text-xl font-medium text-gray-500 transition-colors hover:text-black"
+						on:click={toggleMobileMenu}>
+						Log In
+					</a>
 
-				<a href="/contact" class="text-xl font-bold text-primary" on:click={toggleMobileMenu}>
-					Get Started
-				</a>
+					<a href="/contact" class="text-xl font-bold text-primary" on:click={toggleMobileMenu}>
+						Get Started
+					</a>
+				{:else}
+					<a
+						href="/profile"
+						class="text-xl font-medium text-gray-500 transition-colors hover:text-black"
+						on:click={toggleMobileMenu}>
+						Profile
+					</a>
+
+					<a
+						href="/hijrah-portal"
+						class="text-xl font-bold text-primary"
+						on:click={toggleMobileMenu}>
+						Portal
+					</a>
+				{/if}
 			</div>
 		</div>
 	{/if}

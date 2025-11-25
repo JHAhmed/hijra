@@ -39,6 +39,7 @@
 	},
 	"dependencies": {
 		"@internationalized/date": "^3.9.0",
+		"@sveltejs/enhanced-img": "^0.9.1",
 		"appwrite": "^19.0.0",
 		"bits-ui": "^2.9.4",
 		"clsx": "^2.1.1",

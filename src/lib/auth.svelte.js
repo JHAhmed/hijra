@@ -1,5 +1,5 @@
 import { goto, invalidateAll } from '$app/navigation';
-import { account } from '$lib/appwrite'; // Your Appwrite client setup
+import { account, ID } from '$lib/appwrite'; // Your Appwrite client setup
 import { redirect } from '@sveltejs/kit';
 
 // Create a reactive auth state
@@ -32,7 +32,7 @@ class AuthStore {
 
 	async register(email, password, name) {
 		try {
-			await account.create(email, password, name);
+			await account.create(ID.unique(), email, password, name);
 			await this.login(email, password); 
 		} catch (error) {
 			this.user = null;

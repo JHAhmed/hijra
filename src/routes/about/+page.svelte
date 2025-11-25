@@ -72,7 +72,7 @@
 		content="Learn more about hijrah, our mission, and the services we offer to pilgrims." />
 </svelte:head>
 
-<section class="w-full bg-white px-6 pt-24 pb-12 text-secondary md:px-12">
+<section class="w-full bg-white px-6 pt-16 pb-12 text-secondary md:px-12">
 	<div class="mx-auto max-w-[1000px] text-center">
 		<div class="animate-fade-in-up mb-6 flex translate-y-4 justify-center opacity-0">
 			<span

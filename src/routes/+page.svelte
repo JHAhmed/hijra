@@ -82,25 +82,6 @@
 		}
 	];
 
-	function animateStats() {
-		const statElements = gsap.utils.toArray('.stat-value');
-
-		statElements.forEach((element, i) => {
-			const endValue = parseInt(element.dataset.value, 10);
-			let counter = { val: 0 };
-
-			gsap.to(counter, {
-				val: endValue,
-				duration: 2,
-				delay: i * 0.2,
-				ease: 'power2.out',
-				onUpdate: () => {
-					element.textContent = Math.floor(counter.val);
-				}
-			});
-		});
-	}
-
 	const stats = [
 		{
 			value: '10',
@@ -150,18 +131,27 @@
 		}
 	];
 
-	const quickLinks = [
-		{ name: '2025 Packages', icon: 'heroicons:calendar', href: '/packages' },
-		{ name: 'Journey Guide', icon: 'heroicons:information-circle', href: '/guides/' },
-		{ name: 'Health Tips', icon: 'heroicons:heart', href: '/guides/' },
-		{ name: 'Contact Experts', icon: 'heroicons:chat-bubble-left', href: '/contact' }
-	];
+	async function animateStats() {
+		const statElements = gsap.utils.toArray('.stat-value');
+
+		statElements.forEach((element, i) => {
+			const endValue = parseInt(element.dataset.value, 10);
+			let counter = { val: 0 };
+
+			gsap.to(counter, {
+				val: endValue,
+				duration: 2,
+				delay: i * 0.2,
+				ease: 'power2.out',
+				onUpdate: () => {
+					element.textContent = Math.floor(counter.val);
+				}
+			});
+		});
+	}
 
 	onMount(async () => {
-		const icons = quickLinks.map((link) => link.icon).concat(steps.map((step) => step.icon));
-		await Promise.all(icons.map((i) => loadIcon(i)));
-
-		animateStats();
+		await animateStats();
 	});
 </script>
 
