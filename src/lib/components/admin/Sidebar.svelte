@@ -1,133 +1,182 @@
 <script>
-	import { onMount } from 'svelte';
-	import { page } from '$app/state';
+    import { page } from '$app/state';
+    import { goto } from '$app/navigation';
+    import { auth } from '$lib/auth.svelte';
+    import { onMount } from 'svelte';
+    import Icon from '@iconify/svelte';
+    import favicon from '$lib/assets/favicon.svg';
 
-	import Icon from '@iconify/svelte';
+    let { children } = $props();
 
-	import favicon from '$lib/assets/favicon.svg';
-	import { user } from '$lib/unused/user.svelte.js';
-	import { innerWidth } from 'svelte/reactivity/window';
+    let isMobile = $state(false);
+    let isExpanded = $state(false); 
+    let isMobileOpen = $state(false);
 
-	let { children } = $props();
+    onMount(() => {
+        const checkWidth = () => {
+            isMobile = window.innerWidth < 1024;
+            if (!isMobile) isMobileOpen = false;
+        };
+        
+        checkWidth();
+        window.addEventListener('resize', checkWidth);
+        return () => window.removeEventListener('resize', checkWidth);
+    });
 
-	let isExpanded = $state(false);
-	let showMobile = $state(false);
-	let activePage = $state(page.url.pathname);
+    const mainMenu = [
+        { name: 'Dashboard', href: '/admin', icon: 'heroicons:chart-bar-square' },
+        { name: 'Students', href: '/admin/students', icon: 'heroicons:user-group' },
+        { name: 'Users', href: '/admin/users', icon: 'heroicons:users' },
+        { name: 'Interested', href: '/admin/interested', icon: 'heroicons:user-plus' },
+        { name: 'Completed', href: '/admin/completed', icon: 'heroicons:check-badge' }
+    ];
 
-	// $: isSidebarOpen = innerWidth.current < 480 ? showMobile : isExpanded;
+    const bottomMenu = [
+        { name: 'Settings', href: '/admin/settings', icon: 'heroicons:cog-6-tooth' }
+    ];
 
-	let isSidebarOpen = $derived(
-		innerWidth.current < 480 ? showMobile : isExpanded
-	);
-
-	const mainMenu = [
-		{ name: 'Dashboard', href: '/admin', icon: 'heroicons:chart-bar-square' },
-		{ name: 'Students', href: '/admin/students', icon: 'heroicons:user-group' },
-		{ name: 'Users', href: '/admin/users', icon: 'heroicons:users' },
-		{ name: 'Interested', href: '/admin/interested', icon: 'heroicons:user-plus' },
-		{ name: 'Completed', href: '/admin/completed', icon: 'heroicons:check-badge' }
-		// { name: 'Applications', href: '/admin/applications', icon: 'heroicons:calendar' },
-		// { name: 'Visa Process', href: '/admin/visa-process', icon: 'heroicons:building-library' },
-		// { name: 'Documents', href: '/admin/documents', icon: 'heroicons:document-duplicate' }
-	];
-
-	const otherMenu = [
-		// { name: 'Support', href: "", icon: 'heroicons:headphones' },
-		{ name: 'Settings', href: '/admin/settings', icon: 'heroicons:cog-6-tooth' }
-	];
-
-	function toggleSidebar() {
-		if (innerWidth.current < 480) {
-			showMobile = !showMobile;
-		} else {
-			isExpanded = !isExpanded;
-		}
-	}
+    function handleLogout() {
+        auth.logout();
+        goto('/auth');
+    }
 </script>
 
-{#if innerWidth.current < 480 && !showMobile}
-	<button
-		onclick={() => (showMobile = true)}
-		class="fixed top-4 left-4 z-50 inline-flex items-center rounded-full bg-white p-3 shadow-lg/5">
-		<Icon icon="heroicons:bars-3-20-solid" class="text-xl" />
-	</button>
+{#if isMobile && isMobileOpen}
+    <div 
+        role="button"
+        tabindex="0"
+        onclick={() => (isMobileOpen = false)}
+        onkeydown={(e) => e.key === 'Escape' && (isMobileOpen = false)}
+        class="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm transition-opacity duration-300"
+    ></div>
 {/if}
 
-<div class="fixed top-4 left-4 z-50">
-	<aside
-		class="{isExpanded ? 'w-48' : 'w-16'} {innerWidth.current < 480 ? (showMobile ? '' : 'hidden') : ''} h-[calc(100vh-2rem)] transform flex-col rounded-2xl border border-gray-200/50 bg-white text-gray-700 shadow-lg/5 transition-transform">
-		<div class="my-5 flex items-center justify-center">
-			{#if innerWidth.current >= 480 && isExpanded}
-				<!-- <img src={logoFull} alt="Zinda Logo" class="mx-auto h-6" /> -->
-				 <img src={favicon} alt="Zinda Logo" class="h-6 w-6" />
-			{:else}
-				<div class="flex h-6 w-6 items-center justify-center rounded">
-					<img src={favicon} alt="Zinda Logo" class="h-6 w-6" />
-				</div>
-			{/if}
-		</div>
+{#if isMobile && !isMobileOpen}
+    <button
+        onclick={() => (isMobileOpen = true)}
+        class="fixed top-5 left-5 z-40 flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-gray-200 bg-white text-secondary shadow-md transition-transform active:scale-95"
+    >
+        <Icon icon="heroicons:bars-3-solid" class="h-6 w-6" />
+    </button>
+{/if}
 
-		<nav class="flex w-full grow items-center justify-center border-t border-gray-200 pt-4">
-			<ul class="flex w-full flex-col items-center justify-center space-y-2 p-2">
-				{#each mainMenu as item}
-					<li class="mb-2 flex w-full justify-center">
-						<a
-							href={item.href}
-							class="inline-flex items-center rounded-lg {(innerWidth.current >= 480 && isExpanded)
-								? 'w-full justify-start p-2'
-								: 'w-10 justify-center p-2'} h-10 transition-colors {activePage === item.href
-								? 'bg-primary/10 text-primary'
-								: 'hover:bg-gray-100'}"
-							class:hover:bg-gray-100={activePage !== item.href}>
-							<Icon icon={item.icon} class="text-xl" />
-							{#if innerWidth.current >= 480 && isExpanded}
-								<span class="ml-3 text-sm font-medium tracking-tight text-gray-600"
-									>{item.name}</span>
-							{/if}
-						</a>
-					</li>
-				{/each}
-				<li class="mb-2 flex w-full justify-center">
-					<button
-						onclick={toggleSidebar}
-						class="inline-flex items-center rounded-lg hover:bg-gray-100 {(innerWidth.current >= 480 && isExpanded)
-							? 'w-full justify-start p-2'
-							: 'w-10 justify-center p-2'} h-10 transition-colors">
-						<Icon
-							icon="heroicons:chevron-double-right-20-solid"
-							class="text-xl transition-all duration-100 {isSidebarOpen
-								? 'rotate-180'
-								: 'rotate-0'} {(innerWidth.current >= 480 && isExpanded) ? 'mr-3' : ''}" />
-						<span class="text-sm font-medium tracking-tight text-gray-600"
-							>{innerWidth.current >= 480 && isExpanded ? 'Close' : ''}</span>
-					</button>
-				</li>
-			</ul>
-		</nav>
+<aside
+    class="fixed top-0 left-0 h-screen z-50 bg-white border-r border-gray-100 flex flex-col overflow-hidden transition-all duration-300 ease-out
+    {isMobile 
+        ? (isMobileOpen ? 'translate-x-0 w-64 shadow-2xl' : '-translate-x-full w-64') 
+        : (isExpanded ? 'w-64' : 'w-20')}"
+>
+    <div class="h-20 flex items-center shrink-0 border-b border-gray-50 relative">
+        <div class="w-20 h-full flex items-center justify-center shrink-0 bg-white z-20">
+            <img src={favicon} alt="Logo" class="h-8 w-8 object-contain" />
+        </div>
 
-		<div class="flex items-center justify-center border-t border-gray-200/50 p-2">
-			<button
-				onclick={() => user.logout()}
-				class="inline-flex items-center rounded-lg hover:bg-red-100 {(innerWidth.current >= 480 && isExpanded)
-					? 'w-full justify-start p-2'
-					: 'w-10 justify-center p-2'} h-10 transition-colors">
-				<Icon
-					icon="heroicons:arrow-left-start-on-rectangle-solid"
-					class="text-xl text-red-800 transition-all duration-100 {(innerWidth.current >= 480 && isExpanded)
-						? 'mr-3'
-						: ''}" />
-				<span class="text-sm font-medium tracking-tight text-red-800"
-					>{innerWidth.current >= 480 && isExpanded ? 'Logout' : ''}</span>
-			</button>
-		</div>
-	</aside>
-</div>
+        <div class="absolute left-20 top-0 h-full flex items-center transition-opacity duration-300
+            {isExpanded || (isMobile && isMobileOpen) ? 'opacity-100' : 'opacity-0'}"
+        >
+            <span class="text-xl font-bold tracking-tight text-secondary whitespace-nowrap">
+                Hijrah<span class="text-primary">.</span>
+            </span>
+        </div>
 
-<div
-	class="p-6 transition-all duration-300 ease-in-out
-		{innerWidth.current >= 480 && isExpanded ? 'ml-48' : ''}
-		{innerWidth.current >= 480 && !isExpanded ? 'ml-16' : ''}
-		{innerWidth.current < 480 ? 'ml-0' : ''}
-		">
-	{@render children?.()}
+        {#if isMobile}
+            <button onclick={() => (isMobileOpen = false)} class="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-secondary">
+                <Icon icon="heroicons:x-mark" class="h-6 w-6" />
+            </button>
+        {/if}
+    </div>
+
+    <nav class="flex-1 overflow-y-auto overflow-x-hidden py-6 px-3 space-y-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+        {#each mainMenu as item}
+            {@const isActive = page.url.pathname === item.href}
+            
+            <a
+                href={item.href}
+                title={!isExpanded && !isMobile ? item.name : ''}
+                class="group relative flex items-center h-12 rounded-xl cursor-pointer select-none transition-colors duration-200
+                {isActive ? 'bg-primary/5' : 'hover:bg-gray-50'}"
+            >
+                <div class="flex items-center min-w-64">
+                    <div class="w-14 flex items-center justify-center shrink-0">
+                        <Icon 
+                            icon={item.icon} 
+                            class="h-5 w-5 transition-colors duration-200 {isActive ? 'text-primary' : 'text-gray-600 group-hover:text-secondary'}" 
+                        />
+                    </div>
+
+                    <span 
+                        class="text-sm font-medium tracking-tight whitespace-nowrap transition-opacity duration-200
+                        {isActive ? 'text-primary' : 'text-gray-500 group-hover:text-secondary'}
+                        {isExpanded || (isMobile && isMobileOpen) ? 'opacity-100' : 'opacity-0'}"
+                    >
+                        {item.name}
+                    </span>
+                </div>
+            </a>
+        {/each}
+    </nav>
+
+    <div class="border-t border-gray-50 p-3 shrink-0 space-y-1 bg-white z-20">
+        {#each bottomMenu as item}
+            <a
+                href={item.href}
+                class="group relative flex items-center h-12 rounded-xl cursor-pointer overflow-hidden hover:bg-gray-50 transition-colors duration-200"
+            >
+                <div class="flex items-center min-w-64">
+                    <div class="w-14 flex items-center justify-center shrink-0">
+                        <Icon icon={item.icon} class="h-5 w-5 text-gray-600 group-hover:text-secondary transition-colors" />
+                    </div>
+                    <span class="text-sm font-medium tracking-tight text-gray-500 group-hover:text-secondary whitespace-nowrap transition-opacity duration-200
+                        {isExpanded || (isMobile && isMobileOpen) ? 'opacity-100' : 'opacity-0'}">
+                        {item.name}
+                    </span>
+                </div>
+            </a>
+        {/each}
+
+        <button
+            onclick={handleLogout}
+            class="group relative w-full flex items-center h-12 rounded-xl cursor-pointer overflow-hidden hover:bg-red-50 transition-colors duration-200"
+        >
+            <div class="flex items-center min-w-64">
+                <div class="w-14 flex items-center justify-center shrink-0">
+                    <Icon icon="heroicons:arrow-left-start-on-rectangle-solid" class="h-5 w-5 text-gray-600 group-hover:text-red-600 transition-colors" />
+                </div>
+                <span class="text-sm font-medium tracking-tight text-gray-500 group-hover:text-red-600 whitespace-nowrap transition-opacity duration-200
+                    {isExpanded || (isMobile && isMobileOpen) ? 'opacity-100' : 'opacity-0'}">
+                    Logout
+                </span>
+            </div>
+        </button>
+
+        {#if !isMobile}
+            <div class="mt-2 border-t border-gray-50 pt-2">
+                <button
+                    onclick={() => (isExpanded = !isExpanded)}
+                    class="group relative flex w-full items-center h-12 cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white transition-all duration-200 ease-out 
+                    hover:-translate-x-1 hover:-translate-y-1 hover:border-primary hover:shadow-[4px_4px_0px_0px_#00B77A]"
+                >
+                    <div class="flex items-center min-w-64">
+                        <div class="w-14 flex items-center justify-center shrink-0">
+                            <Icon 
+                                icon={isExpanded ? "heroicons:chevron-double-left-20-solid" : "heroicons:chevron-double-right-20-solid"} 
+                                class="h-5 w-5 text-gray-400 group-hover:text-primary transition-colors" 
+                            />
+                        </div>
+                        <span class="text-sm font-medium tracking-tight text-gray-400 group-hover:text-primary whitespace-nowrap transition-opacity duration-200
+                            {isExpanded ? 'opacity-100' : 'opacity-0'}">
+                            Collapse Sidebar
+                        </span>
+                    </div>
+                </button>
+            </div>
+        {/if}
+    </div>
+</aside>
+
+<div 
+    class="min-h-screen bg-white transition-all duration-300 ease-out
+    {isMobile ? 'ml-0 pt-20' : (isExpanded ? 'ml-64' : 'ml-20')}"
+>
+    {@render children?.()}
 </div>

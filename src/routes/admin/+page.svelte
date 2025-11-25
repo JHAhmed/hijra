@@ -1,100 +1,202 @@
+
 <script>
-	import { onMount } from 'svelte';
-	import { tablesDB } from '$lib/appwrite';
-	import { toast, Toaster } from 'svelte-sonner';
+    import { onMount } from 'svelte';
+    import { fade } from 'svelte/transition'; 
+    import { Toaster } from 'svelte-sonner';
+    import Icon from '@iconify/svelte';
+    import Modal from '$components/ui/Modal.svelte';
 
-	import Modal from '$components/ui/Modal.svelte';
+    let isLoading = $state(true);
+    
+    let stats = $state({
+        total: { value: 1240, label: 'Active', sub: 'Registered students' },
+        interested: { value: 263, label: 'Interested', sub: 'Potential leads' },
+        shortlisted: { value: 85, label: 'Shortlisted', sub: 'Review Required' },
+        approved: { value: 42, label: 'Approved', sub: 'Visa Processed' }
+    });
 
-	let isLoading = $state(true);
-	let totalUsers = $state(0);
-	let totalShortlisted = $state(0);
-	let applicationsProcessed = $state(0);
+    let recentActivity = $state([
+        { name: 'Yusuf Ahmed', action: 'Submitted Application', time: '2m', type: 'hajj' },
+        { name: 'Fatima Zahra', action: 'Uploaded Passport', time: '15m', type: 'umrah' },
+        { name: 'Omar Farooq', action: 'Payment Completed', time: '1h', type: 'hajj' },
+        { name: 'Aisha Siddiqua', action: 'Query Received', time: '3h', type: 'general' },
+        { name: 'Zaid Ibn Haritha', action: 'Visa Approved', time: '5h', type: 'hajj' },
+    ]);
 
-	let users = $state([]);
+    let packageCapacity = $state([
+        { name: 'Premium Hajj 2026', current: 45, max: 100, color: 'bg-emerald-500' },
+        { name: 'Ramadan Umrah', current: 82, max: 90, color: 'bg-blue-500' },
+        { name: 'Luxury Shifting', current: 12, max: 50, color: 'bg-purple-500' }
+    ]);
 
-	let interested = $state({
-		total: 0,
-		rows: []
-	});
+    onMount(() => {
+        setTimeout(() => { isLoading = false; }, 800);
+    });
 
-	let students = $state({
-		total: 0,
-		rows: []
-	});
+    const todayDate = new Date().toLocaleDateString('en-GB', { 
+        weekday: 'long', 
+        day: 'numeric', 
+        month: 'long' 
+    });
 
-	onMount(() => {
-		isLoading = false;
-	});
-
+    function getInitials(name) {
+        return name.split(' ').map(n => n[0]).slice(0, 2).join('');
+    }
 </script>
 
 <Toaster position="bottom-right" />
 
 {#if isLoading}
-	<Modal text="Loading..." />
+    <Modal text="Syncing Dashboard..." />
 {/if}
 
-<div
-	class="flex h-full min-h-[70vh] w-full flex-col items-start justify-start space-y-4 p-2 sm:p-4">
-	<h1 class="text-2xl font-medium tracking-tight text-slate-800">Admin Dashboard</h1>
-	<div class="h-px w-full bg-gray-200"></div>
+<div class="mx-auto w-full max-w-[1600px] space-y-8 p-6 md:p-10" in:fade={{ duration: 500 }}>
+    
+    <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <div class="space-y-1">
+            <span class="text-xs font-bold tracking-widest text-gray-400 uppercase">
+                {todayDate}
+            </span>
+            <h1 class="text-3xl font-medium tracking-tighter text-secondary md:text-4xl">
+                Overview
+            </h1>
+        </div>
 
-	<div class="flex w-full flex-col space-y-4 p-2 sm:p-4 md:flex-row md:space-x-4 md:space-y-0">
-		<div class="flex w-full flex-col space-y-4">
-			<h1 class="text-left text-xl sm:text-2xl font-medium tracking-tight text-gray-800">Stats</h1>
+        <div class="flex items-center gap-3">
+            <button class="group flex h-10 cursor-pointer items-center gap-2 rounded-full border border-gray-200 bg-white px-5 text-xs font-bold text-secondary transition-all hover:border-gray-300 hover:bg-gray-50 active:scale-95">
+                <Icon icon="heroicons:arrow-down-tray" class="h-3.5 w-3.5 text-gray-400 transition-colors group-hover:text-secondary" />
+                <span>Export</span>
+            </button>
+            <button class="group flex h-10 cursor-pointer items-center gap-2 rounded-full bg-secondary px-5 text-xs font-bold text-white shadow-lg shadow-secondary/10 transition-all hover:bg-black active:scale-95">
+                <Icon icon="heroicons:plus" class="h-3.5 w-3.5" />
+                <span>New Pilgrim</span>
+            </button>
+        </div>
+    </div>
 
-			<div class="grid h-fit w-full grid-cols-1 gap-4 sm:grid-cols-2">
-				<div
-					class="flex flex-col items-center justify-center space-y-2 sm:space-y-4 rounded-xl border border-gray-200 bg-gray-50 p-4 sm:p-6">
-					<p class="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-slate-800">{students.total}</p>
-					<h2 class="text-sm sm:text-base tracking-tight text-gray-700">Total Users</h2>
-				</div>
-				<div
-					class="flex flex-col items-center justify-center space-y-2 sm:space-y-4 rounded-xl border border-gray-200 bg-gray-50 p-4 sm:p-6">
-					<p class="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-slate-800">{totalShortlisted}</p>
-					<h2 class="text-sm sm:text-base tracking-tight text-gray-700">Total Shortlisted</h2>
-				</div>
-			</div>
-			<div class="grid h-fit w-full grid-cols-1 gap-4 sm:grid-cols-2">
-				<div
-					class="flex flex-col items-center justify-center space-y-2 sm:space-y-4 rounded-xl border border-gray-200 bg-gray-50 p-4 sm:p-6">
-					<p class="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-slate-800">{interested.total}</p>
-					<h2 class="text-sm sm:text-base tracking-tight text-gray-700">Total Interested</h2>
-				</div>
-				<div
-					class="flex flex-col items-center justify-center space-y-2 sm:space-y-4 rounded-xl border border-gray-200 bg-gray-50 p-4 sm:p-6">
-					<p class="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-slate-800">
-						{applicationsProcessed}
-					</p>
-					<h2 class="text-sm sm:text-base tracking-tight text-gray-700">Applications Approved</h2>
-				</div>
-			</div>
-		</div>
-		<div class="w-full md:w-1/3 rounded-xl border border-gray-200 bg-gray-50/50 p-2 sm:p-4">
-			<h2 class="my-2 sm:my-4 text-center text-lg sm:text-xl font-medium tracking-tight text-slate-800">
-				Latest Users
-			</h2>
+    <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
+        
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:col-span-2 lg:gap-6">
+            
+            <div class="group relative flex cursor-pointer flex-col justify-between rounded-[2rem] border border-gray-100 bg-white p-8 shadow-sm transition-all duration-300 hover:border-gray-300 hover:shadow-md">
+                <div class="flex items-start justify-between">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 text-secondary">
+                        <Icon icon="heroicons:users" class="h-5 w-5" />
+                    </div>
+                    <span class="flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-bold text-emerald-600">
+                        <Icon icon="heroicons:arrow-trending-up" class="h-3 w-3" /> 12%
+                    </span>
+                </div>
+                <div class="mt-6">
+                    <h3 class="text-4xl font-medium tracking-tighter text-secondary">{stats.total.value.toLocaleString()}</h3>
+                    <p class="mt-1 text-sm font-medium text-secondary">{stats.total.label}</p>
+                    <p class="text-xs text-gray-400">{stats.total.sub}</p>
+                </div>
+            </div>
 
-			<div class="flex flex-col space-y-2">
-				{#each users as user, i}
-					{#if user.fullName}
-						<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-1 sm:space-y-0 sm:space-x-4 border-b border-gray-200 p-2 sm:p-3">
-							<div class="flex flex-col">
-								<p class="text-base sm:text-lg font-medium text-gray-800">{user.fullName}</p>
-								<p class="text-xs sm:text-sm text-gray-500">{user.email}</p>
-							</div>
-						</div>
-					{/if}
-				{/each}
-			</div>
+            <div class="group relative flex cursor-pointer flex-col justify-between rounded-[2rem] border border-gray-100 bg-white p-8 shadow-sm transition-all duration-300 hover:border-gray-300 hover:shadow-md">
+                <div class="flex items-start justify-between">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+                        <Icon icon="heroicons:user-plus" class="h-5 w-5" />
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <h3 class="text-4xl font-medium tracking-tighter text-secondary">{stats.interested.value}</h3>
+                    <p class="mt-1 text-sm font-medium text-secondary">{stats.interested.label}</p>
+                    <p class="text-xs text-gray-400">{stats.interested.sub}</p>
+                </div>
+            </div>
 
-			<div class="mt-4 flex w-full justify-center">
-				<a
-					href="admin/users"
-					class="w-full rounded-lg bg-primary px-4 py-2 text-center text-white transition-colors hover:bg-primary/90">
-					View All Users
-				</a>
-			</div>
-		</div>
-	</div>
+            <div class="group relative flex cursor-pointer flex-col justify-between rounded-[2rem] border border-gray-100 bg-white p-8 shadow-sm transition-all duration-300 hover:border-amber-200 hover:bg-amber-50/30 hover:shadow-md">
+                <div class="flex items-start justify-between">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-amber-50 text-amber-600">
+                        <Icon icon="heroicons:star" class="h-5 w-5" />
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <h3 class="text-4xl font-medium tracking-tighter text-secondary">{stats.shortlisted.value}</h3>
+                    <p class="mt-1 text-sm font-medium text-secondary">{stats.shortlisted.label}</p>
+                    <p class="text-xs text-gray-400">{stats.shortlisted.sub}</p>
+                </div>
+            </div>
+
+            <div class="group relative flex cursor-pointer flex-col justify-between rounded-[2rem] border border-gray-900 bg-secondary p-8 text-white shadow-sm transition-all duration-300 hover:shadow-lg hover:shadow-gray-900/20">
+                <div class="flex items-start justify-between">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-emerald-400 backdrop-blur-sm">
+                        <Icon icon="heroicons:check-badge" class="h-5 w-5" />
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <h3 class="text-4xl font-medium tracking-tighter text-white">{stats.approved.value}</h3>
+                    <p class="mt-1 text-sm font-medium text-white">{stats.approved.label}</p>
+                    <p class="text-xs text-gray-400">{stats.approved.sub}</p>
+                </div>
+            </div>
+
+            <div class="flex flex-col justify-center rounded-[2rem] border border-gray-100 bg-white p-8 shadow-sm sm:col-span-2">
+                <div class="mb-8 flex items-end justify-between">
+                    <div>
+                        <h3 class="text-xl font-medium tracking-tight text-secondary">Package Capacity</h3>
+                        <p class="mt-1 text-sm text-gray-500">Real-time slot availability.</p>
+                    </div>
+                    <div class="hidden h-px w-24 bg-gray-100 sm:block"></div>
+                </div>
+
+                <div class="space-y-8">
+                    {#each packageCapacity as pkg}
+                        <div class="group cursor-default">
+                            <div class="mb-3 flex items-center justify-between text-sm">
+                                <div class="flex items-center gap-3">
+                                    <span class="font-medium text-secondary">{pkg.name}</span>
+                                    <span class="rounded-full bg-gray-50 px-2 py-0.5 text-[10px] font-medium text-gray-400 opacity-0 transition-opacity group-hover:opacity-100">
+                                        {pkg.max} Slots Total
+                                    </span>
+                                </div>
+                                <span class="font-medium text-gray-900">{pkg.current} / {pkg.max}</span>
+                            </div>
+                            
+                            <div class="relative h-2 w-full overflow-hidden rounded-full bg-gray-50">
+                                <div 
+                                    class="absolute left-0 top-0 h-full rounded-full {pkg.color} transition-all duration-1000 ease-out group-hover:brightness-110" 
+                                    style="width: {(pkg.current / pkg.max) * 100}%"
+                                ></div>
+                            </div>
+                        </div>
+                    {/each}
+                </div>
+            </div>
+        </div>
+
+        <div class="flex h-fit flex-col rounded-[2rem] border border-gray-100 bg-white p-8 shadow-sm lg:col-span-1">
+            <div class="mb-8 flex items-center justify-between">
+                <h3 class="text-lg font-medium tracking-tight text-secondary">Live Activity</h3>
+                <a href="/admin/users" class="text-[11px] font-bold tracking-widest text-primary uppercase hover:underline">View All</a>
+            </div>
+
+            <div class="flex-1 space-y-6 overflow-y-auto pr-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+                {#each recentActivity as activity}
+                    <div class="group flex cursor-pointer gap-4 transition-opacity hover:opacity-100">
+                        <div class="relative mt-1">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 text-[10px] font-bold text-secondary ring-1 ring-gray-100 transition-all duration-300 group-hover:bg-secondary group-hover:text-white group-hover:shadow-md">
+                                {getInitials(activity.name)}
+                            </div>
+                            {#if activity.type === 'hajj'}
+                                <div class="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-500 transition-transform group-hover:scale-0"></div>
+                            {:else if activity.type === 'umrah'}
+                                <div class="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-blue-500 transition-transform group-hover:scale-0"></div>
+                            {/if}
+                        </div>
+                        <div class="flex flex-1 flex-col justify-center">
+                            <div class="flex justify-between">
+                                <span class="text-sm font-medium text-secondary">{activity.name}</span>
+                                <span class="text-[10px] font-medium text-gray-300 uppercase tracking-wide">{activity.time}</span>
+                            </div>
+                            <span class="text-xs text-gray-400">{activity.action}</span>
+                        </div>
+                    </div>
+                {/each}
+            </div>
+        </div>
+
+    </div>
 </div>

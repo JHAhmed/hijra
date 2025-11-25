@@ -12,22 +12,22 @@
 	let { children, data } = $props();
 	let isLoading = $state(true);
 	
-	onMount(async () => {
-		if (!auth.isLoggedIn) {
-			goto('/auth');
-		}
-		isLoading = false;
-	});
+	// onMount(async () => {
+	// 	if (!auth.isLoggedIn) {
+	// 		goto('/auth');
+	// 	}
+	// 	isLoading = false;
+	// });
 </script>
 
-{#if isLoading}
+<!-- {#if isLoading}
 	<Modal text="Loading..." />
-{/if}
+{/if} -->
 
-{#if auth.isAdmin}
+<!-- {#if auth.isAdmin} -->
 	<Sidebar>
 		{@render children?.()}
 	</Sidebar>
-{:else}
+<!-- {:else}
 	<Modal text="Access Denied. Admins only." description="You do not have permission to access this page." spinner={false} />
-{/if}
+{/if} -->
