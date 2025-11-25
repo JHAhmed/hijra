@@ -44,7 +44,7 @@
 
 <svelte:head>
 	<title>Admin | Hijrah Portal</title>
-	<meta name="description" content="Admin dashboard for hijrah portal." />
+	<meta name="description" content="Admin dashboard for Hijrah Portal." />
 </svelte:head>
 
 {#if authStore.isLoading}

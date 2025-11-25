@@ -87,24 +87,24 @@
 	<title>Login | Hijrah Portal</title>
 	<meta
 		name="description"
-		content="Login to your account at hijrah to access personalized support for your medical education journey." />
+		content="Login to your account at Hijrah Portal to access personalized support for your medical education journey." />
 	<link rel="canonical" href="https://hijrah-portal.vercel.app/auth" />
 	<script type="application/ld+json">
 		{
 			"@context": "http://schema.org",
 			"@type": "WebPage",
-			"name": "Login | hijrah",
+			"name": "Login | Hijrah Portal",
 			"url": "https://hijrah-portal.vercel.app/auth"
 		}
 	</script>
 
 	<meta property="og:type" content="website" />
-	<meta property="og:title" content="Login | hijrah" />
+	<meta property="og:title" content="Login | Hijrah Portal" />
 	<meta property="og:image" content="{page.url.origin}/ogimage.png" />
 	<meta property="og:url" content="{page.url.origin}/auth" />
 	<meta
 		property="og:description"
-		content="Login to your account at hijrah to access personalized support for your medical education journey." />
+		content="Login to your account at Hijrah Portal to access personalized support for your medical education journey." />
 </svelte:head>
 
 <Toaster richColors position="top-center" />
@@ -116,10 +116,10 @@
 			<a href="/" class="group/logo my-8 inline-flex items-center gap-3">
 				<img
 					src={favicon}
-					alt="hijrah Logo"
+					alt="Hijrah Portal Logo"
 					class="h-8 w-8 object-contain transition-transform duration-300 md:h-10 md:w-10" />
 				<span class="text-3xl font-bold tracking-tighter text-black md:text-4xl">
-					hijrah<span class="text-primary">.</span>
+					Hijrah<span class="text-primary">.</span>
 				</span>
 			</a>
 

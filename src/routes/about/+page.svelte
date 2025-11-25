@@ -42,10 +42,10 @@
 </script>
 
 <svelte:head>
-	<title>About Us | hijrah</title>
+	<title>About Us | Hijrah Portal</title>
 	<meta
 		name="description"
-		content="Learn more about hijrah, our mission, and the services we offer to pilgrims." />
+		content="Learn more about Hijrah Portal, our mission, and the services we offer to pilgrims." />
 	<meta
 		name="keywords"
 		content="Hajj packages, Umrah packages, Hajj from India, Umrah from Chennai, affordable Hajj packages, Makkah hotel booking, Madinah hotel booking, pilgrimage services, Hajj visa, Umrah visa" />
@@ -54,8 +54,8 @@
 		{
 			"@context": "https://schema.org",
 			"@type": "TravelAgency",
-			"name": "About | hijrah",
-			"description": "Learn more about hijrah, our mission, and the services we offer to pilgrims.",
+			"name": "About | Hijrah Portal",
+			"description": "Learn more about Hijrah Portal, our mission, and the services we offer to pilgrims.",
 			"areaServed": ["Saudi Arabia", "India", "UAE", "Malaysia", "United Kingdom"],
 			"serviceType": ["Hajj Packages", "Umrah Packages", "Islamic Tours", "Pilgrimage Services"],
 			"url": "https://hijrah-portal.vercel.app/about"
@@ -63,12 +63,12 @@
 	</script>
 
 	<meta property="og:type" content="website" />
-	<meta property="og:title" content="About | hijrah" />
+	<meta property="og:title" content="About | Hijrah Portal" />
 	<!-- <meta property="og:image" content="{page.url.origin}/ogimage.png" /> -->
 	<!-- <meta property="og:url" content="{page.url.origin}/about" /> -->
 	<meta
 		property="og:description"
-		content="Learn more about hijrah, our mission, and the services we offer to pilgrims." />
+		content="Learn more about Hijrah Portal, our mission, and the services we offer to pilgrims." />
 </svelte:head>
 
 <section class="w-full bg-white px-6 pt-16 pb-12 text-secondary md:px-12">

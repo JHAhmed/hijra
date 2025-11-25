@@ -42,7 +42,7 @@
 							alt="hijrah Logo"
 							class="h-8 w-8 object-contain transition-transform duration-300 md:h-10 md:w-10" />
 						<span class="text-3xl font-bold tracking-tighter text-black md:text-4xl">
-							hijrah<span class="text-primary">.</span>
+							Hijrah<span class="text-primary">.</span>
 						</span>
 					</a>
 

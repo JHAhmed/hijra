@@ -2,7 +2,7 @@
 	import Icon from '@iconify/svelte';
 
 	let {
-		quote = 'hijrah made my Umrah completely stress-free. The team handled everything perfectly, allowing me to focus entirely on my spiritual journey.',
+		quote = 'Hijrah made my Umrah completely stress-free. The team handled everything perfectly, allowing me to focus entirely on my spiritual journey.',
 		name = 'Mohammed Abdullah',
 		college = 'Performed Umrah 2024',
 		avatarSrc = '',

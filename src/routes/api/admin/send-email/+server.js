@@ -27,7 +27,7 @@ async function sendEmail(recipient, subject = '', message) {
 export async function POST({ request }) {
 	const { recipient, subject, message } = await request.json();
 
-	if (!subject) subject = 'New Email from hijrah!';
+	if (!subject) subject = 'New Email from Hijrah Portal!';
 
 	try {
 		await sendEmail(recipient, subject, message);

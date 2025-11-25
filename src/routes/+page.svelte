@@ -18,7 +18,7 @@
 			role: 'Hajj Package',
 			location: 'London, UK',
 			quote:
-				"The proximity to the Haram was unbelievable. hijrah didn't just book a hotel; they curated an environment where I could focus entirely on my Ibadah. It felt like a sanctuary."
+				"The proximity to the Haram was unbelievable. Hijrah didn't just book a hotel; they curated an environment where I could focus entirely on my Ibadah. It felt like a sanctuary."
 		},
 		{
 			type: 'image',
@@ -52,7 +52,7 @@
 			role: 'Group Leader',
 			location: 'Cape Town, SA',
 			quote:
-				"I have led groups for 10 years. hijrah's attention to logistical detail is unmatched in the industry."
+				"I have led groups for 10 years. Hijrah's attention to logistical detail is unmatched in the industry."
 		}
 	];
 

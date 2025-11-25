@@ -100,27 +100,27 @@
 </script>
 
 <svelte:head>
-	<title>Login | hijrah</title>
+	<title>Login | Hijrah Portal</title>
 	<meta
 		name="description"
-		content="Login to your account at hijrah to access personalized support for your medical education journey." />
+		content="Login to your account at Hijrah Portal to access personalized support for your medical education journey." />
 	<link rel="canonical" href="https://hijrah-portal.vercel.app/auth" />
 	<script type="application/ld+json">
 		{
 			"@context": "http://schema.org",
 			"@type": "WebPage",
-			"name": "Login | hijrah",
+			"name": "Login | Hijrah Portal",
 			"url": "https://hijrah-portal.vercel.app/auth"
 		}
 	</script>
 
 	<meta property="og:type" content="website" />
-	<meta property="og:title" content="Login | hijrah" />
+	<meta property="og:title" content="Login | Hijrah Portal" />
 	<meta property="og:image" content="{page.url.origin}/ogimage.png" />
 	<meta property="og:url" content="{page.url.origin}/auth" />
 	<meta
 		property="og:description"
-		content="Login to your account at hijrah to access personalized support for your medical education journey." />
+		content="Login to your account at Hijrah Portal to access personalized support for your medical education journey." />
 </svelte:head>
 
 <Toaster richColors />
