@@ -35,7 +35,7 @@
 						src={travelPackage.image.url}
 						alt={travelPackage.name}
 						loading="lazy"
-						class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+						class="h-full w-full object-cover transition-transform duration-700" />
 				{/if}
 			</div>
 

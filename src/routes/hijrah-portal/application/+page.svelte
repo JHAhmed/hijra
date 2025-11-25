@@ -2,13 +2,13 @@
 	import { goto } from '$app/navigation';
 	import { fade, slide } from 'svelte/transition';
 	import Icon from '@iconify/svelte';
+	import { page } from '$app/stores';
 
 	// UI Components
 	import Button from '$components/ui/Button.svelte';
 	import Input from '$components/ui/Input.svelte';
 	import Dropdown from '$components/ui/Dropdown.svelte';
 	import DateField from '$components/ui/DateField.svelte';
-	import FileInput from '$components/ui/FileInput.svelte';
 	import { cn } from '$lib/utils.js';
 
 	// State Management
@@ -16,12 +16,8 @@
 	let loading = $state(false);
 	let errors = $state({});
 
-	// CMS Mock Data
-	const packages = [
-		{ value: 'premium-hajj-2026', label: 'Premium Hajj 2026 - Shifting', price: '$12,500' },
-		{ value: 'luxury-hajj-2026', label: 'Luxury Hajj 2026 - Non-Shifting', price: '$16,000' },
-		{ value: 'umrah-ramadan', label: 'Ramadan Umrah - Last 10 Days', price: '$4,500' }
-	];
+	// Get Package ID from URL (since step 1 is removed)
+	const packageId = $derived($page.url.searchParams.get('packageId') || 'unknown-package');
 
 	const relationships = [
 		{ value: 'spouse', label: 'Spouse' },
@@ -32,23 +28,18 @@
 
 	// Form Data Store
 	let formData = $state({
-		packageId: '',
+		packageId: packageId,
 		leadPilgrim: {
 			firstName: '',
 			lastName: '',
 			email: '',
 			phone: '',
-			nationality: '',
 			gender: '',
-			dob: undefined, // specific date object for bits-ui
+			dob: undefined,
 			passportNumber: '',
 			passportExpiry: undefined
 		},
-		documents: {
-			passportFront: undefined,
-			photo: undefined
-		},
-		familyMembers: [] // Array of member objects
+		familyMembers: []
 	});
 
 	// Helper: Add Family Member
@@ -59,8 +50,7 @@
 				lastName: '',
 				relation: '',
 				passportNumber: '',
-				dob: undefined,
-				documents: { passportFront: undefined }
+				dob: undefined
 			});
 		}
 	}
@@ -70,19 +60,13 @@
 		formData.familyMembers = formData.familyMembers.filter((_, i) => i !== index);
 	}
 
-	// Validation Logic (Simplified for brevity)
+	// Validation Logic
 	function validateStep(currentStep) {
 		let newErrors = {};
 		let isValid = true;
 
+		// Step 1: Personal Details
 		if (currentStep === 1) {
-			if (!formData.packageId) {
-				newErrors.packageId = 'Please select a package to continue.';
-				isValid = false;
-			}
-		}
-
-		if (currentStep === 2) {
 			const required = ['firstName', 'lastName', 'email', 'phone', 'passportNumber'];
 			required.forEach((field) => {
 				if (!formData.leadPilgrim[field]) {
@@ -92,11 +76,9 @@
 			});
 		}
 
-		if (currentStep === 3) {
-			if (!formData.documents.passportFront) {
-				newErrors.passportFront = 'Passport scan is required';
-				isValid = false;
-			}
+		// Step 2: Family (Optional, but check fields if added)
+		if (currentStep === 2) {
+			// Add specific validation for family members here if needed
 		}
 
 		errors = newErrors;
@@ -116,21 +98,13 @@
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}
 
-	// Submit Handler
 	async function handleSubmit() {
 		loading = true;
-
-		// Simulate Backend Call
+		// Simulate Backend Call -> Redirect to Documents or Success
 		setTimeout(() => {
 			loading = false;
-			goto('/hijrah-portal/application/success');
-		}, 2000);
-
-		/* Real Backend Implementation:
-           const formDataToSend = new FormData();
-           // Append fields and files...
-           const res = await fetch('/api/applications', { method: 'POST', body: formDataToSend });
-        */
+			goto('/hijrah-portal/documents'); // Logic change: Maybe go to docs page next?
+		}, 1500);
 	}
 </script>
 
@@ -141,12 +115,12 @@
 				Application Form
 			</span>
 			<h1 class="text-3xl font-semibold tracking-tighter md:text-5xl">
-				Begin your <span class="text-primary">Journey.</span>
+				Pilgrim <span class="text-primary">Details.</span>
 			</h1>
 		</div>
 
-		<div class="mb-12 flex items-center justify-between px-4 md:px-12">
-			{#each ['Package', 'Personal', 'Documents', 'Family', 'Review'] as label, i}
+		<div class="mb-12 flex items-center justify-between px-4 md:px-20">
+			{#each ['Personal Info', 'Family Members', 'Review & Submit'] as label, i}
 				{@const stepNum = i + 1}
 				<div class="relative z-10 flex flex-col items-center gap-2">
 					<div
@@ -168,7 +142,7 @@
 							step >= stepNum ? 'text-secondary' : 'text-gray-400'
 						)}>{label}</span>
 				</div>
-				{#if i < 4}
+				{#if i < 2}
 					<div class="relative -z-0 mx-2 -mt-6 h-0.5 w-full bg-gray-200">
 						<div
 							class="absolute inset-0 bg-primary transition-all duration-500"
@@ -182,44 +156,6 @@
 		<div
 			class="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-xl shadow-gray-200/40">
 			{#if step === 1}
-				<div in:fade={{ duration: 300 }} class="p-6 md:p-10">
-					<h2 class="mb-6 text-2xl font-bold tracking-tight">Select your Package</h2>
-					<div class="grid grid-cols-1 gap-4">
-						{#each packages as pkg}
-							<label
-								class={cn(
-									'cursor-pointer rounded-2xl border-2 p-6 transition-all duration-200 hover:border-primary/50 hover:bg-gray-50',
-									formData.packageId === pkg.value
-										? 'border-primary bg-green-50/30 ring-1 ring-primary'
-										: 'border-gray-100'
-								)}>
-								<div class="flex items-center justify-between">
-									<div class="flex items-center gap-4">
-										<input
-											type="radio"
-											name="package"
-											value={pkg.value}
-											bind:group={formData.packageId}
-											class="h-5 w-5 border-gray-300 text-primary focus:ring-primary" />
-										<div>
-											<p class="text-lg font-bold">{pkg.label}</p>
-											<p class="text-sm text-gray-500">
-												Includes visa processing, flights, and accommodation.
-											</p>
-										</div>
-									</div>
-									<span class="text-lg font-bold text-primary">{pkg.price}</span>
-								</div>
-							</label>
-						{/each}
-					</div>
-					{#if errors.packageId}
-						<p class="mt-4 text-center text-sm font-medium text-red-500">{errors.packageId}</p>
-					{/if}
-				</div>
-			{/if}
-
-			{#if step === 2}
 				<div in:fade={{ duration: 300 }} class="p-6 md:p-10">
 					<h2 class="mb-6 text-2xl font-bold tracking-tight">Lead Pilgrim Details</h2>
 					<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -268,42 +204,13 @@
 				</div>
 			{/if}
 
-			{#if step === 3}
-				<div in:fade={{ duration: 300 }} class="p-6 md:p-10">
-					<h2 class="mb-2 text-2xl font-bold tracking-tight">Upload Documents</h2>
-					<p class="mb-8 text-sm text-gray-500">
-						Please provide clear scans of your documents. Max size 5MB.
-					</p>
-
-					<div class="mx-auto max-w-xl space-y-6">
-						<FileInput
-							label="Passport Scan (Front Page)"
-							uploadName="Passport_Front"
-							accept=".jpg,.png,.pdf"
-							bind:value={formData.documents.passportFront}
-							error={errors.passportFront} />
-						<FileInput
-							label="Passport Scan (Back Page)"
-							uploadName="Passport_Back"
-							accept=".jpg,.png,.pdf"
-							bind:value={formData.documents.passportBack} />
-						<FileInput
-							label="Passport Size Photo"
-							uploadName="Photo"
-							accept=".jpg,.png"
-							icon="heroicons:camera"
-							bind:value={formData.documents.photo} />
-					</div>
-				</div>
-			{/if}
-
-			{#if step === 4}
+			{#if step === 2}
 				<div in:fade={{ duration: 300 }} class="min-h-[500px] bg-gray-50/50 p-6 md:p-10">
 					<div class="mb-6 flex items-center justify-between">
 						<div>
 							<h2 class="text-2xl font-bold tracking-tight">Family Members</h2>
 							<p class="mt-1 text-sm text-gray-500">
-								Add details for spouse, children, or parents traveling with you.
+								Add details for spouse, children, or parents.
 							</p>
 						</div>
 						<Button
@@ -338,11 +245,9 @@
 											<Icon icon="heroicons:trash" class="h-5 w-5" />
 										</button>
 									</div>
-
 									<h3 class="mb-4 text-sm font-bold tracking-wider text-primary uppercase">
 										Member {i + 1}
 									</h3>
-
 									<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 										<Input label="First Name" bind:value={member.firstName} />
 										<Input label="Last Name" bind:value={member.lastName} />
@@ -350,12 +255,7 @@
 											label="Relationship"
 											items={relationships}
 											bind:value={member.relation} />
-										<DateField label="Date of Birth" bind:value={member.dob} />
 										<Input label="Passport Number" bind:value={member.passportNumber} />
-										<FileInput
-											label="Passport Scan"
-											uploadName={`Member_${i + 1}_Passport`}
-											bind:value={member.documents.passportFront} />
 									</div>
 								</div>
 							{/each}
@@ -364,37 +264,26 @@
 				</div>
 			{/if}
 
-			{#if step === 5}
+			{#if step === 3}
 				<div in:fade={{ duration: 300 }} class="p-6 md:p-10">
 					<h2 class="mb-8 text-2xl font-bold tracking-tight">Review Application</h2>
-
 					<div class="space-y-8">
-						<div class="rounded-2xl bg-gray-50 p-6">
-							<h3 class="mb-4 text-sm font-bold tracking-widest text-gray-400 uppercase">
-								Selected Package
-							</h3>
-							<p class="text-xl font-bold text-secondary">
-								{packages.find((p) => p.value === formData.packageId)?.label}
-							</p>
-						</div>
-
 						<div>
 							<h3 class="mb-4 text-sm font-bold tracking-widest text-gray-400 uppercase">
 								Lead Pilgrim
 							</h3>
 							<div class="grid grid-cols-2 gap-6 text-sm md:grid-cols-3">
 								<div>
-									<span class="block text-gray-500">Name</span>
-									<span class="font-medium"
+									<span class="block text-gray-500">Name</span><span class="font-medium"
 										>{formData.leadPilgrim.firstName} {formData.leadPilgrim.lastName}</span>
 								</div>
 								<div>
-									<span class="block text-gray-500">Email</span>
-									<span class="font-medium">{formData.leadPilgrim.email}</span>
+									<span class="block text-gray-500">Email</span><span class="font-medium"
+										>{formData.leadPilgrim.email}</span>
 								</div>
 								<div>
-									<span class="block text-gray-500">Passport</span>
-									<span class="font-medium">{formData.leadPilgrim.passportNumber}</span>
+									<span class="block text-gray-500">Passport</span><span class="font-medium"
+										>{formData.leadPilgrim.passportNumber}</span>
 								</div>
 							</div>
 						</div>
@@ -422,7 +311,7 @@
 				class="flex items-center justify-between border-t border-gray-100 bg-gray-50/30 p-6 md:px-10 md:py-8">
 				<Button onclick={prevStep} disabled={step === 1 || loading} variant="ghost" text="Back" />
 
-				{#if step < 5}
+				{#if step < 3}
 					<Button
 						onclick={nextStep}
 						variant="primary"
@@ -433,8 +322,8 @@
 						onclick={handleSubmit}
 						{loading}
 						variant="primary"
-						text="Submit Application"
-						class="w-40" />
+						text="Submit & Upload Documents"
+						class="w-auto" />
 				{/if}
 			</div>
 		</div>

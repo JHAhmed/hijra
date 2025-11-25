@@ -62,7 +62,7 @@
 		</label>
 	{/if}
 
-	<div class="relative rounded-xl">
+	<div class=" rounded-xl">
 		<input
 			type="file"
 			{name}
@@ -75,7 +75,7 @@
 		<label
 			for={inputId}
 			class={cn(
-				'block w-full cursor-pointer rounded-xl border border-gray-200 bg-white px-4 py-3.5 pr-10 text-sm text-secondary transition-all duration-200',
+				'relative block w-full cursor-pointer rounded-xl border border-gray-200 bg-white px-4 py-3.5 pr-10 text-sm text-secondary transition-all duration-200',
 				'hover:border-primary/50 hover:bg-gray-50',
 				'focus-within:border-primary focus-within:ring-1 focus-within:ring-primary focus-within:outline-none',
 				error && 'border-red-500'
@@ -83,22 +83,22 @@
 			<span class={cn('block truncate', fileName ? 'font-medium text-secondary' : 'text-gray-400')}>
 				{fileName || 'Choose a file...'}
 			</span>
+
+			{#if icon}
+				<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+					<Icon {icon} class="h-6 w-fit text-gray-400" />
+				</div>
+			{/if}
 		</label>
 
-		{#if icon}
-			<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-				<Icon {icon} class="h-5 w-5 text-gray-400" />
-			</div>
-		{/if}
-
 		{#if accept}
-			<p class="mt-1.5 px-1 text-xs text-gray-400">
+			<p class="mt-1 px-1 text-xs text-gray-400">
 				Supported formats: {accept.split(',').join(', ')}
 			</p>
 		{/if}
 	</div>
 
 	{#if error}
-		<p class="mt-1.5 text-xs text-red-500">{error}</p>
+		<p class="mt-1 ml-1 text-xs text-red-500">{error}</p>
 	{/if}
 </div>

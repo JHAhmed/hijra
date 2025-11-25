@@ -17,7 +17,7 @@
 		<img
 			src={card.image}
 			alt={card.text}
-			class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+			class="h-full w-full object-cover transition-transform duration-500"
 			loading="lazy" />
 
 		<div class="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent"></div>

@@ -11,7 +11,7 @@
 	const toggleMobileMenu = () => (isMobileMenuOpen = !isMobileMenuOpen);
 
 	const navLinks = [
-		{ label: 'Home', href: '/' },
+		// { label: 'Home', href: '/' },
 		{ label: 'About', href: '/about' },
 		{ label: 'Packages', href: '/packages' },
 		{ label: 'Contact', href: '/contact' }
@@ -27,7 +27,7 @@
 </script>
 
 <nav
-	class="fixed top-0 left-0 z-50 h-20 w-full border-b border-gray-100 bg-white antialiased transition-all duration-200 ease-out">
+	class="fixed top-0 left-0 z-50 h-20 w-full border-b border-gray-100 bg-white antialiased transition-all duration-200">
 	<!-- <div
 		class="pointer-events-none absolute inset-0 h-full w-full border-b border-gray-100/0 transition-all duration-200 ease-out
     {isScrolled ? 'border-gray-100! bg-white opacity-100!' : 'opacity-0'}">

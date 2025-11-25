@@ -9,34 +9,21 @@
 	let packageTypes = [
 		{ value: 'all', label: 'All Journeys' },
 		{ value: 'hajj', label: 'Hajj Packages' },
-		{ value: 'umrah', label: 'Umrah Packages' },
-		{ value: 'tourism', label: 'Halal Tourism' }
+		{ value: 'umrah', label: 'Umrah Packages' }
 	];
 
-	let selectedPackage = 'all';
+	let selectedPackage = $state('all');
 
 	// Assuming you pass data via data prop or load it here
-	export let data;
-	// Fallback if data isn't loaded for this example
-	let packages = data?.packages || [
-		{
-			name: 'Premium Hajj Shifting',
-			type: 'hajj',
-			price: 850000,
-			description: 'A complete spiritual immersion with shifting accommodation close to Haram.',
-			image: { url: 'https://images.unsplash.com/photo-1565552645632-d725f8bfc19a?q=80&w=1000' }
-		},
-		{
-			name: 'Economy Umrah Saver',
-			type: 'umrah',
-			price: 95000,
-			description: 'Affordable spiritual journey focusing on the essentials.',
-			image: { url: 'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?q=80&w=800' }
-		}
-	];
+	let { data } = $props();
 
-	$: filteredPackages =
-		selectedPackage === 'all' ? packages : packages.filter((p) => p.type === selectedPackage);
+	let packages = data?.packages || [];
+
+	console.log(packages);
+
+	let filteredPackages = $derived(
+		selectedPackage === 'all' ? packages : packages.filter((p) => p.type === selectedPackage)
+	);
 </script>
 
 <div

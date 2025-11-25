@@ -30,7 +30,7 @@
 		{
 			text: 'Document Upload',
 			description: 'Upload and manage your necessary documents.',
-			url: '/hijrah-portal/document-upload',
+			url: '/hijrah-portal/documents',
 			icon: 'ph:files',
 			visible: true,
 			image:

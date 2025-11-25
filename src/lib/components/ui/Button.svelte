@@ -27,26 +27,49 @@
 		destructive: 'bg-red-600 text-white hover:bg-red-700'
 	};
 
-	const sizes = {
-		sm: 'px-3 py-1.5 text-sm gap-1.5 h-10',
-		md: 'px-4 py-2 text-base gap-2 h-11',
-		lg: 'px-6 py-3 text-lg gap-3 h-12'
+	const transitions = {
+		large:
+			'transition-all duration-200 ease-out hover:-translate-x-1 hover:-translate-y-1 active:translate-x-0 active:translate-y-0',
+		small:
+			'transition-all duration-200 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0 active:translate-y-0',
+		ghost: 'transition-colors duration-200'
 	};
 
-	const buttonSizes = {
-		sm: 'px-4 py-2 text-sm gap-2 h-10',
-		md: 'px-10 py-3.5 text-sm gap-3 h-14', // Matches examples
-		lg: 'px-12 py-4 text-base gap-4 h-16'
+	const shadows = {
+		primary:
+			'hover:shadow-[4px_4px_0px_0px_#00B77A] active:shadow-none active:hover:shadow-[2px_2px_0px_0px_#00B77A]',
+		secondary:
+			'hover:shadow-[4px_4px_0px_0px_#000] active:shadow-none active:hover:shadow-[2px_2px_0px_0px_#000]',
+		pill: 'hover:shadow-sm active:shadow-none',
+		outline: 'hover:shadow-sm active:shadow-none'
 	};
 
-	const iconOnlySizes = {
-		sm: 'p-2',
-		md: 'p-2.5',
-		lg: 'p-3'
+	const sizeConfig = {
+		sm: {
+			regular: 'px-3 py-1.5 text-sm gap-1.5 h-10',
+			largePill: 'px-4 py-2 text-sm gap-2 h-10',
+			iconOnly: 'p-2'
+		},
+		md: {
+			regular: 'px-4 py-2 text-base gap-2 h-11',
+			largePill: 'px-10 py-3.5 text-sm gap-3 h-14',
+			iconOnly: 'p-2.5'
+		},
+		lg: {
+			regular: 'px-6 py-3 text-lg gap-3 h-12',
+			largePill: 'px-12 py-4 text-base gap-4 h-16',
+			iconOnly: 'p-3'
+		}
 	};
 
 	const isLargePill = ['primary', 'secondary'].includes(variant);
 	const isIconOnly = iconPos === 'only';
+	const sizeClasses = isLargePill
+		? sizeConfig[size].largePill
+		: isIconOnly
+			? sizeConfig[size].iconOnly
+			: sizeConfig[size].regular;
+	const iconSize = isIconOnly ? 'h-5 w-5' : 'h-4 w-4';
 
 	function handleClick() {
 		if (href) {
@@ -64,22 +87,19 @@
 		'group/button inline-flex cursor-pointer items-center justify-center rounded-full font-medium focus:ring-0 focus:outline-none disabled:pointer-events-none disabled:opacity-50',
 		fullWidth && 'w-full sm:w-auto',
 		variants[variant],
-		isLargePill ? buttonSizes[size] : isIconOnly ? iconOnlySizes[size] : sizes[size],
-		variant === 'primary' &&
-			'transition-all duration-200 ease-out hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_#00B77A] active:translate-x-0 active:translate-y-0 active:shadow-none active:hover:shadow-[2px_2px_0px_0px_#00B77A]',
-		variant === 'secondary' &&
-			'group transition-all duration-300 hover:-translate-x-1 hover:-translate-y-1 hover:border-secondary hover:bg-gray-50 hover:shadow-[4px_4px_0px_0px_#000] active:translate-x-0 active:translate-y-0 active:shadow-none active:hover:shadow-[2px_2px_0px_0px_#000]',
-		variant === 'pill' &&
-			'transition-all duration-200 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-sm active:translate-x-0 active:translate-y-0 active:shadow-none',
-		variant === 'outline' &&
-			'transition-all duration-200 ease-out hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-sm active:translate-x-0 active:translate-y-0 active:shadow-none',
+		sizeClasses,
 		isIconOnly && 'aspect-square',
+		variant === 'primary' && cn(transitions.large, shadows.primary),
+		variant === 'secondary' &&
+			cn(transitions.large, 'hover:border-secondary hover:bg-gray-50', shadows.secondary),
+		['pill', 'outline'].includes(variant) && cn(transitions.small, shadows[variant]),
+		variant === 'ghost' && transitions.ghost,
 		className
 	)}
 	{...rest}>
 	{#if loading}
 		<svg
-			class={cn('animate-spin', isIconOnly ? 'h-5 w-5' : 'h-4 w-4')}
+			class={cn('animate-spin', iconSize)}
 			xmlns="http://www.w3.org/2000/svg"
 			fill="none"
 			viewBox="0 0 24 24">
@@ -92,7 +112,7 @@
 			></path>
 		</svg>
 	{:else if icon && (iconPos === 'left' || iconPos === 'only')}
-		<Icon {icon} class={cn(isIconOnly ? 'h-5 w-5' : 'h-4 w-4')} />
+		<Icon {icon} class={iconSize} />
 	{/if}
 
 	{#if !isIconOnly && !loading}
@@ -103,7 +123,7 @@
 		<Icon
 			{icon}
 			class={cn(
-				'h-4 w-4',
+				iconSize,
 				variant === 'primary'
 					? ''
 					: 'transition-transform duration-300 group-hover/button:translate-x-1'
