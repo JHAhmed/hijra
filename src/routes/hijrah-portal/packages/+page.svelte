@@ -58,7 +58,7 @@
 </script>
 
 <div
-	class="min-h-screen w-full bg-white pb-20 text-secondary selection:bg-primary selection:text-white">
+	class="min-h-screen w-full bg-white pb-20 text-secondary ">
 	<div class="mx-auto max-w-8xl px-6 py-12 md:px-12 md:py-16">
 		<div class="mx-auto mb-12 max-w-4xl text-center">
 			<span class="mb-3 block text-xs font-bold tracking-widest text-primary uppercase">

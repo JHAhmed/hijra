@@ -48,7 +48,7 @@
 	</div>
 
 	{#key data.url}
-		<div class="">{@render children?.()}</div>
+		<div class="selection:bg-primary selection:text-white">{@render children?.()}</div>
 	{/key}
 
 	<div

@@ -146,7 +146,7 @@
 
 <!-- Hero Section -->
 <section
-	class="relative flex min-h-screen w-full flex-col overflow-hidden bg-white text-secondary selection:bg-primary selection:text-white">
+	class="relative flex min-h-screen w-full flex-col overflow-hidden bg-white text-secondary ">
 	<main
 		class="relative z-10 mx-auto flex w-full max-w-8xl flex-1 flex-col items-center justify-center px-6 py-12 text-center md:py-16">
 		<div

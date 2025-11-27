@@ -46,7 +46,7 @@
 </svelte:head>
 
 <div
-	class="min-h-screen w-full bg-white pt-16 pb-20 text-secondary selection:bg-primary selection:text-white">
+	class="min-h-screen w-full bg-white pt-16 pb-20 text-secondary ">
 	{#if authStore.isLoading}
 		<!-- Loading state -->
 		<div class="mx-auto max-w-md py-20 text-center">

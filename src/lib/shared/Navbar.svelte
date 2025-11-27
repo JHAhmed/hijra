@@ -71,8 +71,8 @@
 						size="md"
 						class="hidden sm:inline-block" />
 					<Button
-						href="/contact"
-						text="Get Started"
+						href="/hijrah-portal"
+						text="Portal"
 						variant="primary"
 						size="md"
 						class="hidden sm:inline-block" />
@@ -137,14 +137,14 @@
 
 				{#if !authStore.isAuthenticated}
 					<a
-						href="/login"
+						href="/auth"
 						class="text-xl font-medium text-gray-500 transition-colors hover:text-black"
 						on:click={toggleMobileMenu}>
 						Log In
 					</a>
 
-					<a href="/contact" class="text-xl font-bold text-primary" on:click={toggleMobileMenu}>
-						Get Started
+					<a href="/hijrah-portal" class="text-xl font-bold text-primary" on:click={toggleMobileMenu}>
+						Portal
 					</a>
 				{:else}
 					<a

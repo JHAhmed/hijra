@@ -37,7 +37,7 @@
 </svelte:head>
 
 <div
-	class="relative min-h-screen w-full bg-white text-secondary selection:bg-primary selection:text-white">
+	class="relative min-h-screen w-full bg-white text-secondary ">
 	<section
 		class="relative z-10 mx-auto flex w-full max-w-8xl flex-col items-center justify-center px-6 py-12 text-center md:py-16">
 		<div

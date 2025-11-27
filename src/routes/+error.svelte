@@ -9,7 +9,7 @@
 </svelte:head>
 
 <div
-	class="relative flex min-h-[50vh] w-full flex-col items-center justify-center overflow-hidden bg-white px-6 text-center text-secondary selection:bg-primary selection:text-white">
+	class="relative flex min-h-[50vh] w-full flex-col items-center justify-center overflow-hidden bg-white px-6 text-center text-secondary ">
 	<div
 		class="absolute inset-0 opacity-[0.5]"
 		style="background-image: radial-gradient(#E5E5E5 1px, transparent 1px); background-size: 32px 32px;">

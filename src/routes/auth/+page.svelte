@@ -65,7 +65,7 @@
 <Toaster richColors position="top-center" />
 
 <div
-	class="flex min-h-screen w-full bg-white text-secondary selection:bg-primary selection:text-white">
+	class="flex min-h-screen w-full bg-white text-secondary ">
 	{#if authStore.isLoading}
 		<!-- Loading state - prevents flash -->
 		<div class="flex w-full items-center justify-center">

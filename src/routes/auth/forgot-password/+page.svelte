@@ -72,7 +72,7 @@
 <Toaster richColors position="top-center" />
 
 <div
-	class="flex min-h-screen w-full bg-white text-secondary selection:bg-primary selection:text-white">
+	class="flex min-h-screen w-full bg-white text-secondary ">
 	<div class="relative flex w-full flex-col justify-center px-6 py-12 lg:w-1/2 lg:px-20 xl:px-24">
 		<div class="relative z-10 mx-auto w-full max-w-md">
 			<a href="/" class="group/logo my-8 inline-flex items-center gap-3">
