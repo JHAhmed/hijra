@@ -5,7 +5,7 @@ export async function POST({ request }) {
 
 	const projectId = env.PUBLIC_APPWRITE_PROJECT_ID;
 	const endpoint = env.PUBLIC_APPWRITE_ENDPOINT;
-	const bucketId = 'marksheets';
+	const bucketId = 'pilgrim-documents';
 
 	if (!fileId || !projectId || !endpoint) {
 		return new Response(JSON.stringify({ error: 'Missing required information' }), {
@@ -13,7 +13,7 @@ export async function POST({ request }) {
 		});
 	}
 
-	const fileUrl = `${endpoint}/storage/buckets/${bucketId}/files/${fileId}/view?project=${projectId}`;
+	const fileUrl = `${endpoint}/storage/buckets/${bucketId}/files/${fileId}/view?project=${projectId}&mode=admin`;
 
 	return new Response(
 		JSON.stringify({

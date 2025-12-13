@@ -1,38 +1,32 @@
 <script>
 	import Icon from '@iconify/svelte';
 
-	const steps = [
-		{
-			name: 'Packages',
-			icon: 'ph:package',
-			status: 'completed'
-		},
-		{
-			name: 'Application',
-			icon: 'ph:users-four',
-			status: 'current'
-		},
-		{
-			name: 'Documents',
-			icon: 'ph:files',
-			status: 'upcoming'
-		},
-		{
-			name: 'Payment',
-			icon: 'ph:credit-card',
-			status: 'upcoming'
-		},
-		{
-			name: 'Journey',
-			icon: 'ph:calendar-check',
-			status: 'upcoming'
-		},
-		{
-			name: 'Tracking',
-			icon: 'ph:clipboard-text',
-			status: 'upcoming'
+	let { cards = [] } = $props();
+
+	let steps = $derived.by(() => {
+		let lastVisibleIndex = -1;
+		for (let i = cards.length - 1; i >= 0; i--) {
+			if (cards[i].visible) {
+				lastVisibleIndex = i;
+				break;
+			}
 		}
-	];
+
+		return cards.map((card, index) => {
+			let status = 'upcoming';
+			if (index < lastVisibleIndex) {
+				status = 'completed';
+			} else if (index === lastVisibleIndex) {
+				status = 'current';
+			}
+
+			return {
+				name: card.text,
+				icon: card.icon,
+				status: status
+			};
+		});
+	});
 
 	function getStepClasses(status) {
 		switch (status) {

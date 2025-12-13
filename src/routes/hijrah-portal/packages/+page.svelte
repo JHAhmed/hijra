@@ -2,8 +2,10 @@
 	import { goto } from '$app/navigation';
 	import Icon from '@iconify/svelte';
 	import Button from '$components/ui/Button.svelte';
+	import Modal from '$components/ui/Modal.svelte';
 	import { fade, fly, slide } from 'svelte/transition';
 	import { cn } from '$lib/utils.js';
+	import { authStore } from '$lib/auth.svelte.js';
 
 	let { data } = $props();
 
@@ -11,6 +13,7 @@
 	let step = $state(1);
 	let selectedPackage = $state(null);
 	let loading = $state(false);
+	let loadingMessage = $state('');
 
 	// Filter State
 	let activeFilter = $state('all');
@@ -50,15 +53,39 @@
 
 	async function handleConfirm() {
 		loading = true;
-		// Simulate a small delay for "Processing Selection"
-		setTimeout(() => {
-			goto(`/hijrah-portal/application?packageId=${selectedPackage.id}`);
-		}, 800);
+		loadingMessage = 'Creating your application...';
+
+		try {
+			const response = await fetch('/api/applications', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					userId: authStore.user.$id,
+					packageId: selectedPackage.$id
+				})
+			});
+
+			const result = await response.json();
+
+			if (!response.ok) {
+				throw new Error(result.error || 'Failed to create application');
+			}
+
+			loading = false;
+			goto(`/hijrah-portal/application?applicationId=${result.applicationId}`);
+		} catch (error) {
+			console.error('Failed to create application:', error);
+			loading = false;
+			alert('Failed to create application. Please try again.');
+		}
 	}
 </script>
 
-<div
-	class="min-h-screen w-full bg-white pb-20 text-secondary ">
+{#if loading}
+	<Modal text={loadingMessage} description="Please wait while we process your request." />
+{/if}
+
+<div class="min-h-screen w-full bg-white pb-20 text-secondary">
 	<div class="mx-auto max-w-8xl px-6 py-12 md:px-12 md:py-16">
 		<div class="mx-auto mb-12 max-w-4xl text-center">
 			<span class="mb-3 block text-xs font-bold tracking-widest text-primary uppercase">
@@ -136,14 +163,14 @@
 
 				{#if filteredPackages.length > 0}
 					<div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 xl:gap-10">
-						{#each filteredPackages as pkg (pkg.id)}
+						{#each filteredPackages as pkg (pkg.$id)}
 							<div
 								in:fly={{ y: 20, duration: 400 }}
 								class="group relative flex flex-col overflow-hidden rounded-3xl border border-gray-100 bg-white transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-2xl hover:shadow-gray-200/50">
 								<div class="relative aspect-4/3 overflow-hidden bg-gray-100">
-									{#if pkg.image?.url}
+									{#if pkg.imageUrl}
 										<img
-											src={pkg.image.url}
+											src={pkg.imageUrl}
 											alt={pkg.name}
 											class="h-full w-full object-cover transition-transform duration-700"
 											loading="lazy" />
@@ -214,9 +241,9 @@
 						<div
 							class="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-xl shadow-gray-200/40">
 							<div class="relative h-64 w-full bg-gray-200 md:h-80">
-								{#if selectedPackage.image?.url}
+								{#if selectedPackage.imageUrl}
 									<img
-										src={selectedPackage.image.url}
+										src={selectedPackage.imageUrl}
 										alt={selectedPackage.name}
 										class="h-full w-full object-cover" />
 								{/if}
@@ -238,7 +265,7 @@
 
 								<h3 class="mb-4 text-lg font-bold text-secondary">What's Included</h3>
 								<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-									{#each ['Visa Processing & Fees', 'Round-trip Flights', '5-Star Accommodation', 'Daily Breakfast & Dinner', 'Luxury Transport', 'Guided Ziyarah Tours'] as item}
+									{#each selectedPackage.inclusions as item}
 										<div
 											class="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 p-3">
 											<Icon

@@ -9,15 +9,18 @@
 	import Input from '$components/ui/Input.svelte';
 	import Dropdown from '$components/ui/Dropdown.svelte';
 	import DateField from '$components/ui/DateField.svelte';
+	import Modal from '$components/ui/Modal.svelte';
 	import { cn } from '$lib/utils.js';
+	import { pilgrims } from '$lib/store.svelte';
 
 	// State Management
 	let step = $state(1);
 	let loading = $state(false);
+	let loadingMessage = $state('');
 	let errors = $state({});
 
-	// Get Package ID from URL (since step 1 is removed)
-	const packageId = $derived($page.url.searchParams.get('packageId') || 'unknown-package');
+	// Get Application ID from URL
+	const applicationId = $derived($page.url.searchParams.get('applicationId'));
 
 	const relationships = [
 		{ value: 'spouse', label: 'Spouse' },
@@ -28,7 +31,6 @@
 
 	// Form Data Store
 	let formData = $state({
-		packageId: packageId,
 		leadPilgrim: {
 			firstName: '',
 			lastName: '',
@@ -49,7 +51,9 @@
 				firstName: '',
 				lastName: '',
 				relation: '',
+				gender: '',
 				passportNumber: '',
+				passportExpiry: undefined,
 				dob: undefined
 			});
 		}
@@ -99,14 +103,60 @@
 	}
 
 	async function handleSubmit() {
+		if (!applicationId) {
+			alert('Application ID is missing. Please start from the packages page.');
+			goto('/hijrah-portal/packages');
+			return;
+		}
+
 		loading = true;
-		// Simulate Backend Call -> Redirect to Documents or Success
-		setTimeout(() => {
+		loadingMessage = 'Saving pilgrim details...';
+
+		try {
+			const response = await fetch('/api/pilgrims', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					applicationId,
+					leadPilgrim: formData.leadPilgrim,
+					familyMembers: formData.familyMembers
+				})
+			});
+
+			const result = await response.json();
+
+			if (!response.ok) {
+				throw new Error(result.error || 'Failed to save pilgrims');
+			}
+
+			// Store pilgrim data for documents page
+			const createdPilgrims = result.pilgrims;
+			const leadPilgrim = createdPilgrims.find((p) => p.isLead);
+			const familyMembers = createdPilgrims.filter((p) => !p.isLead);
+
+			pilgrims.leadPilgrim = {
+				...formData.leadPilgrim,
+				$id: leadPilgrim.$id
+			};
+			pilgrims.familyMembers = familyMembers.map((member, i) => ({
+				...formData.familyMembers[i],
+				$id: member.$id
+			}));
+			pilgrims.applicationId = applicationId;
+
 			loading = false;
-			goto('/hijrah-portal/documents'); // Logic change: Maybe go to docs page next?
-		}, 1500);
+			goto(`/hijrah-portal/documents?applicationId=${applicationId}`);
+		} catch (error) {
+			console.error('Failed to save pilgrim details:', error);
+			loading = false;
+			alert('Failed to save details. Please try again.');
+		}
 	}
 </script>
+
+{#if loading}
+	<Modal text={loadingMessage} description="Please wait while we save your information." />
+{/if}
 
 <div class="min-h-screen bg-gray-50/50 pt-10 pb-20 text-secondary">
 	<div class="mx-auto max-w-4xl px-6">

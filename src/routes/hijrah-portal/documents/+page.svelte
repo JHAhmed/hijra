@@ -1,54 +1,194 @@
 <script>
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	import Icon from '@iconify/svelte';
 	import { fade } from 'svelte/transition';
 	import FileInput from '$components/ui/FileInput.svelte';
 	import Button from '$components/ui/Button.svelte';
+	import Modal from '$components/ui/Modal.svelte';
 
-	// Mock Data: Hardcoded 3 family members + Lead as requested
-	// In production, fetch this from load() based on the application ID
-	let pilgrims = $state([
-		{
-			id: 1,
-			type: 'lead',
-			name: 'Yusuf Ahmed',
-			relation: 'Lead Pilgrim',
-			docs: { passportFront: undefined, passportBack: undefined, photo: undefined }
-		},
-		{
-			id: 2,
-			type: 'family',
-			name: 'Sarah Ahmed',
-			relation: 'Spouse',
-			docs: { passportFront: undefined, passportBack: undefined, photo: undefined }
-		},
-		{
-			id: 3,
-			type: 'family',
-			name: 'Omar Ahmed',
-			relation: 'Child',
-			docs: { passportFront: undefined, passportBack: undefined, photo: undefined }
-		},
-		{
-			id: 4,
-			type: 'family',
-			name: 'Fatima Ahmed',
-			relation: 'Child',
-			docs: { passportFront: undefined, passportBack: undefined, photo: undefined }
-		}
-	]);
+	import { authStore } from '$lib/auth.svelte';
 
+	// Get Application ID from URL (required)
+	const applicationId = $derived($page.url.searchParams.get('applicationId'));
+
+	// Local state for pilgrim data (fetched from Appwrite)
+	let leadPilgrim = $state(null);
+	let familyMembers = $state([]);
+
+	// Loading states
+	let initialLoading = $state(true);
 	let loading = $state(false);
+	let uploadProgress = $state('');
+	let fetchError = $state(null);
+
+	/**
+	 * Fetch pilgrim data from Appwrite via API
+	 */
+	async function fetchPilgrimData() {
+		if (!applicationId) {
+			initialLoading = false;
+			return;
+		}
+
+		try {
+			const response = await fetch(`/api/pilgrims?applicationId=${applicationId}`);
+			const result = await response.json();
+
+			if (!response.ok) {
+				throw new Error(result.error || 'Failed to fetch pilgrim data');
+			}
+
+			// Set local state with fetched data
+			leadPilgrim = result.leadPilgrim;
+			familyMembers = result.familyMembers || [];
+
+			console.log('Fetched pilgrim data:', leadPilgrim, familyMembers);
+
+			// Initialize docs objects for file uploads
+			if (leadPilgrim && !leadPilgrim.docs) {
+				leadPilgrim.docs = {
+					passportFront: undefined,
+					passportBack: undefined,
+					photo: undefined
+				};
+			}
+
+			familyMembers.forEach((member) => {
+				if (!member.docs) {
+					member.docs = { passportFront: undefined, passportBack: undefined, photo: undefined };
+				}
+			});
+		} catch (error) {
+			console.error('Failed to fetch pilgrim data:', error);
+			fetchError = error.message;
+		} finally {
+			initialLoading = false;
+		}
+	}
+
+	import { onMount } from 'svelte';
+
+	// Fetch data on mount
+	onMount(() => {
+		fetchPilgrimData();
+	});
+
+	/**
+	 * Upload a document for a pilgrim using the server API
+	 */
+	async function uploadDocument(pilgrimId, docType, fileList) {
+		if (!fileList || fileList.length === 0) return null;
+
+		const file = fileList[0];
+
+		// Create FormData for file upload
+		const formData = new FormData();
+		formData.append('file', file);
+		formData.append('pilgrimId', pilgrimId);
+		formData.append('applicationId', applicationId);
+		formData.append('docType', docType);
+		formData.append('userId', authStore.user.$id);
+
+		const response = await fetch('/api/documents', {
+			method: 'POST',
+			body: formData
+		});
+
+		if (!response.ok) {
+			const result = await response.json();
+			throw new Error(result.error || 'Failed to upload document');
+		}
+
+		return response.json();
+	}
 
 	async function handleSave() {
+		if (!applicationId) {
+			alert('Application ID is missing. Please complete the application form first.');
+			goto('/hijrah-portal/application');
+			return;
+		}
+
+		if (!leadPilgrim?.$id) {
+			alert('Pilgrim data is missing. Please complete the application form first.');
+			goto('/hijrah-portal/packages');
+			return;
+		}
+
 		loading = true;
-		// Simulate upload
-		setTimeout(() => {
+
+		try {
+			// Upload lead pilgrim documents
+			uploadProgress = `Uploading documents for ${leadPilgrim.firstName}...`;
+
+			if (leadPilgrim.docs?.passportFront) {
+				await uploadDocument(leadPilgrim.$id, 'passport_front', leadPilgrim.docs.passportFront);
+			}
+
+			if (leadPilgrim.docs?.passportBack) {
+				await uploadDocument(leadPilgrim.$id, 'passport_back', leadPilgrim.docs.passportBack);
+			}
+
+			if (leadPilgrim.docs?.photo) {
+				await uploadDocument(leadPilgrim.$id, 'photo', leadPilgrim.docs.photo);
+			}
+
+			// Upload family member documents
+			for (const member of familyMembers) {
+				if (!member.$id) continue;
+
+				uploadProgress = `Uploading documents for ${member.firstName}...`;
+
+				if (member.docs?.passportFront) {
+					await uploadDocument(member.$id, 'passport_front', member.docs.passportFront);
+				}
+
+				if (member.docs?.passportBack) {
+					await uploadDocument(member.$id, 'passport_back', member.docs.passportBack);
+				}
+
+				if (member.docs?.photo) {
+					await uploadDocument(member.$id, 'photo', member.docs.photo);
+				}
+			}
+
+			// Update application status via API
+			uploadProgress = 'Finalizing...';
+			const updateResponse = await fetch(`/api/applications/${applicationId}`, {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					status: 'docs_review',
+					currentStep: 3
+				})
+			});
+
+			if (!updateResponse.ok) {
+				throw new Error('Failed to update application status');
+			}
+
 			loading = false;
 			goto('/hijrah-portal/application/success');
-		}, 2000);
+		} catch (error) {
+			console.error('Document upload failed:', error);
+			loading = false;
+			alert('Failed to upload documents. Please try again.');
+		}
 	}
 </script>
+
+{#if initialLoading}
+	<Modal
+		text="Loading pilgrim data..."
+		description="Please wait while we fetch your application details." />
+{/if}
+
+{#if loading}
+	<Modal
+		text={uploadProgress || 'Uploading documents...'}
+		description="Please do not close or refresh the page." />
+{/if}
 
 <div class="min-h-screen bg-gray-50/50 pt-10 pb-20 text-secondary">
 	<div class="mx-auto max-w-5xl px-6">
@@ -75,22 +215,72 @@
 		</div>
 
 		<div class="space-y-8">
-			{#each pilgrims as person, i}
+			{#if initialLoading}
+				<!-- Loading state -->
+			{:else if !applicationId}
+				<!-- No application ID - show error -->
 				<div
-					in:fade={{ delay: i * 100 }}
+					class="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-gray-200 bg-white py-20 text-center">
+					<div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+						<Icon icon="ph:warning" class="h-8 w-8 text-red-500" />
+					</div>
+					<h3 class="mb-2 text-xl font-bold text-secondary">Application ID Missing</h3>
+					<p class="mb-6 max-w-md text-gray-500">
+						No application ID was provided. Please start from the packages page.
+					</p>
+					<Button
+						href="/hijrah-portal/packages"
+						text="Select a Package"
+						variant="primary"
+						size="md" />
+				</div>
+			{:else if fetchError}
+				<!-- Error state -->
+				<div
+					class="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-red-200 bg-white py-20 text-center">
+					<div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+						<Icon icon="ph:warning" class="h-8 w-8 text-red-500" />
+					</div>
+					<h3 class="mb-2 text-xl font-bold text-secondary">Failed to Load Data</h3>
+					<p class="mb-6 max-w-md text-gray-500">
+						{fetchError}
+					</p>
+					<Button onclick={fetchPilgrimData} text="Try Again" variant="primary" size="md" />
+				</div>
+			{:else if !leadPilgrim}
+				<!-- No pilgrim data - show redirect prompt -->
+				<div
+					class="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-gray-200 bg-white py-20 text-center">
+					<div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+						<Icon icon="ph:warning" class="h-8 w-8 text-gray-400" />
+					</div>
+					<h3 class="mb-2 text-xl font-bold text-secondary">No Pilgrim Data Found</h3>
+					<p class="mb-6 max-w-md text-gray-500">
+						Please complete the application form first before uploading documents.
+					</p>
+					<Button
+						href={`/hijrah-portal/application?applicationId=${applicationId}`}
+						text="Complete Application"
+						variant="primary"
+						size="md" />
+				</div>
+			{:else}
+				<div
+					in:fade={{ delay: 50 }}
 					class="overflow-hidden rounded-3xl border border-gray-200 bg-white transition-all duration-100 hover:shadow-md/5">
 					<div
 						class="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-6 py-4">
 						<div class="flex items-center gap-3">
 							<div
 								class="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-sm font-bold text-gray-400">
-								{i + 1}
+								1
 							</div>
 							<div>
-								<h3 class="text-lg font-bold text-secondary">{person.name}</h3>
-								<p class="text-xs font-bold tracking-wider text-primary uppercase">
-									{person.relation}
-								</p>
+								<h3 class="text-lg font-bold text-secondary">
+									{leadPilgrim.firstName}
+									{leadPilgrim.lastName}
+								</h3>
+								<p class="text-xs font-bold tracking-wider text-primary uppercase">Lead Pilgrim</p>
 							</div>
 						</div>
 
@@ -105,37 +295,100 @@
 							<FileInput
 								label="Passport Front"
 								icon="ph:passport"
-								uploadName={`${person.name}_Passport_Front`}
+								uploadName={`${leadPilgrim.firstName}_${leadPilgrim.lastName}_Passport_Front`}
 								accept=".jpg,.png,.pdf"
-								bind:value={person.docs.passportFront} />
+								bind:value={leadPilgrim.docs.passportFront} />
 
 							<FileInput
 								label="Passport Back"
 								icon="ph:passport"
-								uploadName={`${person.name}_Passport_Back`}
+								uploadName={`${leadPilgrim.firstName}_${leadPilgrim.lastName}_Passport_Back`}
 								accept=".jpg,.png,.pdf"
-								bind:value={person.docs.passportBack} />
+								bind:value={leadPilgrim.docs.passportBack} />
 
 							<FileInput
 								label="Passport Photo"
 								icon="heroicons:camera"
-								uploadName={`${person.name}_Photo`}
+								uploadName={`${leadPilgrim.firstName}_${leadPilgrim.lastName}_Photo`}
 								accept=".jpg,.png"
-								bind:value={person.docs.photo} />
+								bind:value={leadPilgrim.docs.photo} />
 						</div>
 					</div>
 				</div>
-			{/each}
+
+				{#if familyMembers && familyMembers.length > 0}
+					{#each familyMembers as person, i}
+						<div
+							in:fade={{ delay: i * 100 }}
+							class="overflow-hidden rounded-3xl border border-gray-200 bg-white transition-all duration-100 hover:shadow-md/5">
+							<div
+								class="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-6 py-4">
+								<div class="flex items-center gap-3">
+									<div
+										class="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-sm font-bold text-gray-400">
+										{i + 2}
+									</div>
+									<div>
+										<h3 class="text-lg font-bold text-secondary">
+											{person.firstName}
+											{person.lastName}
+										</h3>
+										<p class="text-xs font-bold tracking-wider text-primary uppercase">
+											{person.relation}
+										</p>
+									</div>
+								</div>
+
+								<span
+									class="hidden items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs font-bold text-gray-500 sm:inline-flex">
+									Pending Uploads
+								</span>
+							</div>
+
+							<div class="p-6 md:p-8">
+								<div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+									<FileInput
+										label="Passport Front"
+										icon="ph:passport"
+										uploadName={`${person.firstName}_${person.lastName}_Passport_Front`}
+										accept=".jpg,.png,.pdf"
+										bind:value={person.docs.passportFront} />
+
+									<FileInput
+										label="Passport Back"
+										icon="ph:passport"
+										uploadName={`${person.firstName}_${person.lastName}_Passport_Back`}
+										accept=".jpg,.png,.pdf"
+										bind:value={person.docs.passportBack} />
+
+									<FileInput
+										label="Passport Photo"
+										icon="heroicons:camera"
+										uploadName={`${person.firstName}_${person.lastName}_Photo`}
+										accept=".jpg,.png"
+										bind:value={person.docs.photo} />
+								</div>
+							</div>
+						</div>
+					{/each}
+				{/if}
+			{/if}
 		</div>
 
 		<div class="mt-10 flex justify-end gap-4 border-t border-gray-200 pt-8">
-			<Button size="md" href="/hijrah-portal" variant="secondary" text="Finish Later" class="" />
+			<Button
+				size="md"
+				href="/hijrah-portal"
+				variant="secondary"
+				text="Finish Later"
+				class=""
+				disabled={loading} />
 			<Button
 				size="md"
 				onclick={handleSave}
 				{loading}
 				variant="primary"
-				text="Save All Documents" />
+				text={loading ? uploadProgress || 'Uploading...' : 'Save All Documents'} />
 		</div>
 	</div>
 </div>

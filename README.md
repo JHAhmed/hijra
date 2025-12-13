@@ -10,3 +10,4 @@
 - Add page for pilgrim tracking
 - Add input field in home page for pilgrim tracking number
 - Add sync location option for live tracking
+- Button to copy every details for user page

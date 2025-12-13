@@ -4,8 +4,14 @@
 	import Timeline from '$components/portal/Timeline.svelte';
 	import Progress from '$components/portal/Progress.svelte';
 	import { authStore } from '$lib/auth.svelte';
+	import { onMount } from 'svelte';
 
-	let isLoading = $state(false);
+	let isLoading = $state(true);
+
+	onMount(() => {
+		if (authStore.user) {
+		}
+	});
 
 	const cards = $state([
 		{
@@ -22,7 +28,7 @@
 			description: 'Fill out and submit your application form.',
 			url: '/hijrah-portal/application',
 			icon: 'ph:users-four',
-			visible: true,
+			visible: false,
 			image:
 				'https://images.unsplash.com/photo-1589827577276-65d717348780?&auto=format&fit=crop&q=80&w=1170'
 		},
@@ -31,7 +37,7 @@
 			description: 'Upload and manage your necessary documents.',
 			url: '/hijrah-portal/documents',
 			icon: 'ph:files',
-			visible: true,
+			visible: false,
 			image:
 				'https://images.unsplash.com/photo-1564846824194-346b7871b855?&auto=format&fit=crop&q=80&w=1170'
 		},
@@ -63,15 +69,6 @@
 				'https://images.unsplash.com/photo-1587573088697-b4fa10460683?&auto=format&fit=crop&q=80&w=1170'
 		}
 	]);
-
-	// const steps = [{}];
-
-	const steps = $derived(
-		cards.map((card, i) => ({
-			text: card.text,
-			completed: i < cards.findIndex((c) => c.visible) // Adjust: completed before current visible
-		}))
-	);
 </script>
 
 <svelte:head>

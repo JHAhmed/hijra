@@ -1,7 +1,8 @@
 import { Client, TablesDB, Account, Storage, ID, Query, Permission, Role } from 'appwrite';
 import { env } from '$env/dynamic/public';
 
-const BUCKET_ID = 'files';
+const BUCKET_ID = 'pilgrim-documents';
+const DATABASE_ID = 'hijrah';
 
 const client = new Client();
 client
@@ -22,4 +23,65 @@ export async function getFile(fileId) {
 	});
 
 	return result;
+}
+
+export async function createRow(tableId, data) {
+	return tablesDB.createRow(DATABASE_ID, tableId, data);
+}
+
+export async function getRow(tableId, rowId) {
+	try {
+		return tablesDB.getRow(DATABASE_ID, tableId, rowId);
+	} catch (error) {
+		return null;
+	}
+}
+
+export async function updateRow(tableId, rowId, data) {
+	return tablesDB.updateRow(DATABASE_ID, tableId, rowId, data);
+}
+
+export async function listRows(tableId, queries = []) {
+	return tablesDB.listRows(DATABASE_ID, tableId, queries);
+}
+
+/**
+ * Upload a file to Appwrite Storage
+ * @param {File} file - The file to upload
+ * @param {string} userId - The user ID for permissions
+ * @returns {Promise<Object>} - The uploaded file object
+ */
+export async function uploadFile(file, userId) {
+	try {
+		const result = await storage.createFile(BUCKET_ID, ID.unique(), file, [
+			Permission.read(Role.user(userId)),
+			Permission.write(Role.user(userId))
+		]);
+		return result;
+	} catch (error) {
+		console.error('File upload failed:', error);
+		throw error;
+	}
+}
+
+/**
+ * Get file preview/download URL
+ * @param {string} fileId - The file ID
+ * @returns {string} - The file URL
+ */
+export function getFileUrl(fileId) {
+	return storage.getFileView(BUCKET_ID, fileId);
+}
+
+/**
+ * Delete a file from storage
+ * @param {string} fileId - The file ID to delete
+ */
+export async function deleteFile(fileId) {
+	try {
+		await storage.deleteFile(BUCKET_ID, fileId);
+	} catch (error) {
+		console.error('File delete failed:', error);
+		throw error;
+	}
 }

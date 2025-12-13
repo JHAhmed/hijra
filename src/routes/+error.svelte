@@ -9,7 +9,7 @@
 </svelte:head>
 
 <div
-	class="relative flex min-h-[50vh] w-full flex-col items-center justify-center overflow-hidden bg-white px-6 text-center text-secondary ">
+	class="relative flex min-h-[50vh] w-full flex-col items-center justify-center overflow-hidden bg-white px-6 text-center text-secondary">
 	<div
 		class="absolute inset-0 opacity-[0.5]"
 		style="background-image: radial-gradient(#E5E5E5 1px, transparent 1px); background-size: 32px 32px;">
@@ -41,10 +41,8 @@
 
 		<div
 			class="animate-fade-in-up flex w-full flex-col items-center justify-center gap-4 opacity-0 delay-300 sm:w-auto sm:flex-row">
-			<!-- <Button href="/" text="Return Home" size="sm" />
-			<Button href="/packages" text="View Packages" variant="secondary" size="sm" /> -->
-			<Button text="Return Home" size="sm" />
-			<Button text="View Packages" variant="secondary" size="sm" />
+			<Button text="Return Home" href="/" size="sm" />
+			<Button text="View Packages" variant="secondary" href="/packages" size="sm" />
 		</div>
 	</main>
 </div>

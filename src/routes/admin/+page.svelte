@@ -9,19 +9,13 @@
 	let isLoading = $state(true);
 
 	let stats = $state({
-		total: { value: 1240, label: 'Active', sub: 'Registered students' },
-		interested: { value: 263, label: 'Interested', sub: 'Potential leads' },
-		shortlisted: { value: 85, label: 'Shortlisted', sub: 'Review Required' },
-		approved: { value: 42, label: 'Approved', sub: 'Visa Processed' }
+		total: { value: 0, label: 'Active', sub: 'Registered pilgrims' },
+		interested: { value: 0, label: 'Pending', sub: 'Awaiting review' },
+		shortlisted: { value: 0, label: 'In Review', sub: 'Documents submitted' },
+		approved: { value: 0, label: 'Approved', sub: 'Visa Processed' }
 	});
 
-	let recentActivity = $state([
-		{ name: 'Yusuf Ahmed', action: 'Submitted Application', time: '2m', type: 'hajj' },
-		{ name: 'Fatima Zahra', action: 'Uploaded Passport', time: '15m', type: 'umrah' },
-		{ name: 'Omar Farooq', action: 'Payment Completed', time: '1h', type: 'hajj' },
-		{ name: 'Aisha Siddiqua', action: 'Query Received', time: '3h', type: 'general' },
-		{ name: 'Zaid Ibn Haritha', action: 'Visa Approved', time: '5h', type: 'hajj' }
-	]);
+	let recentActivity = $state([]);
 
 	let packageCapacity = $state([
 		{ name: 'Premium Hajj 2026', current: 45, max: 100, color: 'bg-emerald-500' },
@@ -29,10 +23,101 @@
 		{ name: 'Luxury Shifting', current: 12, max: 50, color: 'bg-purple-500' }
 	]);
 
-	onMount(() => {
-		setTimeout(() => {
-			isLoading = false;
-		}, 800);
+	/**
+	 * Map application status to user-friendly action text
+	 */
+	function getActionFromStatus(status) {
+		const statusMap = {
+			package_selected: 'Selected Package',
+			details_submitted: 'Submitted Details',
+			docs_review: 'Uploaded Documents',
+			pending_payment: 'Awaiting Payment',
+			payment_completed: 'Payment Completed',
+			visa_processing: 'Visa Processing',
+			visa_approved: 'Visa Approved',
+			completed: 'Journey Completed'
+		};
+		return statusMap[status] || 'Application Updated';
+	}
+
+	/**
+	 * Format relative time from date
+	 */
+	function getRelativeTime(dateString) {
+		const date = new Date(dateString);
+		const now = new Date();
+		const diffMs = now - date;
+		const diffMins = Math.floor(diffMs / 60000);
+		const diffHours = Math.floor(diffMins / 60);
+		const diffDays = Math.floor(diffHours / 24);
+
+		if (diffMins < 1) return 'now';
+		if (diffMins < 60) return `${diffMins}m`;
+		if (diffHours < 24) return `${diffHours}h`;
+		if (diffDays < 7) return `${diffDays}d`;
+		return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+	}
+
+	/**
+	 * Fetch recent applications for the dashboard
+	 */
+	async function fetchRecentApplications() {
+		try {
+			const response = await fetch('/api/admin/applications?recent=true');
+			const result = await response.json();
+
+			if (result.success && result.applications) {
+				recentActivity = result.applications.map((app) => ({
+					id: app.$id,
+					name: app.leadPilgrim
+						? `${app.leadPilgrim.firstName} ${app.leadPilgrim.lastName}`
+						: 'Unknown Pilgrim',
+					action: getActionFromStatus(app.status),
+					time: getRelativeTime(app.$updatedAt || app.$createdAt),
+					type: app.packageId?.includes('hajj') ? 'hajj' : 'umrah',
+					status: app.status
+				}));
+
+				// Update stats based on fetched data
+				stats.total.value = result.total || recentActivity.length;
+			}
+		} catch (error) {
+			console.error('Failed to fetch recent applications:', error);
+		}
+	}
+
+	/**
+	 * Fetch dashboard stats
+	 */
+	async function fetchStats() {
+		try {
+			// Fetch all applications to calculate stats
+			const response = await fetch('/api/admin/applications?limit=100');
+			const result = await response.json();
+
+			if (result.success && result.applications) {
+				const apps = result.applications;
+				stats.total.value = result.total || apps.length;
+
+				// Count by status
+				stats.interested.value = apps.filter(
+					(a) => a.status === 'package_selected' || a.status === 'details_submitted'
+				).length;
+				stats.shortlisted.value = apps.filter(
+					(a) => a.status === 'docs_review' || a.status === 'pending_payment'
+				).length;
+				stats.approved.value = apps.filter(
+					(a) => a.status === 'visa_approved' || a.status === 'completed'
+				).length;
+			}
+		} catch (error) {
+			console.error('Failed to fetch stats:', error);
+		}
+	}
+
+	onMount(async () => {
+		await Promise.all([fetchRecentApplications(), fetchStats()]);
+		isLoading = false;
 	});
 
 	const todayDate = new Date().toLocaleDateString('en-GB', {
@@ -68,19 +153,6 @@
 				<Button variant="secondary" text="Export" size="sm" class="group" />
 
 				<Button variant="primary" text="New Pilgrim" size="sm" class="group" />
-
-				<!-- <button
-				class="group flex h-10 cursor-pointer items-center gap-2 rounded-full border border-gray-200 bg-white px-5 text-xs font-bold text-secondary transition-all hover:border-gray-300 hover:bg-gray-50 active:scale-95">
-				<Icon
-					icon="heroicons:arrow-down-tray"
-					class="h-3.5 w-3.5 text-gray-400 transition-colors group-hover:text-secondary" />
-				<span>Export</span>
-			</button>
-			<button
-				class="group flex h-10 cursor-pointer items-center gap-2 rounded-full bg-secondary px-5 text-xs font-bold text-white shadow-lg shadow-secondary/10 transition-all hover:bg-black active:scale-95">
-				<Icon icon="heroicons:plus" class="h-3.5 w-3.5" />
-				<span>New Pilgrim</span>
-			</button> -->
 			</div>
 		</div>
 
@@ -204,33 +276,43 @@
 
 				<div
 					class="flex-1 space-y-6 overflow-y-auto pr-2 [-ms-overflow-style:'none'] [scrollbar-width:'none'] [&::-webkit-scrollbar]:hidden">
-					{#each recentActivity as activity}
-						<div class="group flex cursor-pointer gap-4 transition-opacity hover:opacity-100">
-							<div class="relative mt-1">
-								<div
-									class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 text-[10px] font-bold text-secondary ring-1 ring-gray-100 transition-all duration-300 group-hover:bg-secondary group-hover:text-white group-hover:shadow-md">
-									{getInitials(activity.name)}
-								</div>
-								{#if activity.type === 'hajj'}
-									<div
-										class="absolute -right-0.5 -bottom-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-500 transition-transform group-hover:scale-0">
-									</div>
-								{:else if activity.type === 'umrah'}
-									<div
-										class="absolute -right-0.5 -bottom-0.5 h-3 w-3 rounded-full border-2 border-white bg-blue-500 transition-transform group-hover:scale-0">
-									</div>
-								{/if}
+					{#if recentActivity.length === 0}
+						<div class="flex flex-col items-center justify-center py-8 text-center">
+							<div class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-50">
+								<Icon icon="heroicons:inbox" class="h-6 w-6 text-gray-300" />
 							</div>
-							<div class="flex flex-1 flex-col justify-center">
-								<div class="flex justify-between">
-									<span class="text-sm font-medium text-secondary">{activity.name}</span>
-									<span class="text-[10px] font-medium tracking-wide text-gray-300 uppercase"
-										>{activity.time}</span>
-								</div>
-								<span class="text-xs text-gray-400">{activity.action}</span>
-							</div>
+							<p class="text-sm text-gray-400">No recent activity</p>
+							<p class="text-xs text-gray-300">New applications will appear here</p>
 						</div>
-					{/each}
+					{:else}
+						{#each recentActivity as activity}
+							<div class="group flex cursor-pointer gap-4 transition-opacity hover:opacity-100">
+								<div class="relative mt-1">
+									<div
+										class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 text-[10px] font-bold text-secondary ring-1 ring-gray-100 transition-all duration-300 group-hover:bg-secondary group-hover:text-white group-hover:shadow-md">
+										{getInitials(activity.name)}
+									</div>
+									{#if activity.type === 'hajj'}
+										<div
+											class="absolute -right-0.5 -bottom-0.5 h-3 w-3 rounded-full border-2 border-white bg-emerald-500 transition-transform group-hover:scale-0">
+										</div>
+									{:else if activity.type === 'umrah'}
+										<div
+											class="absolute -right-0.5 -bottom-0.5 h-3 w-3 rounded-full border-2 border-white bg-blue-500 transition-transform group-hover:scale-0">
+										</div>
+									{/if}
+								</div>
+								<div class="flex flex-1 flex-col justify-center">
+									<div class="flex justify-between">
+										<span class="text-sm font-medium text-secondary">{activity.name}</span>
+										<span class="text-[10px] font-medium tracking-wide text-gray-300 uppercase"
+											>{activity.time}</span>
+									</div>
+									<span class="text-xs text-gray-400">{activity.action}</span>
+								</div>
+							</div>
+						{/each}
+					{/if}
 				</div>
 			</div>
 		</div>

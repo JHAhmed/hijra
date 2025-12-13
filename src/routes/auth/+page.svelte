@@ -1,41 +1,47 @@
 <script>
-    import { enhance } from '$app/forms';
-    import { authStore } from '$lib/auth.svelte';
-    import Icon from '@iconify/svelte';
-    import Button from '$components/ui/Button.svelte';
-    import Input from '$components/ui/Input.svelte';
-    import favicon from '$lib/assets/favicon.svg';
-    import makkahSkyline from '$lib/assets/images/makkah-skyline.jpg';
+	import { enhance } from '$app/forms';
+	import { authStore } from '$lib/auth.svelte';
+	import Icon from '@iconify/svelte';
+	import Button from '$components/ui/Button.svelte';
+	import Input from '$components/ui/Input.svelte';
+	import favicon from '$lib/assets/favicon.svg';
+	import makkahSkyline from '$lib/assets/images/makkah-skyline.jpg';
 	import { page } from '$app/state';
-	import { Toaster } from 'svelte-sonner';
+	import { Toaster, toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
 
-    let { form } = $props();
-    let errors = form?.errors || {};
-    let authType = $state('login');
-    let loading = $state(false);
-    
-    let data = $state({
-        name: '',
-        email: '',
-        password: '',
-        confirmPassword: ''
-    });
+	let { form } = $props();
+	let errors = form?.errors || {};
+	let authType = $state('login');
+	let loading = $state(false);
 
-    function toggleAuthType() {
-        authType = authType === 'login' ? 'register' : 'login';
-    }
+	let data = $state({
+		name: '',
+		email: '',
+		password: '',
+		confirmPassword: ''
+	});
 
-    function handleEnhance() {
-        loading = true;
-        return async ({ update }) => {
-            await update();
-            loading = false;
+	function toggleAuthType() {
+		authType = authType === 'login' ? 'register' : 'login';
+	}
+
+	function handleEnhance() {
+		loading = true;
+		return async ({ result, update }) => {
+			if (result.type === 'failure') {
+				toast.error(result.data?.error || 'An error occurred');
+			} else if (result.type === 'error') {
+				toast.error('An unexpected error occurred');
+			}
+
+			await update();
+			loading = false;
 			if (authStore.isAuthenticated) {
 				goto('/');
 			}
-        };
-    }
+		};
+	}
 </script>
 
 <svelte:head>
@@ -64,8 +70,7 @@
 
 <Toaster richColors position="top-center" />
 
-<div
-	class="flex min-h-screen w-full bg-white text-secondary ">
+<div class="flex min-h-screen w-full bg-white text-secondary">
 	{#if authStore.isLoading}
 		<!-- Loading state - prevents flash -->
 		<div class="flex w-full items-center justify-center">
@@ -79,29 +84,33 @@
 	{:else if authStore.isAuthenticated}
 		<!-- Already logged in view -->
 		<div class="relative flex w-full flex-col justify-center px-6 py-12 lg:w-1/2 lg:px-20 xl:px-24">
-            <div class="relative z-10 mx-auto w-full max-w-md">
-                <a href="/" class="group/logo my-8 inline-flex items-center gap-3">
-                    <img src={favicon} alt="Hijrah Portal Logo" class="h-8 w-8 object-contain transition-transform duration-300 md:h-10 md:w-10" />
-                    <span class="text-3xl font-bold tracking-tighter text-black md:text-4xl">
-                        Hijrah<span class="text-primary">.</span>
-                    </span>
-                </a>
+			<div class="relative z-10 mx-auto w-full max-w-md">
+				<a href="/" class="group/logo my-8 inline-flex items-center gap-3">
+					<img
+						src={favicon}
+						alt="Hijrah Portal Logo"
+						class="h-8 w-8 object-contain transition-transform duration-300 md:h-10 md:w-10" />
+					<span class="text-3xl font-bold tracking-tighter text-black md:text-4xl">
+						Hijrah<span class="text-primary">.</span>
+					</span>
+				</a>
 
-                <div class="text-center">
-                    <div class="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-green-50 text-green-600">
-                        <Icon icon="heroicons:check-circle-solid" class="h-10 w-10" />
-                    </div>
-                    <h2 class="text-3xl font-medium tracking-tight text-secondary">Welcome Back!</h2>
-                    <p class="mt-4 text-gray-500">You are currently signed in.</p>
+				<div class="text-center">
+					<div
+						class="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-green-50 text-green-600">
+						<Icon icon="heroicons:check-circle-solid" class="h-10 w-10" />
+					</div>
+					<h2 class="text-3xl font-medium tracking-tight text-secondary">Welcome Back!</h2>
+					<p class="mt-4 text-gray-500">You are currently signed in.</p>
 
-                    <div class="mt-8 flex flex-col gap-3">
-                        <form method="POST" action="?/logout" use:enhance>
-                            <Button type="submit" text="Sign out" class="w-full" />
-                        </form>
-                        <Button variant="secondary" href="/hijrah-portal" text="Go to Portal" />
-                    </div>
-                </div>
-            </div>
+					<div class="mt-8 flex flex-col gap-3">
+						<form method="POST" action="?/logout" use:enhance>
+							<Button type="submit" text="Sign out" class="w-full" />
+						</form>
+						<Button variant="secondary" href="/hijrah-portal" text="Go to Portal" />
+					</div>
+				</div>
+			</div>
 
 			<div class="absolute bottom-6 left-0 w-full text-center">
 				<p class="text-xs text-gray-300">© 2025 Hijrah. All rights reserved.</p>
@@ -159,11 +168,11 @@
 						</p>
 					</div>
 
-					<form 
-                        method="POST" 
-                        action="?/{authType}" 
-                        use:enhance={handleEnhance}
-                        class="flex flex-col gap-5">
+					<form
+						method="POST"
+						action="?/{authType}"
+						use:enhance={handleEnhance}
+						class="flex flex-col gap-5">
 						{#if authType === 'register'}
 							<div>
 								<Input

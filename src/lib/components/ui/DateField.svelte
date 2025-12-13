@@ -1,6 +1,6 @@
 <script>
 	import { DateField } from 'bits-ui';
-	import { today, getLocalTimeZone } from '@internationalized/date';
+	import { today, getLocalTimeZone, parseDate } from '@internationalized/date';
 	import Icon from '@iconify/svelte';
 	import { cn } from '$lib/utils.js';
 
@@ -19,8 +19,36 @@
 	const minValue = todayDate.subtract({ days: 1 });
 	const maxValue = todayDate.add({ months: 2 });
 
+	let internalValue = $state();
+
+	// $effect(() => {
+	// 	if (value) {
+	// 		try {
+	// 			if (typeof value === 'string') {
+	// 				const parsed = parseDate(value);
+	// 				if (internalValue?.toString() !== parsed.toString()) {
+	// 					internalValue = parsed;
+	// 				}
+	// 			}
+	// 		} catch (e) {
+	// 			// Invalid date string
+	// 		}
+	// 	} else {
+	// 		internalValue = undefined;
+	// 	}
+	// });
+
+	$effect(() => {
+		if (internalValue) {
+			value = internalValue.toString();
+			console.log(value);
+		} else {
+			value = undefined;
+		}
+	});
+
 	let valid = $derived.by(() => {
-		return value >= minValue && value <= maxValue;
+		return internalValue >= minValue && internalValue <= maxValue;
 	});
 </script>
 
@@ -33,7 +61,7 @@
 		</label>
 	{/if}
 
-	<DateField.Root bind:value {minValue} maxValue={todayDate} locale="en-GB">
+	<DateField.Root bind:value={internalValue} {minValue} maxValue={todayDate} locale="en-GB">
 		<div
 			name={name.toLowerCase().replace(/\s+/g, '-')}
 			class="relative flex w-full max-w-full flex-col gap-1.5">

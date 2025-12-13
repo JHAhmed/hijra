@@ -16,7 +16,7 @@
 		accept = ''
 	} = $props();
 
-	const inputId = name.toLowerCase().replace(/\s+/g, '-');
+	const inputId = `file-input-${Math.random().toString(36).slice(2)}`;
 	let fileName = $state('');
 
 	function handleFileChange(e) {
