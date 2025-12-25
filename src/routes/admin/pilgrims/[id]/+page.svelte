@@ -17,6 +17,14 @@
 	let isSaving = $state(false);
 	let approvingDocId = $state(null);
 
+	// Family members state
+	let familyMembers = $state([]);
+	let showFamilyMembers = $state(false);
+	let loadingFamily = $state(false);
+
+	// Lead pilgrim reference (for non-lead members)
+	let leadPilgrim = $state(null);
+
 	// Editable fields
 	let editData = $state({});
 
@@ -118,6 +126,33 @@
 				passportNumber: pilgrim.passportNumber,
 				passportExpiry: pilgrim.passportExpiry
 			};
+
+			// Fetch related pilgrims based on role
+			if (pilgrim.applicationId) {
+				if (pilgrim.isLead) {
+					// Lead pilgrim: fetch family members automatically
+					try {
+						const famResponse = await fetch(`/api/admin/pilgrims?applicationId=${pilgrim.applicationId}&isLead=false&limit=50`);
+						const famResult = await famResponse.json();
+						if (famResult.success) {
+							familyMembers = famResult.pilgrims;
+						}
+					} catch (e) {
+						console.error('Failed to fetch family members:', e);
+					}
+				} else {
+					// Non-lead: fetch the lead pilgrim
+					try {
+						const leadResponse = await fetch(`/api/admin/pilgrims?applicationId=${pilgrim.applicationId}&isLead=true&limit=1`);
+						const leadResult = await leadResponse.json();
+						if (leadResult.success && leadResult.pilgrims.length > 0) {
+							leadPilgrim = leadResult.pilgrims[0];
+						}
+					} catch (e) {
+						console.error('Failed to fetch lead pilgrim:', e);
+					}
+				}
+			}
 		} catch (err) {
 			console.error('Failed to fetch pilgrim:', err);
 			error = err.message;
@@ -214,8 +249,63 @@
 		}
 	}
 
-	onMount(() => {
-		fetchPilgrim();
+	/**
+	 * Fetch family members for this lead pilgrim
+	 */
+	async function fetchFamilyMembers() {
+		if (!pilgrim?.isLead || !pilgrim?.applicationId) {
+			showFamilyMembers = !showFamilyMembers;
+			return;
+		}
+
+		// Toggle off if already showing
+		if (showFamilyMembers && familyMembers.length > 0) {
+			showFamilyMembers = false;
+			return;
+		}
+
+		loadingFamily = true;
+		try {
+			const response = await fetch(`/api/admin/pilgrims?applicationId=${pilgrim.applicationId}&isLead=false&limit=50`);
+			const result = await response.json();
+
+			if (result.success) {
+				familyMembers = result.pilgrims;
+			}
+			showFamilyMembers = true;
+		} catch (err) {
+			console.error('Failed to fetch family members:', err);
+			familyMembers = [];
+		} finally {
+			loadingFamily = false;
+		}
+	}
+
+	/**
+	 * Get initials from name
+	 */
+	function getInitials(firstName, lastName) {
+		return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase();
+	}
+
+	// Watch for pilgrimId changes and refetch data
+	$effect(() => {
+		const id = pilgrimId;
+		if (id) {
+			// Reset state when navigating to a different pilgrim
+			isLoading = true;
+			pilgrim = null;
+			application = null;
+			documents = [];
+			packageDetails = null;
+			error = null;
+			familyMembers = [];
+			leadPilgrim = null;
+			showFamilyMembers = false;
+			isEditing = false;
+			
+			fetchPilgrim();
+		}
 	});
 </script>
 
@@ -269,6 +359,23 @@
 				<Button onclick={savePilgrim} variant="primary" text="Save Changes" size="sm" />
 			{:else}
 				<Button onclick={() => (isEditing = true)} variant="secondary" text="Edit" size="sm" />
+				<!-- {#if pilgrim?.isLead}
+					<button
+						onclick={fetchFamilyMembers}
+						disabled={loadingFamily}
+						class="flex h-10 items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 text-sm font-medium text-primary transition-colors hover:bg-primary/10 disabled:opacity-50">
+						{#if loadingFamily}
+							<Icon icon="heroicons:arrow-path" class="h-4 w-4 animate-spin" />
+							Loading...
+						{:else if showFamilyMembers}
+							<Icon icon="heroicons:chevron-up" class="h-4 w-4" />
+							Hide Family
+						{:else}
+							<Icon icon="heroicons:users" class="h-4 w-4" />
+							View All Pilgrims
+						{/if}
+					</button>
+				{/if} -->
 				<button
 					onclick={deletePilgrim}
 					class="flex h-10 items-center gap-2 rounded-full border border-red-200 bg-white px-4 text-sm font-medium text-red-600 transition-colors hover:bg-red-50">
@@ -278,6 +385,7 @@
 			{/if}
 		</div>
 	</div>
+
 
 	{#if error}
 		<div class="rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
@@ -435,6 +543,60 @@
 								>Package</label>
 							<p class="text-secondary">{packageDetails?.name || 'Unknown Package'}</p>
 						</div>
+					</div>
+				</div>
+			{/if}
+
+			<!-- Lead Pilgrim Reference (for non-lead members) -->
+			{#if !pilgrim?.isLead && leadPilgrim}
+				<div class="rounded-4xl border border-gray-200 bg-white p-6 lg:col-span-1">
+					<h2 class="mb-4 flex items-center gap-2 text-lg font-bold text-secondary">
+						<Icon icon="heroicons:user-circle" class="h-5 w-5 text-gray-400" />
+						Lead Pilgrim
+					</h2>
+					<a
+						href="/admin/pilgrims/{leadPilgrim.$id}"
+						class="group flex items-center gap-4 rounded-2xl border border-gray-100 bg-gray-50/50 p-4 transition-all hover:border-primary/30 hover:bg-primary/5">
+						<div
+							class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+							{getInitials(leadPilgrim.firstName, leadPilgrim.lastName)}
+						</div>
+						<div class="flex-1 min-w-0">
+							<h4 class="truncate text-base font-medium text-secondary group-hover:text-primary">
+								{leadPilgrim.firstName} {leadPilgrim.lastName}
+							</h4>
+							<p class="text-xs text-gray-400">Lead Pilgrim • {leadPilgrim.email || 'No email'}</p>
+						</div>
+						<Icon icon="heroicons:arrow-right" class="h-5 w-5 text-gray-400 group-hover:text-primary" />
+					</a>
+				</div>
+			{/if}
+
+			<!-- Family Members (for Lead Pilgrims) -->
+			{#if pilgrim?.isLead && familyMembers.length > 0}
+				<div class="rounded-4xl border border-primary/20 bg-primary/5 p-6 lg:col-span-1">
+					<h2 class="mb-4 flex items-center gap-2 text-lg font-bold text-secondary">
+						<Icon icon="heroicons:users" class="h-5 w-5 text-primary" />
+						Family ({familyMembers.length})
+					</h2>
+					<div class="space-y-2 max-h-64 overflow-y-auto">
+						{#each familyMembers as member}
+							<a
+								href="/admin/pilgrims/{member.$id}"
+								class="group flex items-center gap-3 rounded-xl bg-white p-3 transition-all hover:shadow-md">
+								<div
+									class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 group-hover:bg-primary group-hover:text-white">
+									{getInitials(member.firstName, member.lastName)}
+								</div>
+								<div class="flex-1 min-w-0">
+									<h4 class="truncate text-sm font-medium text-secondary group-hover:text-primary">
+										{member.firstName} {member.lastName}
+									</h4>
+									<p class="text-xs text-gray-400 capitalize">{member.relation || 'Family Member'}</p>
+								</div>
+								<Icon icon="heroicons:chevron-right" class="h-4 w-4 text-gray-400 group-hover:text-primary" />
+							</a>
+						{/each}
 					</div>
 				</div>
 			{/if}
