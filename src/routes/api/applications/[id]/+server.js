@@ -17,7 +17,15 @@ export async function PUT({ params, request }) {
 		}
 
 		// Only allow certain fields to be updated
-		const allowedFields = ['status', 'currentStep', 'pilgrimCount', 'totalAmount', 'notes'];
+		const allowedFields = [
+			'status',
+			'currentStep',
+			'pilgrimCount',
+			'totalAmount',
+			'notes',
+			'paymentReceiptId',
+			'paymentSubmittedAt'
+		];
 		const updateData = {};
 
 		for (const field of allowedFields) {

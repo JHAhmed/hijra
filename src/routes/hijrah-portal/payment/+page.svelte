@@ -4,9 +4,13 @@
 	import { fade } from 'svelte/transition';
 	import FileInput from '$components/ui/FileInput.svelte';
 	import Button from '$components/ui/Button.svelte';
+	import { authStore } from '$lib/auth.svelte';
+	import { onMount } from 'svelte';
 
 	let loading = $state(false);
 	let receipt = $state(undefined);
+	let error = $state('');
+	let applicationId = $state(null);
 
 	// Mock Data
 	const paymentDetails = {
@@ -29,15 +33,59 @@
 		branch: 'Chennai Main Branch'
 	};
 
+	// Get application ID from user progress
+	onMount(async () => {
+		if (!authStore.user) {
+			goto('/auth');
+			return;
+		}
+
+		try {
+			const response = await fetch(`/api/user/progress?userId=${authStore.user.$id}`);
+			const data = await response.json();
+
+			if (data.success && data.applicationId) {
+				applicationId = data.applicationId;
+			} else {
+				error = 'No application found. Please complete the previous steps.';
+			}
+		} catch (err) {
+			console.error('Failed to fetch progress:', err);
+			error = 'Failed to load payment details.';
+		}
+	});
+
 	async function handleSubmit() {
-		if (!receipt) return;
+		if (!receipt || !applicationId) return;
 
 		loading = true;
-		// Simulate API call
-		setTimeout(() => {
+		error = '';
+
+		try {
+			const formData = new FormData();
+			formData.append('applicationId', applicationId);
+			formData.append('userId', authStore.user.$id);
+			formData.append('receipt', receipt[0]); // FileInput returns a FileList
+
+			const response = await fetch('/api/payments', {
+				method: 'POST',
+				body: formData
+			});
+
+			const result = await response.json();
+
+			if (result.success) {
+				// Navigate to success page
+				goto('/hijrah-portal/application/success');
+			} else {
+				error = result.error || 'Failed to submit payment';
+			}
+		} catch (err) {
+			console.error('Payment submission failed:', err);
+			error = 'An error occurred while submitting your payment. Please try again.';
+		} finally {
 			loading = false;
-			goto('/hijrah-portal/application/success'); // Reusing success page for now
-		}, 2000);
+		}
 	}
 
 	function formatCurrency(amount) {
@@ -179,10 +227,17 @@
 								fullWidth
 								onclick={handleSubmit}
 								{loading}
-								disabled={!receipt}
+								disabled={!receipt || !applicationId}
 								variant="primary"
 								text="Submit Payment" />
 						</div>
+
+						{#if error}
+							<div class="rounded-lg bg-red-50 p-3 text-center text-sm text-red-600">
+								<Icon icon="heroicons:exclamation-circle" class="mb-1 inline h-4 w-4" />
+								{error}
+							</div>
+						{/if}
 
 						<p class="text-center text-xs text-gray-400">
 							Your payment status will be updated within 24 hours of submission.

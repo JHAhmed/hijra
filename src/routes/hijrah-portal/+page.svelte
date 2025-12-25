@@ -3,23 +3,24 @@
 	import Icon from '@iconify/svelte';
 	import Timeline from '$components/portal/Timeline.svelte';
 	import Progress from '$components/portal/Progress.svelte';
+	import Modal from '$components/ui/Modal.svelte';
 	import { authStore } from '$lib/auth.svelte';
 	import { onMount } from 'svelte';
 
 	let isLoading = $state(true);
+	let userProgress = $state(null);
+	let applicationId = $state(null);
 
-	onMount(() => {
-		if (authStore.user) {
-		}
-	});
-
-	const cards = $state([
+	// Base cards configuration - visibility will be updated based on progress
+	let cards = $state([
 		{
 			text: 'Our Packages',
 			description: 'Browse and select your preferred Hajj or Umrah package.',
 			url: '/hijrah-portal/packages',
 			icon: 'ph:package',
+			step: 1,
 			visible: true,
+			completed: false,
 			image:
 				'https://images.unsplash.com/photo-1568219557405-376e23e4f7cf?&auto=format&fit=crop&q=80&w=1170'
 		},
@@ -28,7 +29,9 @@
 			description: 'Fill out and submit your application form.',
 			url: '/hijrah-portal/application',
 			icon: 'ph:users-four',
+			step: 2,
 			visible: false,
+			completed: false,
 			image:
 				'https://images.unsplash.com/photo-1589827577276-65d717348780?&auto=format&fit=crop&q=80&w=1170'
 		},
@@ -37,7 +40,9 @@
 			description: 'Upload and manage your necessary documents.',
 			url: '/hijrah-portal/documents',
 			icon: 'ph:files',
+			step: 3,
 			visible: false,
+			completed: false,
 			image:
 				'https://images.unsplash.com/photo-1564846824194-346b7871b855?&auto=format&fit=crop&q=80&w=1170'
 		},
@@ -46,7 +51,9 @@
 			description: 'View payment details and upload payment receipts.',
 			url: '/hijrah-portal/payment',
 			icon: 'ph:credit-card',
+			step: 4,
 			visible: false,
+			completed: false,
 			image:
 				'https://images.unsplash.com/photo-1628527304948-06157ee3c8a6?&auto=format&fit=crop&q=80&w=1170'
 		},
@@ -55,7 +62,9 @@
 			description: 'Check your travel dates and departure information.',
 			url: '/hijrah-portal/journey-details',
 			icon: 'ph:calendar-check',
+			step: 5,
 			visible: false,
+			completed: false,
 			image:
 				'https://images.unsplash.com/photo-1649298173603-9c95aa950879?&auto=format&fit=crop&q=80&w=1170'
 		},
@@ -64,11 +73,67 @@
 			description: 'Track your pilgrimage journey in real-time.',
 			url: '/hijrah-portal/pilgrim-tracking',
 			icon: 'ph:clipboard-text',
+			step: 6,
 			visible: false,
+			completed: false,
 			image:
 				'https://images.unsplash.com/photo-1587573088697-b4fa10460683?&auto=format&fit=crop&q=80&w=1170'
 		}
 	]);
+
+	// Update card visibility based on user's current step
+	function updateCardsVisibility(currentStep) {
+		cards = cards.map((card) => ({
+			...card,
+			visible: card.step <= currentStep,
+			completed: card.step < currentStep
+		}));
+	}
+
+	// Fetch user progress on mount
+	onMount(async () => {
+		if (!authStore.user) {
+			isLoading = false;
+			return;
+		}
+
+		try {
+			const response = await fetch(`/api/user/progress?userId=${authStore.user.$id}`);
+			const data = await response.json();
+
+			if (data.success) {
+				userProgress = data;
+				applicationId = data.applicationId;
+
+				// Update cards based on current step
+				// Step 0 = no application, show only packages
+				// Step 1 = package selected, show packages + application
+				// Step 2 = application submitted, show up to documents
+				// Step 3+ = further steps unlocked
+				const stepToShow = data.hasApplication ? data.currentStep + 1 : 1;
+				updateCardsVisibility(stepToShow);
+			}
+		} catch (error) {
+			console.error('Failed to fetch user progress:', error);
+		} finally {
+			isLoading = false;
+		}
+	});
+
+	// Update application URL with applicationId if available
+	$effect(() => {
+		if (applicationId) {
+			const appCard = cards.find((c) => c.text === 'Application Form');
+			const docsCard = cards.find((c) => c.text === 'Document Upload');
+
+			if (appCard && !appCard.url.includes('applicationId')) {
+				appCard.url = `/hijrah-portal/application?applicationId=${applicationId}`;
+			}
+			if (docsCard && !docsCard.url.includes('applicationId')) {
+				docsCard.url = `/hijrah-portal/documents?applicationId=${applicationId}`;
+			}
+		}
+	});
 </script>
 
 <svelte:head>

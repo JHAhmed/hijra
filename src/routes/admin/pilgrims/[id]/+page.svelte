@@ -15,6 +15,7 @@
 	let error = $state(null);
 	let isEditing = $state(false);
 	let isSaving = $state(false);
+	let approvingDocId = $state(null);
 
 	// Editable fields
 	let editData = $state({});
@@ -56,6 +57,8 @@
 			package_selected: 'bg-blue-50 text-blue-600',
 			details_submitted: 'bg-purple-50 text-purple-600',
 			docs_review: 'bg-amber-50 text-amber-600',
+			docs_approved: 'bg-teal-50 text-teal-600',
+			payment_submitted: 'bg-indigo-50 text-indigo-600',
 			pending_payment: 'bg-orange-50 text-orange-600',
 			payment_completed: 'bg-emerald-50 text-emerald-600',
 			visa_processing: 'bg-cyan-50 text-cyan-600',
@@ -174,6 +177,40 @@
 		} catch (err) {
 			console.error('Failed to delete pilgrim:', err);
 			alert('Failed to delete pilgrim: ' + err.message);
+		}
+	}
+
+	/**
+	 * Approve or reject a document
+	 */
+	async function updateDocumentStatus(docId, status) {
+		approvingDocId = docId;
+		try {
+			const response = await fetch(`/api/admin/documents/${docId}/approve`, {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					status,
+					applicationId: application?.$id
+				})
+			});
+
+			const result = await response.json();
+
+			if (!response.ok) {
+				throw new Error(result.error || 'Failed to update document');
+			}
+
+			// Update local document status
+			documents = documents.map((doc) => (doc.$id === docId ? { ...doc, status } : doc));
+
+			// Refresh application status
+			await fetchPilgrim();
+		} catch (err) {
+			console.error('Failed to update document status:', err);
+			alert('Failed to update document: ' + err.message);
+		} finally {
+			approvingDocId = null;
 		}
 	}
 
@@ -402,12 +439,32 @@
 				</div>
 			{/if}
 
-			<!-- <div class="rounded-4xl border border-gray-100 bg-white p-6 lg:col-span-1">
-				<h2 class="mb-6 flex items-center gap-2 text-lg font-bold text-secondary">
-					<Icon icon="heroicons:folder" class="h-5 w-5 text-gray-400" />
-					Linked Payment
-				</h2>
-			</div> -->
+			<!-- Payment Receipt -->
+			{#if application?.paymentReceiptId}
+				<div class="rounded-4xl border border-gray-100 bg-white p-6 lg:col-span-1">
+					<h2 class="mb-6 flex items-center gap-2 text-lg font-bold text-secondary">
+						<Icon icon="ph:receipt" class="h-5 w-5 text-gray-400" />
+						Payment Receipt
+					</h2>
+
+					<div class="space-y-4">
+						<div>
+							<label class="mb-2 block text-xs font-bold tracking-wider text-gray-400 uppercase">
+								Receipt Status
+							</label>
+							<span class={getStatusStyle(application.status)}>
+								{formatStatus(application.status)}
+							</span>
+						</div>
+
+						<Button
+							onclick={() => viewFile(application.paymentReceiptId, 'No receipt available')}
+							variant="primary"
+							size="sm"
+							text="View Receipt" />
+					</div>
+				</div>
+			{/if}
 
 			<!-- Documents -->
 			<div class="rounded-4xl border border-gray-100 bg-white p-6 lg:col-span-2">
@@ -425,28 +482,50 @@
 					<div class="space-y-3">
 						{#each documents as doc}
 							<div
-								class="flex items-center justify-between gap-3 rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-3">
+								class="flex flex-col gap-3 rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
 								<div class="flex grow items-center gap-3">
 									<Icon icon="heroicons:document" class="h-5 w-5 text-gray-400" />
-									<div>
+									<div class="flex-1">
 										<p class="text-sm font-medium text-secondary">{doc.type || 'Document'}</p>
 										<p class="text-xs text-gray-400">{doc.fileName || 'Unknown'}</p>
 									</div>
 								</div>
-								<button
-									onclick={() => viewFile(doc.fileId)}
-									class="rounded-full border border-primary px-2 py-0.5 text-xs font-medium text-primary capitalize hover:bg-primary hover:text-white">
-									Download
-								</button>
-								<span
-									class="rounded-full px-2 py-0.5 text-xs font-medium capitalize {doc.status ===
-									'approved'
-										? 'bg-green-50 text-green-600'
-										: doc.status === 'rejected'
-											? 'bg-red-50 text-red-600'
-											: 'bg-amber-50 text-amber-600'}">
-									{doc.status || 'Pending'}
-								</span>
+
+								<div class="flex items-center gap-2">
+									<button
+										onclick={() => viewFile(doc.fileId)}
+										class="rounded-full border border-primary px-3 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary hover:text-white">
+										View
+									</button>
+
+									{#if doc.status !== 'approved'}
+										<button
+											onclick={() => updateDocumentStatus(doc.$id, 'approved')}
+											disabled={approvingDocId === doc.$id}
+											class="rounded-full border border-green-200 bg-green-50 px-3 py-1 text-xs font-medium text-green-600 transition-colors hover:bg-green-100 disabled:opacity-50">
+											{approvingDocId === doc.$id ? 'Approving...' : 'Approve'}
+										</button>
+									{/if}
+
+									{#if doc.status !== 'rejected'}
+										<button
+											onclick={() => updateDocumentStatus(doc.$id, 'rejected')}
+											disabled={approvingDocId === doc.$id}
+											class="rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-medium text-red-600 transition-colors hover:bg-red-100 disabled:opacity-50">
+											{approvingDocId === doc.$id ? 'Rejecting...' : 'Reject'}
+										</button>
+									{/if}
+
+									<span
+										class="rounded-full px-3 py-1 text-xs font-medium capitalize {doc.status ===
+										'approved'
+											? 'bg-green-50 text-green-600'
+											: doc.status === 'rejected'
+												? 'bg-red-50 text-red-600'
+												: 'bg-amber-50 text-amber-600'}">
+										{doc.status || 'Pending'}
+									</span>
+								</div>
 							</div>
 						{/each}
 					</div>
