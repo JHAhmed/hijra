@@ -2,16 +2,68 @@
 	import Icon from '@iconify/svelte';
 	import { fade } from 'svelte/transition';
 	import Button from '$components/ui/Button.svelte';
+	import { onMount } from 'svelte';
+	import { authStore } from '$lib/auth.svelte';
 
-	// Hardcoded Journey Data
-	const journeyData = {
+	let isLoading = $state(true);
+	let batch = $state(null);
+
+	// Default journey data (fallback)
+	const defaultJourneyData = {
 		departureDate: '2026-06-10',
 		returnDate: '2026-06-25',
 		duration: '15 Days',
 		packageType: 'Premium Hajj Package',
 		groupSize: '50 Pilgrims',
-		status: 'Confirmed'
+		status: 'Pending'
 	};
+
+	// Derived journey data from batch
+	const journeyData = $derived(batch ? {
+		departureDate: batch.startDate?.split('T')[0] || defaultJourneyData.departureDate,
+		returnDate: batch.endDate?.split('T')[0] || defaultJourneyData.returnDate,
+		duration: calculateDuration(batch.startDate, batch.endDate),
+		packageType: 'Hajj Package',
+		groupSize: batch.name || 'Your Batch',
+		status: batch.status === 'open' || batch.status === 'in_progress' ? 'Confirmed' : 'Pending'
+	} : defaultJourneyData);
+
+	function calculateDuration(startDate, endDate) {
+		if (!startDate || !endDate) return '15 Days';
+		const start = new Date(startDate);
+		const end = new Date(endDate);
+		const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+		return `${diffDays} Days`;
+	}
+
+	async function fetchBatchInfo() {
+		if (!authStore?.user) {
+			isLoading = false;
+			return;
+		}
+
+		try {
+			const progressRes = await fetch(`/api/user/progress?userId=${authStore.user.$id}`);
+			const progressData = await progressRes.json();
+
+			if (progressData.success && progressData.applicationId) {
+				const batchRes = await fetch(`/api/batches?applicationId=${progressData.applicationId}`);
+				const batchData = await batchRes.json();
+
+				if (batchData.success && batchData.batch) {
+					batch = batchData.batch;
+				}
+			}
+		} catch (error) {
+			console.error('Failed to fetch batch info:', error);
+		} finally {
+			isLoading = false;
+		}
+	}
+
+	onMount(() => {
+		fetchBatchInfo();
+	});
 
 	const flights = [
 		{

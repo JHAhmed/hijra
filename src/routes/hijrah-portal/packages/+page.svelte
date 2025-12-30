@@ -6,6 +6,7 @@
 	import { fade, fly, slide } from 'svelte/transition';
 	import { cn } from '$lib/utils.js';
 	import { authStore } from '$lib/auth.svelte.js';
+	import { onMount } from 'svelte';
 
 	let { data } = $props();
 
@@ -14,6 +15,13 @@
 	let selectedPackage = $state(null);
 	let loading = $state(false);
 	let loadingMessage = $state('');
+	let preferredDepartureDate = $state('');
+	
+	// Read-only state
+	let isCompleted = $state(false);
+	let savedPackage = $state(null);
+	let savedDepartureDate = $state(null);
+	let isLoading = $state(true);
 
 	// Filter State
 	let activeFilter = $state('all');
@@ -39,6 +47,40 @@
 		}).format(amount);
 	};
 
+	const formatDate = (dateString) => {
+		if (!dateString) return 'Not set';
+		const date = new Date(dateString);
+		return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+	};
+
+	// Check if step is completed
+	async function checkProgress() {
+		if (!authStore?.user) {
+			isLoading = false;
+			return;
+		}
+
+		try {
+			const response = await fetch(`/api/user/progress?userId=${authStore.user.$id}`);
+			const progressData = await response.json();
+
+			if (progressData.success && progressData.hasApplication && progressData.currentStep >= 1) {
+				// Step 1 is completed - find the selected package
+				isCompleted = true;
+				savedDepartureDate = progressData.preferredDepartureDate;
+				
+				// Find the package from the list
+				if (progressData.packageId) {
+					savedPackage = packages.find(pkg => pkg.$id === progressData.packageId);
+				}
+			}
+		} catch (error) {
+			console.error('Failed to check progress:', error);
+		} finally {
+			isLoading = false;
+		}
+	}
+
 	// Actions
 	function handleSelect(pkg) {
 		selectedPackage = pkg;
@@ -61,7 +103,8 @@
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					userId: authStore.user.$id,
-					packageId: selectedPackage.$id
+					packageId: selectedPackage.$id,
+					preferredDepartureDate: preferredDepartureDate ? new Date(preferredDepartureDate).toISOString() : null
 				})
 			});
 
@@ -79,21 +122,100 @@
 			alert('Failed to create application. Please try again.');
 		}
 	}
+
+	onMount(() => {
+		checkProgress();
+	});
 </script>
 
-{#if loading}
-	<Modal text={loadingMessage} description="Please wait while we process your request." />
+{#if loading || isLoading}
+	<Modal text={loading ? loadingMessage : 'Loading...'} description="Please wait while we process your request." />
 {/if}
 
 <div class="min-h-screen w-full bg-white pb-20 text-secondary">
 	<div class="mx-auto max-w-8xl px-6 py-12 md:px-12 md:py-16">
-		<div class="mx-auto mb-12 max-w-4xl text-center">
-			<span class="mb-3 block text-xs font-bold tracking-widest text-primary uppercase">
-				Step {step} of 2
-			</span>
-			<h1 class="mb-8 text-3xl font-medium tracking-tighter text-secondary md:text-5xl">
-				{step === 1 ? 'Choose your Sacred Path.' : 'Review Package Details.'}
-			</h1>
+		{#if isCompleted && savedPackage}
+			<!-- Read-Only View -->
+			<div in:fade={{ duration: 300 }} class="mx-auto max-w-4xl">
+				<div class="mb-8 text-center">
+					<div class="mb-4 inline-flex items-center gap-2 rounded-full bg-green-100 px-4 py-2 text-sm font-bold text-green-700">
+						<Icon icon="heroicons:check-circle-solid" class="h-5 w-5" />
+						Package Selected
+					</div>
+					<h1 class="text-3xl font-medium tracking-tighter text-secondary md:text-5xl">
+						Your Selected Package
+					</h1>
+					<p class="mt-4 text-gray-500">
+						You have already selected a package for your pilgrimage.
+					</p>
+				</div>
+
+				<div class="overflow-hidden rounded-3xl border border-green-200 bg-white shadow-xl shadow-gray-200/40">
+					<div class="relative h-64 w-full bg-gray-200 md:h-80">
+						{#if savedPackage.imageUrl}
+							<img
+								src={savedPackage.imageUrl}
+								alt={savedPackage.name}
+								class="h-full w-full object-cover" />
+						{/if}
+						<div class="absolute inset-0 bg-linear-to-t from-black/60 to-transparent"></div>
+						<div class="absolute bottom-6 left-6 md:left-8">
+							<span
+								class="mb-2 inline-block rounded-full bg-green-500 px-3 py-1 text-xs font-bold tracking-wider text-white uppercase">
+								{savedPackage.type}
+							</span>
+							<h2 class="text-3xl font-bold tracking-tighter text-white md:text-4xl">
+								{savedPackage.name}
+							</h2>
+						</div>
+					</div>
+
+					<div class="p-8">
+						<div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
+							<div class="rounded-xl border border-gray-100 bg-gray-50 p-4">
+								<p class="text-xs font-bold tracking-wider text-gray-400 uppercase">Price</p>
+								<p class="mt-1 text-xl font-bold text-primary">{formatCurrency(savedPackage.price)}</p>
+							</div>
+							<div class="rounded-xl border border-gray-100 bg-gray-50 p-4">
+								<p class="text-xs font-bold tracking-wider text-gray-400 uppercase">Package Type</p>
+								<p class="mt-1 text-xl font-bold text-secondary capitalize">{savedPackage.type}</p>
+							</div>
+							<div class="rounded-xl border border-gray-100 bg-gray-50 p-4">
+								<p class="text-xs font-bold tracking-wider text-gray-400 uppercase">Departure</p>
+								<p class="mt-1 text-xl font-bold text-secondary">{formatDate(savedDepartureDate)}</p>
+							</div>
+						</div>
+
+						<h3 class="mb-4 text-lg font-bold text-secondary">Package Description</h3>
+						<p class="mb-8 leading-relaxed text-gray-500">{savedPackage.description}</p>
+
+						{#if savedPackage.inclusions?.length > 0}
+							<h3 class="mb-4 text-lg font-bold text-secondary">What's Included</h3>
+							<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+								{#each savedPackage.inclusions as item}
+									<div class="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 p-3">
+										<Icon icon="heroicons:check-circle-solid" class="h-5 w-5 shrink-0 text-green-500" />
+										<span class="text-sm font-medium text-secondary">{item}</span>
+									</div>
+								{/each}
+							</div>
+						{/if}
+
+						<div class="mt-8 flex justify-center">
+							<Button href="/hijrah-portal" text="Back to Portal" variant="secondary" />
+						</div>
+					</div>
+				</div>
+			</div>
+		{:else}
+			<!-- Package Selection View -->
+			<div class="mx-auto mb-12 max-w-4xl text-center">
+				<span class="mb-3 block text-xs font-bold tracking-widest text-primary uppercase">
+					Step {step} of 2
+				</span>
+				<h1 class="mb-8 text-3xl font-medium tracking-tighter text-secondary md:text-5xl">
+					{step === 1 ? 'Choose your Sacred Path.' : 'Review Package Details.'}
+				</h1>
 
 			<div class="flex items-center justify-center gap-4 text-sm font-bold tracking-wide">
 				<div
@@ -295,16 +417,31 @@
 								<span class="text-gray-600">Per Person</span>
 								<span class="font-bold text-secondary">1 Adult</span>
 							</div>
-							<div class="mb-8 flex items-center justify-between py-4">
+							<div class="flex items-center justify-between border-b border-gray-100 py-4">
 								<span class="text-lg font-bold text-secondary">Total Estimate</span>
 								<span class="text-2xl font-bold text-primary"
 									>{formatCurrency(selectedPackage.price)}</span>
 							</div>
 
-							<div class="space-y-3">
+							<!-- Departure Date Selection -->
+							<div class="border-t border-gray-100 pt-6">
+								<label for="departure-date" class="mb-2 block text-sm font-bold tracking-wider text-gray-400 uppercase">
+									Preferred Departure Month <span class="text-red-500">*</span>
+								</label>
+								<input
+									id="departure-date"
+									type="month"
+									bind:value={preferredDepartureDate}
+									min={new Date().toISOString().slice(0, 7)}
+									class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-secondary outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/10" />
+								<p class="mt-2 text-xs text-gray-400">Select when you'd like to depart for your pilgrimage.</p>
+							</div>
+
+							<div class="mt-6 space-y-3">
 								<Button
 									onclick={handleConfirm}
 									{loading}
+									disabled={!preferredDepartureDate}
 									text="Confirm & Apply"
 									variant="primary"
 									fullWidth={true} />
@@ -325,5 +462,7 @@
 				</div>
 			</div>
 		{/if}
+		{/if}
 	</div>
 </div>
+

@@ -21,18 +21,39 @@
 	let loading = $state(false);
 	let uploadProgress = $state('');
 	let fetchError = $state(null);
+	
+	// Read-only state
+	let isCompleted = $state(false);
+	let uploadedDocs = $state([]);
 
 	/**
 	 * Fetch pilgrim data from Appwrite via API
 	 */
 	async function fetchPilgrimData() {
-		if (!applicationId) {
+		if (!applicationId && !authStore?.user) {
 			initialLoading = false;
 			return;
 		}
 
 		try {
-			const response = await fetch(`/api/pilgrims?applicationId=${applicationId}`);
+			// First check user progress
+			if (authStore?.user) {
+				const progressRes = await fetch(`/api/user/progress?userId=${authStore.user.$id}`);
+				const progressData = await progressRes.json();
+				
+				if (progressData.success && progressData.hasApplication && progressData.currentStep >= 3) {
+					isCompleted = true;
+				}
+			}
+
+			// Use applicationId from URL or from progress
+			const appId = applicationId;
+			if (!appId) {
+				initialLoading = false;
+				return;
+			}
+
+			const response = await fetch(`/api/pilgrims?applicationId=${appId}`);
 			const result = await response.json();
 
 			if (!response.ok) {
@@ -190,6 +211,79 @@
 		description="Please do not close or refresh the page." />
 {/if}
 
+{#if isCompleted}
+	<!-- Read-Only View -->
+	<div class="min-h-screen bg-gray-50/50 pt-10 pb-20 text-secondary">
+		<div class="mx-auto max-w-5xl px-6">
+			<div class="mb-8 text-center">
+				<div class="mb-4 inline-flex items-center gap-2 rounded-full bg-green-100 px-4 py-2 text-sm font-bold text-green-700">
+					<Icon icon="heroicons:check-circle-solid" class="h-5 w-5" />
+					Documents Uploaded
+				</div>
+				<h1 class="text-3xl font-semibold tracking-tighter md:text-5xl">
+					Documents <span class="text-primary">Submitted</span>
+				</h1>
+				<p class="mt-4 text-gray-500">
+					Your documents have been uploaded and are under review.
+				</p>
+			</div>
+
+			<div class="overflow-hidden rounded-3xl border border-green-200 bg-white p-8">
+				<div class="mb-6 flex items-center gap-3">
+					<div class="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+						<Icon icon="heroicons:document-check" class="h-6 w-6 text-green-600" />
+					</div>
+					<div>
+						<h3 class="font-bold text-secondary">Documents Under Review</h3>
+						<p class="text-sm text-gray-500">Our team is verifying your uploaded documents</p>
+					</div>
+				</div>
+
+				{#if leadPilgrim}
+					<div class="space-y-4">
+						<div class="flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 p-4">
+							<div class="flex items-center gap-3">
+								<div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-500 text-sm font-bold text-white">
+									{leadPilgrim.firstName?.[0]}{leadPilgrim.lastName?.[0]}
+								</div>
+								<div>
+									<p class="font-medium text-secondary">{leadPilgrim.firstName} {leadPilgrim.lastName}</p>
+									<p class="text-xs text-gray-500">Lead Pilgrim</p>
+								</div>
+							</div>
+							<span class="flex items-center gap-1.5 text-xs font-bold text-green-600">
+								<Icon icon="heroicons:check-circle-solid" class="h-4 w-4" />
+								Submitted
+							</span>
+						</div>
+
+						{#each familyMembers as member}
+							<div class="flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 p-4">
+								<div class="flex items-center gap-3">
+									<div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-400 text-sm font-bold text-white">
+										{member.firstName?.[0]}{member.lastName?.[0]}
+									</div>
+									<div>
+										<p class="font-medium text-secondary">{member.firstName} {member.lastName}</p>
+										<p class="text-xs text-gray-500">{member.relation}</p>
+									</div>
+								</div>
+								<span class="flex items-center gap-1.5 text-xs font-bold text-green-600">
+									<Icon icon="heroicons:check-circle-solid" class="h-4 w-4" />
+									Submitted
+								</span>
+							</div>
+						{/each}
+					</div>
+				{/if}
+
+				<div class="mt-8 flex justify-center">
+					<Button href="/hijrah-portal" text="Back to Portal" variant="secondary" />
+				</div>
+			</div>
+		</div>
+	</div>
+{:else}
 <div class="min-h-screen bg-gray-50/50 pt-10 pb-20 text-secondary">
 	<div class="mx-auto max-w-5xl px-6">
 		<div class="mb-10 flex flex-col items-center justify-between gap-6 md:flex-row md:items-end">
@@ -392,3 +486,5 @@
 		</div>
 	</div>
 </div>
+{/if}
+

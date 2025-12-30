@@ -11,6 +11,10 @@
 	let receipt = $state(undefined);
 	let error = $state('');
 	let applicationId = $state(null);
+	
+	// Read-only state
+	let isCompleted = $state(false);
+	let isLoading = $state(true);
 
 	// Mock Data
 	const paymentDetails = {
@@ -46,12 +50,19 @@
 
 			if (data.success && data.applicationId) {
 				applicationId = data.applicationId;
+				
+				// Check if payment step is completed (currentStep >= 4)
+				if (data.currentStep >= 4) {
+					isCompleted = true;
+				}
 			} else {
 				error = 'No application found. Please complete the previous steps.';
 			}
 		} catch (err) {
 			console.error('Failed to fetch progress:', err);
 			error = 'Failed to load payment details.';
+		} finally {
+			isLoading = false;
 		}
 	});
 
@@ -101,6 +112,67 @@
 	<title>Payment | Hijrah Portal</title>
 </svelte:head>
 
+{#if isCompleted}
+	<!-- Read-Only View -->
+	<div class="min-h-screen bg-gray-50/50 pt-10 pb-20 text-secondary">
+		<div class="mx-auto max-w-4xl px-6">
+			<div class="mb-8 text-center">
+				<div class="mb-4 inline-flex items-center gap-2 rounded-full bg-green-100 px-4 py-2 text-sm font-bold text-green-700">
+					<Icon icon="heroicons:check-circle-solid" class="h-5 w-5" />
+					Payment Submitted
+				</div>
+				<h1 class="text-3xl font-semibold tracking-tighter md:text-5xl">
+					Payment <span class="text-primary">Received</span>
+				</h1>
+				<p class="mt-4 text-gray-500">
+					Your payment receipt has been submitted and is being processed.
+				</p>
+			</div>
+
+			<div class="overflow-hidden rounded-3xl border border-green-200 bg-white p-8">
+				<div class="mb-6 flex items-center gap-3">
+					<div class="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+						<Icon icon="heroicons:banknotes" class="h-6 w-6 text-green-600" />
+					</div>
+					<div>
+						<h3 class="font-bold text-secondary">Payment Under Verification</h3>
+						<p class="text-sm text-gray-500">Our team is verifying your payment receipt</p>
+					</div>
+				</div>
+
+				<div class="mb-6 rounded-xl border border-gray-100 bg-gray-50 p-6">
+					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+						<div>
+							<p class="text-xs font-bold tracking-wider text-gray-400 uppercase">Amount Paid</p>
+							<p class="mt-1 text-2xl font-bold text-primary">{formatCurrency(paymentDetails.totalAmount)}</p>
+						</div>
+						<div>
+							<p class="text-xs font-bold tracking-wider text-gray-400 uppercase">Status</p>
+							<p class="mt-1 flex items-center gap-2 text-lg font-bold text-yellow-600">
+								<Icon icon="heroicons:clock" class="h-5 w-5" />
+								Pending Verification
+							</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="rounded-xl border border-gray-100 bg-gray-50 p-4">
+					<div class="flex items-center gap-3">
+						<Icon icon="heroicons:document-check" class="h-8 w-8 text-green-500" />
+						<div>
+							<p class="font-medium text-secondary">Receipt Uploaded</p>
+							<p class="text-xs text-gray-500">Your payment verification is in progress</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="mt-8 flex justify-center">
+					<Button href="/hijrah-portal" text="Back to Portal" variant="secondary" />
+				</div>
+			</div>
+		</div>
+	</div>
+{:else}
 <div class="min-h-screen bg-gray-50/50 pt-10 pb-20 text-secondary">
 	<div class="mx-auto max-w-6xl px-6">
 		<!-- Header -->
@@ -248,3 +320,5 @@
 		</div>
 	</div>
 </div>
+{/if}
+

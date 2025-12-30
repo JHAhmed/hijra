@@ -42,7 +42,8 @@ export async function GET({ url }) {
 			currentStep: application.currentStep || 1,
 			status: application.status,
 			packageId: application.packageId,
-			pilgrimCount: application.pilgrimCount || 0
+			pilgrimCount: application.pilgrimCount || 0,
+			preferredDepartureDate: application.preferredDepartureDate || null
 		});
 	} catch (error) {
 		console.error('Failed to get user progress:', error);

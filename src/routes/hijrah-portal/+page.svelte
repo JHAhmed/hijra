@@ -4,12 +4,19 @@
 	import Timeline from '$components/portal/Timeline.svelte';
 	import Progress from '$components/portal/Progress.svelte';
 	import Modal from '$components/ui/Modal.svelte';
+	import TermsAndConditions from '$components/portal/TermsAndConditions.svelte';
 	import { authStore } from '$lib/auth.svelte';
 	import { onMount } from 'svelte';
 
 	let isLoading = $state(true);
 	let userProgress = $state(null);
 	let applicationId = $state(null);
+	let showTerms = $state(false);
+
+	function handleAgree() {
+		localStorage.setItem('portal_terms_accepted', 'true');
+		showTerms = false;
+	}
 
 	// Base cards configuration - visibility will be updated based on progress
 	let cards = $state([
@@ -73,11 +80,22 @@
 			description: 'Track your pilgrimage journey in real-time.',
 			url: '/hijrah-portal/pilgrim-tracking',
 			icon: 'ph:clipboard-text',
-			step: 6,
+			step: 5,
 			visible: false,
 			completed: false,
 			image:
 				'https://images.unsplash.com/photo-1587573088697-b4fa10460683?&auto=format&fit=crop&q=80&w=1170'
+		},
+		{
+			text: 'Pilgrim Information',
+			description: 'View and manage your pilgrimage information.',
+			url: '/hijrah-portal/pilgrim-information',
+			icon: 'ph:clipboard-text',
+			step: 5,
+			visible: false,
+			completed: false,
+			image:
+				'https://images.unsplash.com/photo-1667391405747-bb437b3c7547?q=80&w=1074&auto=format&fit=crop'
 		}
 	]);
 
@@ -92,6 +110,11 @@
 
 	// Fetch user progress on mount
 	onMount(async () => {
+		const termsAccepted = localStorage.getItem('portal_terms_accepted');
+		if (termsAccepted !== 'true') {
+			showTerms = true;
+		}
+
 		if (!authStore.user) {
 			isLoading = false;
 			return;
@@ -183,4 +206,9 @@
 			{/each}
 		</div>
 	</div>
+
+
+	{#if showTerms}
+		<TermsAndConditions on:agree={handleAgree} />
+	{/if}
 </section>

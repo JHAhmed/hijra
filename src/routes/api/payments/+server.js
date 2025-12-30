@@ -1,9 +1,49 @@
 import { json } from '@sveltejs/kit';
-import { tablesDB, storage, ID } from '$lib/server/appwrite.js';
+import { tablesDB, storage, ID, Query } from '$lib/server/appwrite.js';
 import { env } from '$env/dynamic/public';
 
 const DATABASE_ID = 'hijrah';
 const BUCKET_ID = env.PUBLIC_APPWRITE_BUCKET_ID || 'pilgrim-documents';
+
+/**
+ * Find or create a batch for a specific date
+ * @param {string} preferredDate - ISO date string for preferred departure
+ */
+async function findOrCreateBatchForDate(preferredDate) {
+	const targetDate = new Date(preferredDate);
+	const year = targetDate.getFullYear();
+	const month = targetDate.getMonth();
+
+	// Start of target month
+	const startOfMonth = new Date(year, month, 1);
+	// End of target month (last day)
+	const endOfMonth = new Date(year, month + 1, 0);
+
+	// Format month name
+	const monthName = startOfMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+	// Try to find existing batch for this month
+	const existingBatches = await tablesDB.listRows(DATABASE_ID, 'batches', [
+		Query.greaterThanEqual('startDate', startOfMonth.toISOString()),
+		Query.lessThanEqual('startDate', endOfMonth.toISOString()),
+		Query.limit(1)
+	]);
+
+	if (existingBatches.rows && existingBatches.rows.length > 0) {
+		return existingBatches.rows[0];
+	}
+
+	// Create new batch for this month
+	const newBatch = await tablesDB.createRow(DATABASE_ID, 'batches', ID.unique(), {
+		name: `${monthName} Batch`,
+		startDate: startOfMonth.toISOString(),
+		endDate: endOfMonth.toISOString(),
+		status: 'open',
+		maxCapacity: 50
+	});
+
+	return newBatch;
+}
 
 /**
  * POST /api/payments
@@ -34,19 +74,39 @@ export async function POST({ request }) {
 			return json({ error: 'Failed to upload receipt file' }, { status: 500 });
 		}
 
-		// Update application with payment information
+		// Get application to check for preferred departure date
+		const application = await tablesDB.getRow(DATABASE_ID, 'applications', applicationId);
+
+		// Find or create batch based on preferred departure date
+		let batchId = null;
+		try {
+			const preferredDate = application.preferredDepartureDate || new Date().toISOString();
+			const batch = await findOrCreateBatchForDate(preferredDate);
+			batchId = batch.$id;
+		} catch (batchError) {
+			console.error('Failed to assign batch:', batchError);
+			// Continue without batch assignment - can be assigned manually later
+		}
+
+		// Update application with payment information and batch assignment
 		// Move to step 4 (payment submitted) and unlock step 5 (journey dates)
-		await tablesDB.updateRow(DATABASE_ID, 'applications', applicationId, {
+		const updateData = {
 			status: 'payment_submitted',
 			currentStep: 4,
 			paymentReceiptId: receiptFileId
-			// paymentSubmittedAt: new Date().toISOString()
-		});
+		};
+
+		if (batchId) {
+			updateData.batchId = batchId;
+		}
+
+		await tablesDB.updateRow(DATABASE_ID, 'applications', applicationId, updateData);
 
 		return json({
 			success: true,
 			message: 'Payment receipt uploaded successfully',
-			receiptFileId
+			receiptFileId,
+			batchId
 		});
 	} catch (error) {
 		console.error('Failed to process payment:', error);

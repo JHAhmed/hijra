@@ -9,19 +9,31 @@ const DATABASE_ID = 'hijrah';
  */
 export async function POST({ request }) {
 	try {
-		const { userId, packageId } = await request.json();
+		const { userId, packageId, preferredDepartureDate } = await request.json();
 
 		if (!userId || !packageId) {
 			return json({ error: 'Missing required fields: userId, packageId' }, { status: 400 });
 		}
 
-		const application = await tablesDB.createRow(DATABASE_ID, 'applications', ID.unique(), {
+		const applicationData = {
 			userId,
 			packageId,
 			status: 'package_selected',
 			currentStep: 1,
 			pilgrimCount: 1
-		});
+		};
+
+		// Add preferred departure date if provided
+		if (preferredDepartureDate) {
+			applicationData.preferredDepartureDate = preferredDepartureDate;
+		}
+
+		const application = await tablesDB.createRow(
+			DATABASE_ID,
+			'applications',
+			ID.unique(),
+			applicationData
+		);
 
 		return json({
 			success: true,

@@ -3,6 +3,7 @@
 	import { fade, slide } from 'svelte/transition';
 	import Icon from '@iconify/svelte';
 	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
 
 	// UI Components
 	import Button from '$components/ui/Button.svelte';
@@ -12,12 +13,18 @@
 	import Modal from '$components/ui/Modal.svelte';
 	import { cn } from '$lib/utils.js';
 	import { pilgrims } from '$lib/store.svelte';
+	import { authStore } from '$lib/auth.svelte';
 
 	// State Management
 	let step = $state(1);
 	let loading = $state(false);
 	let loadingMessage = $state('');
 	let errors = $state({});
+	
+	// Read-only state
+	let isCompleted = $state(false);
+	let isLoading = $state(true);
+	let savedPilgrims = $state([]);
 
 	// Get Application ID from URL
 	const applicationId = $derived($page.url.searchParams.get('applicationId'));
@@ -43,6 +50,37 @@
 		},
 		familyMembers: []
 	});
+
+	// Check if step is completed
+	async function checkProgress() {
+		if (!authStore?.user) {
+			isLoading = false;
+			return;
+		}
+
+		try {
+			const response = await fetch(`/api/user/progress?userId=${authStore.user.$id}`);
+			const progressData = await response.json();
+
+			if (progressData.success && progressData.hasApplication && progressData.currentStep >= 2) {
+				// Step 2 (application) is completed
+				isCompleted = true;
+				
+				// Fetch existing pilgrim data
+				if (progressData.applicationId) {
+					const pilgrimsRes = await fetch(`/api/pilgrims?applicationId=${progressData.applicationId}`);
+					const pilgrimsData = await pilgrimsRes.json();
+					if (pilgrimsData.success) {
+						savedPilgrims = pilgrimsData.pilgrims || [];
+					}
+				}
+			}
+		} catch (error) {
+			console.error('Failed to check progress:', error);
+		} finally {
+			isLoading = false;
+		}
+	}
 
 	// Helper: Add Family Member
 	function addFamilyMember() {
@@ -152,12 +190,94 @@
 			alert('Failed to save details. Please try again.');
 		}
 	}
+
+	// Format date for display
+	function formatDate(dateString) {
+		if (!dateString) return 'Not provided';
+		const date = new Date(dateString);
+		return date.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+	}
+
+	onMount(() => {
+		checkProgress();
+	});
 </script>
 
-{#if loading}
-	<Modal text={loadingMessage} description="Please wait while we save your information." />
+{#if loading || isLoading}
+	<Modal text={loading ? loadingMessage : 'Loading...'} description="Please wait while we load your information." />
 {/if}
 
+{#if isCompleted}
+	<!-- Read-Only View -->
+	<div class="min-h-screen bg-gray-50/50 pt-10 pb-20 text-secondary">
+		<div class="mx-auto max-w-4xl px-6">
+			<div class="mb-8 text-center">
+				<div class="mb-4 inline-flex items-center gap-2 rounded-full bg-green-100 px-4 py-2 text-sm font-bold text-green-700">
+					<Icon icon="heroicons:check-circle-solid" class="h-5 w-5" />
+					Application Submitted
+				</div>
+				<h1 class="text-3xl font-semibold tracking-tighter md:text-5xl">
+					Pilgrim <span class="text-primary">Details</span>
+				</h1>
+				<p class="mt-4 text-gray-500">
+					Your application has been submitted. Below are the registered pilgrims.
+				</p>
+			</div>
+
+			<div class="space-y-6">
+				{#each savedPilgrims as pilgrim, i}
+					<div class="overflow-hidden rounded-3xl border {pilgrim.isLead ? 'border-green-200 bg-white' : 'border-gray-200 bg-white'}">
+						<div class="border-b {pilgrim.isLead ? 'border-green-100 bg-green-50' : 'border-gray-100 bg-gray-50'} px-6 py-4">
+							<div class="flex items-center gap-3">
+								<div class="flex h-10 w-10 items-center justify-center rounded-full {pilgrim.isLead ? 'bg-green-500' : 'bg-gray-400'} text-white font-bold">
+									{pilgrim.firstName?.[0]}{pilgrim.lastName?.[0]}
+								</div>
+								<div>
+									<h3 class="font-bold text-secondary">
+										{pilgrim.firstName} {pilgrim.lastName}
+									</h3>
+									<p class="text-xs text-gray-500">
+										{pilgrim.isLead ? 'Lead Pilgrim' : pilgrim.relation || 'Family Member'}
+									</p>
+								</div>
+							</div>
+						</div>
+						<div class="grid grid-cols-2 gap-6 p-6 sm:grid-cols-3">
+							<div>
+								<p class="text-xs font-bold tracking-wider text-gray-400 uppercase">Email</p>
+								<p class="mt-1 text-secondary">{pilgrim.email || '-'}</p>
+							</div>
+							<div>
+								<p class="text-xs font-bold tracking-wider text-gray-400 uppercase">Phone</p>
+								<p class="mt-1 text-secondary">{pilgrim.phone || '-'}</p>
+							</div>
+							<div>
+								<p class="text-xs font-bold tracking-wider text-gray-400 uppercase">Gender</p>
+								<p class="mt-1 text-secondary capitalize">{pilgrim.gender || '-'}</p>
+							</div>
+							<div>
+								<p class="text-xs font-bold tracking-wider text-gray-400 uppercase">Date of Birth</p>
+								<p class="mt-1 text-secondary">{formatDate(pilgrim.dob)}</p>
+							</div>
+							<div>
+								<p class="text-xs font-bold tracking-wider text-gray-400 uppercase">Passport Number</p>
+								<p class="mt-1 font-mono text-secondary">{pilgrim.passportNumber || '-'}</p>
+							</div>
+							<div>
+								<p class="text-xs font-bold tracking-wider text-gray-400 uppercase">Passport Expiry</p>
+								<p class="mt-1 text-secondary">{formatDate(pilgrim.passportExpiry)}</p>
+							</div>
+						</div>
+					</div>
+				{/each}
+			</div>
+
+			<div class="mt-8 flex justify-center">
+				<Button href="/hijrah-portal" text="Back to Portal" variant="secondary" />
+			</div>
+		</div>
+	</div>
+{:else}
 <div class="min-h-screen bg-gray-50/50 pt-10 pb-20 text-secondary">
 	<div class="mx-auto max-w-4xl px-6">
 		<div class="mb-10 text-center">
@@ -374,8 +494,10 @@
 						variant="primary"
 						text="Submit & Upload Documents"
 						class="w-auto" />
-				{/if}
+					{/if}
 			</div>
 		</div>
 	</div>
 </div>
+{/if}
+
