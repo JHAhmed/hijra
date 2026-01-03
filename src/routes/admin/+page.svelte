@@ -17,11 +17,9 @@
 
 	let recentActivity = $state([]);
 
-	let packageCapacity = $state([
-		{ name: 'Premium Hajj 2026', current: 45, max: 100, color: 'bg-emerald-500' },
-		{ name: 'Ramadan Umrah', current: 82, max: 90, color: 'bg-blue-500' },
-		{ name: 'Luxury Shifting', current: 12, max: 50, color: 'bg-purple-500' }
-	]);
+	let batchCapacity = $state([]);
+
+	const batchColors = ['bg-emerald-500', 'bg-blue-500', 'bg-purple-500', 'bg-amber-500', 'bg-rose-500'];
 
 	/**
 	 * Map application status to user-friendly action text
@@ -115,8 +113,31 @@
 		}
 	}
 
+	/**
+	 * Fetch batch capacity data
+	 */
+	async function fetchBatchCapacity() {
+		try {
+			const response = await fetch('/api/admin/batches?limit=5&status=open');
+			const result = await response.json();
+
+			if (result.success && result.batches) {
+				batchCapacity = result.batches.map((batch, index) => ({
+					id: batch.$id,
+					name: batch.name,
+					current: batch.pilgrimCount || 0,
+					max: batch.maxCapacity || 50,
+					color: batchColors[index % batchColors.length],
+					startDate: batch.startDate
+				}));
+			}
+		} catch (error) {
+			console.error('Failed to fetch batch capacity:', error);
+		}
+	}
+
 	onMount(async () => {
-		await Promise.all([fetchRecentApplications(), fetchStats()]);
+		await Promise.all([fetchRecentApplications(), fetchStats(), fetchBatchCapacity()]);
 		isLoading = false;
 	});
 
@@ -165,10 +186,10 @@
 							class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 text-secondary">
 							<Icon icon="heroicons:users" class="h-5 w-5" />
 						</div>
-						<span
+						<!-- <span
 							class="flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-bold text-emerald-600">
 							<Icon icon="heroicons:arrow-trending-up" class="h-3 w-3" /> 12%
-						</span>
+						</span> -->
 					</div>
 					<div class="mt-6">
 						<h3 class="text-4xl font-medium tracking-tighter text-secondary">
@@ -229,39 +250,50 @@
 				</div>
 
 				<div
-					class="flex flex-col justify-center rounded-4xl border border-gray-100 bg-white p-8 sm:col-span-2">
+					class=" flex-col justify-center rounded-4xl border border-gray-100 bg-white p-8 sm:col-span-2">
 					<div class="mb-8 flex items-end justify-between">
 						<div>
-							<h3 class="text-xl font-medium tracking-tight text-secondary">Package Capacity</h3>
-							<p class="mt-1 text-sm text-gray-500">Real-time slot availability.</p>
+							<h3 class="text-xl font-medium tracking-tight text-secondary">Batch Capacity</h3>
+							<p class="mt-1 text-sm text-gray-500">Current batches and pilgrim enrollment.</p>
 						</div>
 						<div class="hidden h-px w-24 bg-gray-100 sm:block"></div>
 					</div>
 
 					<div class="space-y-8">
-						{#each packageCapacity as pkg}
-							<div class="group cursor-default">
-								<div class="mb-3 flex items-center justify-between text-sm">
-									<div class="flex items-center gap-3">
-										<span class="font-medium text-secondary">{pkg.name}</span>
-										<span
-											class="rounded-full bg-gray-50 px-2 py-0.5 text-[10px] font-medium text-gray-400 opacity-0 transition-opacity group-hover:opacity-100">
-											{pkg.max} Slots Total
-										</span>
-									</div>
-									<span class="font-medium text-gray-900">{pkg.current} / {pkg.max}</span>
+						{#if batchCapacity.length === 0}
+							<div class="flex flex-col items-center justify-center py-8 text-center">
+								<div class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-50">
+									<Icon icon="heroicons:calendar-days" class="h-6 w-6 text-gray-300" />
 								</div>
-
-								<div class="relative h-2 w-full overflow-hidden rounded-full bg-gray-50">
-									<div
-										class="absolute top-0 left-0 h-full rounded-full {pkg.color} transition-all duration-1000 ease-out group-hover:brightness-110"
-										style="width: {(pkg.current / pkg.max) * 100}%">
-									</div>
-								</div>
+								<p class="text-sm text-gray-400">No active batches</p>
+								<p class="text-xs text-gray-300">Create a batch to start enrolling pilgrims</p>
 							</div>
-						{/each}
+						{:else}
+							{#each batchCapacity as batch}
+								<div class="group cursor-default">
+									<div class="mb-3 flex items-center justify-between text-sm">
+										<div class="flex items-center gap-3">
+											<span class="font-medium text-secondary">{batch.name}</span>
+											<span
+												class="rounded-full bg-gray-50 px-2 py-0.5 text-[10px] font-medium text-gray-400 opacity-0 transition-opacity group-hover:opacity-100">
+												{batch.max} Max Pilgrims
+											</span>
+										</div>
+										<span class="font-medium text-gray-900">{batch.current} / {batch.max}</span>
+									</div>
+
+									<div class="relative h-2 w-full overflow-hidden rounded-full bg-gray-50">
+										<div
+											class="absolute top-0 left-0 h-full rounded-full {batch.color} transition-all duration-1000 ease-out group-hover:brightness-110"
+											style="width: {(batch.current / batch.max) * 100}%">
+										</div>
+									</div>
+								</div>
+							{/each}
+						{/if}
 					</div>
 				</div>
+				
 			</div>
 
 			<div

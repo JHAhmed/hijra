@@ -4,19 +4,13 @@
 	import Timeline from '$components/portal/Timeline.svelte';
 	import Progress from '$components/portal/Progress.svelte';
 	import Modal from '$components/ui/Modal.svelte';
-	import TermsAndConditions from '$components/portal/TermsAndConditions.svelte';
 	import { authStore } from '$lib/auth.svelte';
 	import { onMount } from 'svelte';
 
 	let isLoading = $state(true);
 	let userProgress = $state(null);
 	let applicationId = $state(null);
-	let showTerms = $state(false);
-
-	function handleAgree() {
-		localStorage.setItem('portal_terms_accepted', 'true');
-		showTerms = false;
-	}
+	let pilgrimComments = $state(null);
 
 	// Base cards configuration - visibility will be updated based on progress
 	let cards = $state([
@@ -110,11 +104,6 @@
 
 	// Fetch user progress on mount
 	onMount(async () => {
-		const termsAccepted = localStorage.getItem('portal_terms_accepted');
-		if (termsAccepted !== 'true') {
-			showTerms = true;
-		}
-
 		if (!authStore.user) {
 			isLoading = false;
 			return;
@@ -127,6 +116,7 @@
 			if (data.success) {
 				userProgress = data;
 				applicationId = data.applicationId;
+				pilgrimComments = data.pilgrimComments || null;
 
 				// Update cards based on current step
 				// Step 0 = no application, show only packages
@@ -181,6 +171,17 @@
 					<p class="mt-4 w-fit rounded-full bg-gray-100 px-4 py-1 text-sm text-gray-500">
 						{authStore.user.email}
 					</p>
+					{#if pilgrimComments}
+						<div class="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4">
+							<div class="flex items-start gap-3">
+								<Icon icon="ph:note" class="h-5 w-5 shrink-0 text-amber-600 mt-0.5" />
+								<div>
+									<p class="text-xs font-bold tracking-wider text-amber-700 uppercase">Note from Admin</p>
+									<p class="mt-1 text-sm text-amber-800">{pilgrimComments}</p>
+								</div>
+							</div>
+						</div>
+					{/if}
 				{:else}
 					<p class="text-lg text-gray-500">Loading your details...</p>
 				{/if}
@@ -208,7 +209,4 @@
 	</div>
 
 
-	{#if showTerms}
-		<TermsAndConditions on:agree={handleAgree} />
-	{/if}
 </section>

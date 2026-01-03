@@ -23,3 +23,13 @@
 - Add location tracking toggle with admin controls
   <!-- - Add common location indicator -->
   <!-- - Add terms and conditions acceptance before application -->
+
+- Different options for Hajj and Umrah tracking
+- Add option to add images in hijrah-portal/pilgrim-tracking
+- Restrict hijrah-portal/pilgrim-tracking to admin, only let track/ID page be accessible to pilgrims
+<!-- - Display lat/long as place name -->
+<!-- - Remove how it works from pilgrim tracking -->
+<!-- - Fix file view error -->
+- Add required documents in document collection field
+<!-- - Add comments section in admin panel -->
+- Display passport photo in pilgrim details page

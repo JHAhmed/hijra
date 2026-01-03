@@ -14,15 +14,11 @@
 	let lastLocation = $state(null);
 	let locationUpdateInterval = $state(null);
 
-	const activities = [
-		{ value: 'tawaf', label: 'Tawaf', icon: 'mdi:rotate-360' },
-		{ value: 'sai', label: "Sa'i", icon: 'mdi:walk' },
-		{ value: 'mina', label: 'Mina', icon: 'mdi:tent' },
-		{ value: 'arafat', label: 'Arafat', icon: 'mdi:weather-sunny' },
-		{ value: 'muzdalifah', label: 'Muzdalifah', icon: 'mdi:weather-night' },
-		{ value: 'jamarat', label: 'Jamarat', icon: 'mdi:target' },
-		{ value: 'resting', label: 'Resting', icon: 'mdi:bed' },
-		{ value: 'traveling', label: 'Traveling', icon: 'mdi:bus' }
+	const umrahStages = [
+		{ value: 'ihram', label: 'Ihram', icon: 'mdi:account-circle', description: 'State of consecration' },
+		{ value: 'tawaf', label: 'Tawaf', icon: 'mdi:rotate-360', description: 'Circling the Kaaba' },
+		{ value: 'sai', label: "Sa'i", icon: 'mdi:walk', description: 'Walking between hills' },
+		{ value: 'halq', label: 'Halq/Taqsir', icon: 'mdi:content-cut', description: 'Hair cutting ritual' }
 	];
 
 	// Initialize - get or create tracking session for this user
@@ -173,11 +169,17 @@
 		}
 	}
 
-	async function handleActivityChange(event) {
-		currentActivity = event.target.value;
+	async function handleActivityToggle(stageValue) {
+		// Toggle off if already selected, otherwise select new stage
+		currentActivity = currentActivity === stageValue ? '' : stageValue;
 		if (isSharing) {
 			await updateTracking();
-			toast.success('Activity updated');
+			if (currentActivity) {
+				const stage = umrahStages.find(s => s.value === currentActivity);
+				toast.success(`Now at: ${stage?.label}`);
+			} else {
+				toast.success('Activity cleared');
+			}
 		}
 	}
 
@@ -295,22 +297,38 @@
 				</button>
 			</div>
 
-			<!-- Activity Selector -->
+			<!-- Umrah Stage Toggles -->
 			<div>
-				<label for="activity" class="mb-2 block text-sm font-medium text-gray-700">
-					Current Activity
-				</label>
-				<select
-					id="activity"
-					bind:value={currentActivity}
-					onchange={handleActivityChange}
-					class="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-				>
-					<option value="">Select activity...</option>
-					{#each activities as activity}
-						<option value={activity.value}>{activity.label}</option>
+				<p class="mb-3 text-sm font-medium text-gray-700">Current Stage</p>
+				<div class="grid grid-cols-2 gap-3">
+					{#each umrahStages as stage}
+						<button
+							onclick={() => handleActivityToggle(stage.value)}
+							class="flex items-center gap-3 rounded-xl border-2 p-3 transition-all
+								{currentActivity === stage.value 
+									? 'border-emerald-500 bg-emerald-50 shadow-sm' 
+									: 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'}"
+						>
+							<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg
+								{currentActivity === stage.value ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-500'}">
+								<Icon icon={stage.icon} class="h-5 w-5" />
+							</div>
+							<div class="text-left">
+								<p class="text-sm font-semibold {currentActivity === stage.value ? 'text-emerald-900' : 'text-gray-900'}">
+									{stage.label}
+								</p>
+								<p class="text-xs {currentActivity === stage.value ? 'text-emerald-600' : 'text-gray-500'}">
+									{stage.description}
+								</p>
+							</div>
+							{#if currentActivity === stage.value}
+								<div class="ml-auto">
+									<Icon icon="mdi:check-circle" class="h-5 w-5 text-emerald-500" />
+								</div>
+							{/if}
+						</button>
 					{/each}
-				</select>
+				</div>
 			</div>
 
 			<!-- Location Status -->

@@ -3,6 +3,7 @@
 	import Icon from '@iconify/svelte';
 	import Button from '$components/ui/Button.svelte';
 	import Modal from '$components/ui/Modal.svelte';
+	import TermsAndConditions from '$components/portal/TermsAndConditions.svelte';
 	import { fade, fly, slide } from 'svelte/transition';
 	import { cn } from '$lib/utils.js';
 	import { authStore } from '$lib/auth.svelte.js';
@@ -22,6 +23,12 @@
 	let savedPackage = $state(null);
 	let savedDepartureDate = $state(null);
 	let isLoading = $state(true);
+	let showTerms = $state(false);
+
+	function handleAgree() {
+		localStorage.setItem('portal_terms_accepted', 'true');
+		showTerms = false;
+	}
 
 	// Filter State
 	let activeFilter = $state('all');
@@ -124,6 +131,10 @@
 	}
 
 	onMount(() => {
+		const termsAccepted = localStorage.getItem('portal_terms_accepted');
+		if (termsAccepted !== 'true') {
+			showTerms = true;
+		}
 		checkProgress();
 	});
 </script>
@@ -466,3 +477,6 @@
 	</div>
 </div>
 
+{#if showTerms}
+	<TermsAndConditions on:agree={handleAgree} />
+{/if}

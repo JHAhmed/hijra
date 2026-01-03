@@ -8,6 +8,39 @@
 	let trackingData = $state(data);
 	let refreshInterval;
 	let lastRefresh = $state(new Date());
+	let locationName = $state(null);
+	let locationLoading = $state(false);
+	let lastGeocodedCoords = $state(null);
+
+	// Reverse geocode coordinates to human-readable address
+	async function reverseGeocode(lat, lon) {
+		// Skip if we already geocoded these coordinates
+		const coordsKey = `${lat.toFixed(4)},${lon.toFixed(4)}`;
+		if (lastGeocodedCoords === coordsKey) return;
+		
+		locationLoading = true;
+		try {
+			const response = await fetch(
+				`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=en`,
+				{
+					headers: {
+						'User-Agent': 'HijrahPortal/1.0'
+					}
+				}
+			);
+			if (response.ok) {
+				const data = await response.json();
+				if (data.display_name) {
+					locationName = data.display_name;
+					lastGeocodedCoords = coordsKey;
+				}
+			}
+		} catch (error) {
+			console.error('Failed to reverse geocode:', error);
+		} finally {
+			locationLoading = false;
+		}
+	}
 
 	const activities = {
 		tawaf: { icon: 'mdi:rotate-360', label: 'Performing Tawaf', color: 'text-emerald-600' },
@@ -63,6 +96,18 @@
 	onMount(() => {
 		// Auto-refresh every 30 seconds
 		refreshInterval = setInterval(refreshData, 30000);
+		
+		// Initial geocoding if coordinates available
+		if (trackingData.latitude && trackingData.longitude) {
+			reverseGeocode(trackingData.latitude, trackingData.longitude);
+		}
+	});
+
+	// Re-geocode when coordinates change
+	$effect(() => {
+		if (trackingData.latitude && trackingData.longitude) {
+			reverseGeocode(trackingData.latitude, trackingData.longitude);
+		}
 	});
 
 	onDestroy(() => {
@@ -154,11 +199,20 @@
 							<h2 class="text-sm font-semibold uppercase tracking-wide text-gray-500">Location</h2>
 						</div>
 						<div class="p-6">
-							<div class="flex items-center gap-3">
-								<Icon icon="mdi:crosshairs-gps" class="h-5 w-5 text-gray-400" />
-								<p class="font-mono text-sm text-gray-600">
-									{trackingData.latitude.toFixed(6)}, {trackingData.longitude.toFixed(6)}
-								</p>
+							<div class="flex items-start gap-3">
+								<Icon icon="mdi:map-marker" class="h-5 w-5 mt-0.5 shrink-0 text-emerald-500" />
+								<div>
+									{#if locationLoading}
+										<p class="text-gray-500">Loading location...</p>
+									{:else if locationName}
+										<p class="text-gray-900 font-medium leading-relaxed">{locationName}</p>
+									{:else}
+										<p class="text-gray-600">Location available</p>
+									{/if}
+									<p class="mt-1 font-mono text-xs text-gray-400">
+										{trackingData.latitude.toFixed(6)}, {trackingData.longitude.toFixed(6)}
+									</p>
+								</div>
 							</div>
 							<a 
 								href="https://www.google.com/maps?q={trackingData.latitude},{trackingData.longitude}" 

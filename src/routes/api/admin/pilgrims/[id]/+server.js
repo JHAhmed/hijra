@@ -84,7 +84,8 @@ export async function PUT({ params, request }) {
 			'gender',
 			'passportNumber',
 			'passportExpiry',
-			'relation'
+			'relation',
+			'comments'
 		];
 		const updateData = {};
 

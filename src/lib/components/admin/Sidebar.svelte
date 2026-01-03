@@ -26,7 +26,7 @@
 
 	const mainMenu = [
 		{ name: 'Dashboard', href: '/admin', icon: 'heroicons:chart-bar-square' },
-		{ name: 'Pilgrims', href: '/admin/pilgrims', icon: 'heroicons:user-group' },
+		{ name: 'Pilgrims', href: '/admin/pilgrims', icon: 'heroicons:users' },
 		{ name: 'Batches', href: '/admin/batches', icon: 'heroicons:user-group' },
 		{ name: 'Tracking', href: '/admin/tracking', icon: 'heroicons:map-pin' }
 		// { name: 'Interested', href: '/admin/interested', icon: 'heroicons:user-plus' },

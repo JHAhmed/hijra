@@ -35,16 +35,33 @@ export async function GET({ url }) {
 
 		const application = applications.rows[0];
 
-		return json({
-			success: true,
-			hasApplication: true,
-			applicationId: application.$id,
-			currentStep: application.currentStep || 1,
-			status: application.status,
-			packageId: application.packageId,
-			pilgrimCount: application.pilgrimCount || 0,
-			preferredDepartureDate: application.preferredDepartureDate || null
-		});
+	// Fetch lead pilgrim's comments
+	let pilgrimComments = null;
+	try {
+		const pilgrimsResult = await tablesDB.listRows(DATABASE_ID, 'pilgrims', [
+			Query.equal('applicationId', application.$id),
+			Query.equal('isLead', true),
+			Query.limit(1)
+		]);
+		const leadPilgrim = pilgrimsResult.rows?.[0];
+		if (leadPilgrim?.comments) {
+			pilgrimComments = leadPilgrim.comments;
+		}
+	} catch {
+		console.log('Failed to fetch lead pilgrim comments');
+	}
+
+	return json({
+		success: true,
+		hasApplication: true,
+		applicationId: application.$id,
+		currentStep: application.currentStep || 1,
+		status: application.status,
+		packageId: application.packageId,
+		pilgrimCount: application.pilgrimCount || 0,
+		preferredDepartureDate: application.preferredDepartureDate || null,
+		pilgrimComments
+	});
 	} catch (error) {
 		console.error('Failed to get user progress:', error);
 		return json({ error: 'Failed to get progress', details: error.message }, { status: 500 });

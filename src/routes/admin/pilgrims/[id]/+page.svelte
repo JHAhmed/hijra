@@ -25,6 +25,10 @@
 	// Lead pilgrim reference (for non-lead members)
 	let leadPilgrim = $state(null);
 
+	// Comments state
+	let commentsText = $state('');
+	let isSavingComments = $state(false);
+
 	// Editable fields
 	let editData = $state({});
 
@@ -126,6 +130,9 @@
 				passportNumber: pilgrim.passportNumber,
 				passportExpiry: pilgrim.passportExpiry
 			};
+
+			// Initialize comments
+			commentsText = pilgrim.comments || '';
 
 			// Fetch related pilgrims based on role
 			if (pilgrim.applicationId) {
@@ -286,6 +293,44 @@
 	 */
 	function getInitials(firstName, lastName) {
 		return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase();
+	}
+
+	/**
+	 * Save comments
+	 */
+	async function saveComments() {
+		isSavingComments = true;
+		try {
+			const response = await fetch(`/api/admin/pilgrims/${pilgrimId}`, {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ comments: commentsText })
+			});
+
+			const result = await response.json();
+
+			if (!response.ok) {
+				throw new Error(result.error || 'Failed to save comments');
+			}
+
+			pilgrim = result.pilgrim;
+		} catch (err) {
+			console.error('Failed to save comments:', err);
+			alert('Failed to save comments: ' + err.message);
+		} finally {
+			isSavingComments = false;
+		}
+	}
+
+	/**
+	 * Clear comments
+	 */
+	async function clearComments() {
+		if (!confirm('Are you sure you want to clear the comments?')) {
+			return;
+		}
+		commentsText = '';
+		await saveComments();
 	}
 
 	// Watch for pilgrimId changes and refetch data
@@ -692,6 +737,44 @@
 						{/each}
 					</div>
 				{/if}
+			</div>
+
+			<!-- Admin Comments -->
+			<div class="rounded-4xl border border-gray-100 bg-white p-6 lg:col-span-3">
+				<h2 class="mb-6 flex items-center gap-2 text-lg font-bold text-secondary">
+					<Icon icon="ph:note" class="h-5 w-5 text-gray-400" />
+					Admin Comments
+				</h2>
+
+				<div class="space-y-4">
+					<textarea
+						bind:value={commentsText}
+						placeholder="Add internal notes or comments about this pilgrim..."
+						rows="4"
+						class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-secondary placeholder-gray-400 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/10 resize-none"
+					></textarea>
+
+					<div class="flex items-center gap-3">
+						<Button
+							onclick={saveComments}
+							variant="primary"
+							size="sm"
+							text={isSavingComments ? 'Saving...' : 'Save Comments'}
+							disabled={isSavingComments}
+						/>
+						<Button
+							onclick={clearComments}
+							variant="secondary"
+							size="sm"
+							text="Clear"
+							disabled={isSavingComments || !commentsText}
+						/>
+					</div>
+
+					<p class="text-xs text-gray-400">
+						These comments are visible to the pilgrim on their portal dashboard.
+					</p>
+				</div>
 			</div>
 		</div>
 	{/if}

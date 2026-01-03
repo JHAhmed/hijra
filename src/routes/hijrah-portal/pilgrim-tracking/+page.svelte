@@ -29,7 +29,7 @@
 		</div>
 
 		<!-- Info Banner -->
-		<div class="mb-6 rounded-xl border border-blue-200 bg-blue-50 p-4">
+		<!-- <div class="mb-6 rounded-xl border border-blue-200 bg-blue-50 p-4">
 			<div class="flex gap-3">
 				<Icon icon="mdi:information" class="h-5 w-5 shrink-0 text-blue-600" />
 				<div class="text-sm text-blue-800">
@@ -43,7 +43,7 @@
 					</ul>
 				</div>
 			</div>
-		</div>
+		</div> -->
 
 		<!-- Tracking Controls -->
 		{#if authStore?.user}
