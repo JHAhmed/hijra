@@ -73,6 +73,12 @@ export async function PUT({ params, request }) {
 		if (status !== undefined) updateData.status = status;
 		if (notes !== undefined) updateData.notes = notes;
 		if (packageId !== undefined) updateData.packageId = packageId;
+	if (data.trackingCode !== undefined) updateData.trackingCode = data.trackingCode;
+		if (data.trackingActive !== undefined) updateData.trackingActive = data.trackingActive;
+		if (data.latitude !== undefined) updateData.latitude = data.latitude;
+		if (data.longitude !== undefined) updateData.longitude = data.longitude;
+		if (data.currentActivity !== undefined) updateData.currentActivity = data.currentActivity;
+		if (data.lastUpdated !== undefined) updateData.lastUpdated = data.lastUpdated;
 
 		const batch = await tablesDB.updateRow(DATABASE_ID, 'batches', id, updateData);
 

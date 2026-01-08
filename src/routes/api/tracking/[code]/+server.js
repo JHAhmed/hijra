@@ -2,11 +2,11 @@ import { json } from '@sveltejs/kit';
 import { tablesDB, Query } from '$lib/server/appwrite.js';
 
 const DATABASE_ID = 'hijrah';
-const TABLE_ID = 'pilgrim_tracking';
 
 /**
  * GET /api/tracking/[code]
  * Fetch tracking data by code (public endpoint for viewers)
+ * Now uses batches table instead of pilgrim_tracking
  */
 export async function GET({ params }) {
 	try {
@@ -16,7 +16,8 @@ export async function GET({ params }) {
 			return json({ error: 'Tracking code is required' }, { status: 400 });
 		}
 
-		const result = await tablesDB.listRows(DATABASE_ID, TABLE_ID, [
+		// Look up batch by tracking code
+		const result = await tablesDB.listRows(DATABASE_ID, 'batches', [
 			Query.equal('trackingCode', code.toUpperCase())
 		]);
 
@@ -24,34 +25,25 @@ export async function GET({ params }) {
 			return json({ error: 'Tracking session not found' }, { status: 404 });
 		}
 
-		const session = result.rows[0];
+		const batch = result.rows[0];
 
-		// Check if expired
-		if (new Date(session.expiresAt) < new Date()) {
-			return json({
-				success: true,
-				expired: true,
-				pilgrimName: session.pilgrimName
-			});
-		}
-
-		// Check if inactive
-		if (!session.isActive) {
+		// Check if tracking is inactive
+		if (!batch.trackingActive) {
 			return json({
 				success: true,
 				inactive: true,
-				pilgrimName: session.pilgrimName
+				batchName: batch.name
 			});
 		}
 
 		return json({
 			success: true,
-			pilgrimName: session.pilgrimName,
-			latitude: session.latitude,
-			longitude: session.longitude,
-			currentActivity: session.currentActivity,
-			lastUpdated: session.lastUpdated,
-			isActive: session.isActive
+			batchName: batch.name,
+			latitude: batch.latitude,
+			longitude: batch.longitude,
+			currentActivity: batch.currentActivity,
+			lastUpdated: batch.lastUpdated,
+			trackingActive: batch.trackingActive
 		});
 	} catch (error) {
 		console.error('Failed to fetch tracking data:', error);
@@ -61,20 +53,20 @@ export async function GET({ params }) {
 
 /**
  * PUT /api/tracking/[code]
- * Update location and/or activity (called by pilgrim's device)
+ * Update location and/or activity (called by admin/guide device)
  */
 export async function PUT({ params, request }) {
 	try {
 		const { code } = params;
 		const body = await request.json();
-		const { latitude, longitude, currentActivity, isActive } = body;
+		const { latitude, longitude, currentActivity, trackingActive } = body;
 
 		if (!code) {
 			return json({ error: 'Tracking code is required' }, { status: 400 });
 		}
 
-		// Find the session
-		const result = await tablesDB.listRows(DATABASE_ID, TABLE_ID, [
+		// Find the batch by tracking code
+		const result = await tablesDB.listRows(DATABASE_ID, 'batches', [
 			Query.equal('trackingCode', code.toUpperCase())
 		]);
 
@@ -82,12 +74,7 @@ export async function PUT({ params, request }) {
 			return json({ error: 'Tracking session not found' }, { status: 404 });
 		}
 
-		const session = result.rows[0];
-
-		// Check if expired
-		if (new Date(session.expiresAt) < new Date()) {
-			return json({ error: 'Tracking session has expired' }, { status: 410 });
-		}
+		const batch = result.rows[0];
 
 		// Build update object
 		const updates = {
@@ -103,11 +90,11 @@ export async function PUT({ params, request }) {
 			updates.currentActivity = currentActivity;
 		}
 
-		if (isActive !== undefined) {
-			updates.isActive = isActive;
+		if (trackingActive !== undefined) {
+			updates.trackingActive = trackingActive;
 		}
 
-		await tablesDB.updateRow(DATABASE_ID, TABLE_ID, session.$id, updates);
+		await tablesDB.updateRow(DATABASE_ID, 'batches', batch.$id, updates);
 
 		return json({
 			success: true,
@@ -121,7 +108,7 @@ export async function PUT({ params, request }) {
 
 /**
  * DELETE /api/tracking/[code]
- * Stop/delete tracking session
+ * Stop tracking session (set inactive)
  */
 export async function DELETE({ params }) {
 	try {
@@ -131,7 +118,7 @@ export async function DELETE({ params }) {
 			return json({ error: 'Tracking code is required' }, { status: 400 });
 		}
 
-		const result = await tablesDB.listRows(DATABASE_ID, TABLE_ID, [
+		const result = await tablesDB.listRows(DATABASE_ID, 'batches', [
 			Query.equal('trackingCode', code.toUpperCase())
 		]);
 
@@ -139,11 +126,11 @@ export async function DELETE({ params }) {
 			return json({ error: 'Tracking session not found' }, { status: 404 });
 		}
 
-		const session = result.rows[0];
+		const batch = result.rows[0];
 
-		// Mark as inactive instead of deleting (for history)
-		await tablesDB.updateRow(DATABASE_ID, TABLE_ID, session.$id, {
-			isActive: false
+		// Mark as inactive
+		await tablesDB.updateRow(DATABASE_ID, 'batches', batch.$id, {
+			trackingActive: false
 		});
 
 		return json({

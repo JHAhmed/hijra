@@ -10,6 +10,11 @@
 	let guides = $state([]);
 	let error = $state(null);
 
+	// Auto-assignment feature
+	let autoAssignMonth = $state('');
+	let matchingApplications = $state([]);
+	let loadingMatches = $state(false);
+
 	// Form data
 	let formData = $state({
 		name: '',
@@ -67,6 +72,29 @@
 	}
 
 	/**
+	 * Fetch applications matching the preferred month
+	 */
+	async function fetchMatchingApplications() {
+		if (!autoAssignMonth) {
+			matchingApplications = [];
+			return;
+		}
+
+		loadingMatches = true;
+		try {
+			const response = await fetch(`/api/admin/batches/temp/assign?month=${autoAssignMonth}`);
+			const result = await response.json();
+			if (result.success) {
+				matchingApplications = result.applications;
+			}
+		} catch (err) {
+			console.error('Failed to fetch matching applications:', err);
+		} finally {
+			loadingMatches = false;
+		}
+	}
+
+	/**
 	 * Create batch
 	 */
 	async function createBatch() {
@@ -79,6 +107,7 @@
 		error = null;
 
 		try {
+			// Create the batch
 			const response = await fetch('/api/admin/batches', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -95,7 +124,19 @@
 				throw new Error(result.error || 'Failed to create batch');
 			}
 
-			goto(`/admin/batches/${result.batch.$id}`);
+			const batchId = result.batch.$id;
+
+			// Auto-assign matching pilgrims if any
+			if (matchingApplications.length > 0) {
+				const appIds = matchingApplications.map(app => app.$id);
+				await fetch(`/api/admin/batches/${batchId}/assign`, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ applicationIds: appIds })
+				});
+			}
+
+			goto(`/admin/batches/${batchId}`);
 		} catch (err) {
 			console.error('Failed to create batch:', err);
 			error = err.message;
@@ -210,6 +251,52 @@
 					></textarea>
 				</div>
 			</div>
+		</div>
+
+		<!-- Auto-Assign Pilgrims -->
+		<div class="rounded-4xl border border-gray-100 bg-white p-6">
+			<h2 class="mb-6 flex items-center gap-2 text-lg font-bold text-secondary">
+				<Icon icon="heroicons:user-plus" class="h-5 w-5 text-gray-400" />
+				Auto-Assign Pilgrims (Optional)
+			</h2>
+			<p class="mb-4 text-sm text-gray-500">
+				Select a month to automatically include all pilgrims who chose that as their preferred travel month.
+			</p>
+
+			<div class="flex items-end gap-4">
+				<div class="flex-1">
+					<label class="mb-2 block text-xs font-bold tracking-wider text-gray-400 uppercase"
+						>Preferred Month Filter</label>
+					<input
+						type="month"
+						bind:value={autoAssignMonth}
+						class="h-10 w-full rounded-lg border border-gray-200 px-3 text-sm text-secondary outline-none focus:border-primary" />
+				</div>
+				<Button 
+					onclick={fetchMatchingApplications} 
+					variant="secondary" 
+					text={loadingMatches ? 'Loading...' : 'Find Pilgrims'} 
+					size="sm"
+					disabled={!autoAssignMonth || loadingMatches} />
+			</div>
+
+			{#if matchingApplications.length > 0}
+				<div class="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+					<div class="flex items-center gap-2 text-emerald-800">
+						<Icon icon="heroicons:check-circle" class="h-5 w-5" />
+						<span class="font-medium">{matchingApplications.length} pilgrim(s) will be auto-assigned to this batch</span>
+					</div>
+					<div class="mt-3 max-h-32 overflow-y-auto space-y-1">
+						{#each matchingApplications as app}
+							<p class="text-sm text-emerald-700">
+								• {app.leadPilgrim?.firstName || 'Unknown'} {app.leadPilgrim?.lastName || ''}
+							</p>
+						{/each}
+					</div>
+				</div>
+			{:else if autoAssignMonth && !loadingMatches}
+				<p class="mt-4 text-sm text-gray-400">No unassigned pilgrims found for this month.</p>
+			{/if}
 		</div>
 
 		<!-- Guide Assignment -->

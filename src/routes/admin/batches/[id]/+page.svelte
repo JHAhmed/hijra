@@ -15,6 +15,14 @@
 	let error = $state(null);
 	let isEditing = $state(false);
 
+	// Pilgrim management
+	let showAddPilgrimModal = $state(false);
+	let unassignedApplications = $state([]);
+	let loadingUnassigned = $state(false);
+	let selectedToAdd = $state([]);
+	let isAssigning = $state(false);
+	let isRemoving = $state(null); // applicationId being removed
+
 	// Editable fields
 	let editData = $state({});
 
@@ -230,6 +238,103 @@
 	 */
 	function getInitials(firstName, lastName) {
 		return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase();
+	}
+
+	/**
+	 * Fetch unassigned applications for adding to batch
+	 */
+	async function fetchUnassignedApplications() {
+		loadingUnassigned = true;
+		try {
+			const response = await fetch(`/api/admin/batches/${batchId}/assign`);
+			const result = await response.json();
+			if (result.success) {
+				unassignedApplications = result.applications;
+			}
+		} catch (err) {
+			console.error('Failed to fetch unassigned applications:', err);
+		} finally {
+			loadingUnassigned = false;
+		}
+	}
+
+	/**
+	 * Open add pilgrim modal
+	 */
+	function openAddPilgrimModal() {
+		selectedToAdd = [];
+		showAddPilgrimModal = true;
+		fetchUnassignedApplications();
+	}
+
+	/**
+	 * Toggle selection for adding
+	 */
+	function toggleSelectForAdd(appId) {
+		if (selectedToAdd.includes(appId)) {
+			selectedToAdd = selectedToAdd.filter(id => id !== appId);
+		} else {
+			selectedToAdd = [...selectedToAdd, appId];
+		}
+	}
+
+	/**
+	 * Assign selected pilgrims to batch
+	 */
+	async function assignSelectedPilgrims() {
+		if (selectedToAdd.length === 0) return;
+		
+		isAssigning = true;
+		try {
+			const response = await fetch(`/api/admin/batches/${batchId}/assign`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ applicationIds: selectedToAdd })
+			});
+			
+			const result = await response.json();
+			if (result.success) {
+				showAddPilgrimModal = false;
+				await fetchPilgrims();
+				await fetchBatch(); // Refresh pilgrim count
+			} else {
+				alert('Failed to assign pilgrims: ' + result.error);
+			}
+		} catch (err) {
+			console.error('Failed to assign pilgrims:', err);
+			alert('Failed to assign pilgrims');
+		} finally {
+			isAssigning = false;
+		}
+	}
+
+	/**
+	 * Remove pilgrim from batch
+	 */
+	async function removePilgrimFromBatch(applicationId) {
+		if (!confirm('Remove this pilgrim group from the batch?')) return;
+		
+		isRemoving = applicationId;
+		try {
+			const response = await fetch(`/api/admin/batches/${batchId}/assign`, {
+				method: 'DELETE',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ applicationIds: [applicationId] })
+			});
+			
+			const result = await response.json();
+			if (result.success) {
+				await fetchPilgrims();
+				await fetchBatch();
+			} else {
+				alert('Failed to remove pilgrim: ' + result.error);
+			}
+		} catch (err) {
+			console.error('Failed to remove pilgrim:', err);
+			alert('Failed to remove pilgrim');
+		} finally {
+			isRemoving = null;
+		}
 	}
 
 	onMount(() => {
@@ -487,6 +592,7 @@
 						<Icon icon="heroicons:users" class="h-5 w-5 text-gray-400" />
 						Assigned Pilgrims ({pilgrims.length})
 					</h2>
+					<Button onclick={openAddPilgrimModal} variant="secondary" text="Add Pilgrim" size="sm" />
 				</div>
 
 				{#if pilgrims.length === 0}
@@ -499,10 +605,10 @@
 						{#each pilgrims as pilgrimData}
 							{@const pilgrim = pilgrimData.leadPilgrim}
 							{#if pilgrim}
-								<a
-									href="/admin/pilgrims/{pilgrim.$id}"
-									class="group flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50/50 p-4 transition-colors hover:bg-gray-100">
-									<div class="flex items-center gap-4">
+								<div class="flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50/50 p-4 transition-colors hover:bg-gray-100">
+									<a
+										href="/admin/pilgrims/{pilgrim.$id}"
+										class="group flex items-center gap-4 flex-1">
 										<div
 											class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
 											{getInitials(pilgrim.firstName, pilgrim.lastName)}
@@ -517,11 +623,19 @@
 												in group
 											</p>
 										</div>
-									</div>
-									<Icon
-										icon="heroicons:chevron-right"
-										class="h-4 w-4 text-gray-400 group-hover:text-primary" />
-								</a>
+									</a>
+									<button
+										onclick={() => removePilgrimFromBatch(pilgrimData.applicationId)}
+										disabled={isRemoving === pilgrimData.applicationId}
+										class="flex items-center gap-1 rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50">
+										{#if isRemoving === pilgrimData.applicationId}
+											<Icon icon="heroicons:arrow-path" class="h-3 w-3 animate-spin" />
+										{:else}
+											<Icon icon="heroicons:x-mark" class="h-3 w-3" />
+										{/if}
+										Remove
+									</button>
+								</div>
 							{/if}
 						{/each}
 					</div>
@@ -530,3 +644,75 @@
 		</div>
 	{/if}
 </div>
+
+<!-- Add Pilgrim Modal -->
+{#if showAddPilgrimModal}
+	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" transition:fade>
+		<div class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+			<div class="mb-4 flex items-center justify-between">
+				<h3 class="text-lg font-bold text-secondary">Add Pilgrims to Batch</h3>
+				<button
+					onclick={() => showAddPilgrimModal = false}
+					class="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
+					<Icon icon="heroicons:x-mark" class="h-5 w-5" />
+				</button>
+			</div>
+
+			{#if loadingUnassigned}
+				<div class="py-8 text-center">
+					<Icon icon="heroicons:arrow-path" class="mx-auto h-8 w-8 animate-spin text-gray-400" />
+					<p class="mt-2 text-sm text-gray-500">Loading unassigned applications...</p>
+				</div>
+			{:else if unassignedApplications.length === 0}
+				<div class="py-8 text-center">
+					<Icon icon="heroicons:users" class="mx-auto h-8 w-8 text-gray-200" />
+					<p class="text-sm text-gray-400">No unassigned applications available</p>
+				</div>
+			{:else}
+				<div class="max-h-80 space-y-2 overflow-y-auto">
+					{#each unassignedApplications as app}
+						{@const pilgrim = app.leadPilgrim}
+						<button
+							onclick={() => toggleSelectForAdd(app.$id)}
+							class="flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors
+								{selectedToAdd.includes(app.$id) 
+									? 'border-primary bg-primary/5' 
+									: 'border-gray-100 bg-gray-50/50 hover:bg-gray-100'}">
+							<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full 
+								{selectedToAdd.includes(app.$id) ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'}">
+								{#if selectedToAdd.includes(app.$id)}
+									<Icon icon="heroicons:check" class="h-4 w-4" />
+								{:else}
+									{pilgrim?.firstName?.[0] || '?'}
+								{/if}
+							</div>
+							<div class="flex-1">
+								<p class="text-sm font-medium text-secondary">
+									{pilgrim?.firstName || 'Unknown'} {pilgrim?.lastName || ''}
+								</p>
+								{#if app.preferredDepartureDate}
+									<p class="text-xs text-gray-400">
+										Preferred: {new Date(app.preferredDepartureDate).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}
+									</p>
+								{/if}
+							</div>
+						</button>
+					{/each}
+				</div>
+
+				<div class="mt-4 flex items-center justify-between border-t pt-4">
+					<p class="text-sm text-gray-500">{selectedToAdd.length} selected</p>
+					<div class="flex gap-2">
+						<Button onclick={() => showAddPilgrimModal = false} variant="secondary" text="Cancel" size="sm" />
+						<Button 
+							onclick={assignSelectedPilgrims} 
+							variant="primary" 
+							text={isAssigning ? 'Adding...' : 'Add Selected'} 
+							size="sm"
+							disabled={selectedToAdd.length === 0 || isAssigning} />
+					</div>
+				</div>
+			{/if}
+		</div>
+	</div>
+{/if}

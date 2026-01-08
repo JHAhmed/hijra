@@ -120,8 +120,8 @@
 </script>
 
 <svelte:head>
-	<title>{trackingData.pilgrimName ? `Tracking ${trackingData.pilgrimName}` : 'Pilgrim Tracking'} | Hijrah</title>
-	<meta name="description" content="Live tracking for Hajj/Umrah pilgrim" />
+	<title>{trackingData.batchName ? `Tracking ${trackingData.batchName}` : 'Batch Tracking'} | Hijrah</title>
+	<meta name="description" content="Live tracking for Hajj/Umrah pilgrimage group" />
 </svelte:head>
 
 <main class="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -130,10 +130,10 @@
 		<div class="mb-8 text-center">
 			<div class="mb-4 inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-sm font-medium text-emerald-800">
 				<Icon icon="mdi:map-marker" class="h-4 w-4" />
-				Live Pilgrim Tracking
+				Live Batch Tracking
 			</div>
 			<h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-				{trackingData.pilgrimName || 'Pilgrim'}
+				{trackingData.batchName || 'Pilgrimage Group'}
 			</h1>
 			<p class="mt-2 text-sm text-gray-500">
 				Tracking Code: <span class="font-mono font-semibold">{data.code}</span>
@@ -162,7 +162,7 @@
 			<div class="rounded-2xl border border-gray-200 bg-gray-50 p-8 text-center">
 				<Icon icon="mdi:pause-circle" class="mx-auto mb-4 h-12 w-12 text-gray-400" />
 				<h2 class="text-xl font-semibold text-gray-800">Sharing Paused</h2>
-				<p class="mt-2 text-gray-600">{trackingData.pilgrimName} has paused location sharing.</p>
+				<p class="mt-2 text-gray-600">The {trackingData.batchName || 'group'} has paused location sharing.</p>
 			</div>
 
 		<!-- Active Tracking -->
