@@ -36,6 +36,24 @@ export async function GET({ params }) {
 			});
 		}
 
+		// Get package type by finding an application linked to this batch
+		let packageType = null;
+		try {
+			const applications = await tablesDB.listRows(DATABASE_ID, 'applications', [
+				Query.equal('batchId', batch.$id),
+				Query.limit(1)
+			]);
+
+			if (applications.rows && applications.rows.length > 0 && applications.rows[0].packageId) {
+				const pkg = await tablesDB.getRow(DATABASE_ID, 'packages', applications.rows[0].packageId);
+				if (pkg && pkg.type) {
+					packageType = pkg.type.toLowerCase();
+				}
+			}
+		} catch (err) {
+			console.warn('Failed to fetch package type:', err);
+		}
+
 		return json({
 			success: true,
 			batchName: batch.name,
@@ -43,7 +61,8 @@ export async function GET({ params }) {
 			longitude: batch.longitude,
 			currentActivity: batch.currentActivity,
 			lastUpdated: batch.lastUpdated,
-			trackingActive: batch.trackingActive
+			trackingActive: batch.trackingActive,
+			packageType: packageType
 		});
 	} catch (error) {
 		console.error('Failed to fetch tracking data:', error);

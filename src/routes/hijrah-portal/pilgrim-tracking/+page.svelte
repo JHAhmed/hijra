@@ -11,7 +11,12 @@
 	let locationName = $state(null);
 	let locationLoading = $state(false);
 
-	const activities = {
+	// Image upload state
+	// Image gallery state
+	let journeyImages = $state([]);
+
+	// All activities with their metadata
+	const allActivities = {
 		tawaf: { icon: 'mdi:rotate-360', label: 'Performing Tawaf', color: 'text-emerald-600' },
 		sai: { icon: 'mdi:walk', label: "Performing Sa'i", color: 'text-blue-600' },
 		mina: { icon: 'mdi:tent', label: 'At Mina', color: 'text-amber-600' },
@@ -22,9 +27,22 @@
 		traveling: { icon: 'mdi:bus', label: 'Traveling', color: 'text-purple-600' }
 	};
 
+	// Activity keys for each package type
+	const umrahActivities = ['tawaf', 'sai', 'resting', 'traveling'];
+	const hajjActivities = ['tawaf', 'sai', 'mina', 'arafat', 'muzdalifah', 'jamarat', 'resting', 'traveling'];
+
+	// Filter activities based on package type
+	const activities = $derived(() => {
+		const packageType = trackingData?.packageType?.toLowerCase();
+		const activityKeys = packageType === 'umrah' ? umrahActivities : hajjActivities;
+		return Object.fromEntries(
+			Object.entries(allActivities).filter(([key]) => activityKeys.includes(key))
+		);
+	});
+
 	function getActivityInfo(activity) {
 		if (!activity) return { icon: 'mdi:map-marker-question', label: 'Activity not set', color: 'text-gray-400' };
-		return activities[activity.toLowerCase()] || { icon: 'mdi:map-marker', label: activity, color: 'text-gray-600' };
+		return allActivities[activity.toLowerCase()] || { icon: 'mdi:map-marker', label: activity, color: 'text-gray-600' };
 	}
 
 	function formatLastUpdated(timestamp) {
@@ -123,6 +141,21 @@
 		}
 	}
 
+	async function fetchImages() {
+		if (!trackingData?.batchId) return;
+
+		try {
+			const response = await fetch(`/api/tracking-images?batchId=${trackingData.batchId}`);
+			const data = await response.json();
+
+			if (response.ok && data.success) {
+				journeyImages = data.images || [];
+			}
+		} catch (err) {
+			console.error('Failed to fetch images:', err);
+		}
+	}
+
 	onMount(() => {
 		fetchTrackingData();
 		// Refresh every 30 seconds
@@ -136,6 +169,13 @@
 	});
 
 	const activityInfo = $derived(trackingData?.currentActivity ? getActivityInfo(trackingData.currentActivity) : null);
+
+	// Fetch images when tracking data changes
+	$effect(() => {
+		if (trackingData?.batchId) {
+			fetchImages();
+		}
+	});
 </script>
 
 <svelte:head>
@@ -303,6 +343,40 @@
 						</button>
 					</div>
 				</div>
+
+				<!-- Journey Photos Section -->
+				{#if journeyImages.length > 0}
+					<div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+						<div class="border-b border-gray-100 bg-gray-50 px-6 py-4">
+							<h3 class="text-sm font-semibold uppercase tracking-wide text-gray-500">Journey Photos</h3>
+						</div>
+						<div class="p-6">
+							<!-- Image Gallery -->
+							<div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+								{#each journeyImages as image (image.$id)}
+									<div class="group relative aspect-square overflow-hidden rounded-lg">
+										<img
+											src={image.imageUrl}
+											alt={image.caption || 'Journey photo'}
+											class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+										/>
+										<div class="absolute inset-0 flex flex-col justify-end bg-linear-to-t from-black/60 to-transparent p-2 opacity-0 transition-opacity group-hover:opacity-100">
+											{#if image.caption}
+												<p class="text-xs text-white truncate">{image.caption}</p>
+											{/if}
+											{#if image.activity}
+												<span class="mt-1 inline-flex items-center gap-1 text-xs text-gray-200">
+													<Icon icon={getActivityInfo(image.activity).icon} class="h-3 w-3" />
+													{getActivityInfo(image.activity).label}
+												</span>
+											{/if}
+										</div>
+									</div>
+								{/each}
+							</div>
+						</div>
+					</div>
+				{/if}
 
 				<!-- Status Bar -->
 				<div class="flex items-center justify-between rounded-xl bg-gray-100 px-4 py-3 text-sm text-gray-600">

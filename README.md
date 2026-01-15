@@ -19,14 +19,13 @@
 <!-- - Add common location indicator -->
 <!-- - Add terms and conditions acceptance before application -->
 
-- Implement batch-based location tracking - TENTATIVELY DONE
-- Add location tracking toggle with admin controls - TENTATIVELY DONE
-- Restrict hijrah-portal/pilgrim-tracking to admin, only let track/ID page be accessible to pilgrims - TENTATIVELY DONE
+<!-- - Different options for Hajj and Umrah tracking:
+ - In pilgrim-tracking, there are currently 4 activities displayed, this is standard for umrah, but for hajj, there needs to be more options with all the core activities of hajj, I guess the page will also need a way to know whether it is currently displaying tracking for a hajj or umrah packge, this should be possibly by checking the type column under the packages table
 
-- Add input field in home page for pilgrim tracking number
-- Different options for Hajj and Umrah tracking
-- Add option to add images in hijrah-portal/pilgrim-tracking
-- Button to copy every details for user page
+- Add option to add images in hijrah-portal/pilgrim-tracking:
+ - Basically in the pilgrim-tracking page (the one that the admin has control over) there needs to be an option to add images, that will be uploaded to the database and displayed in the track page. This means there needs to be changes in both pilgrim-tracking and track page.   -->
+
+<!-- - Button to copy every details for user page -->
 
 <!-- - Add option to manually add or remove pilgrims from a batch -->
 <!-- - Display lat/long as place name -->
@@ -34,5 +33,10 @@
 <!-- - Fix file view error -->
 <!-- - Add comments section in admin panel -->
 
+- Implement batch-based location tracking - TENTATIVELY DONE
+- Add location tracking toggle with admin controls - TENTATIVELY DONE
+- Restrict hijrah-portal/pilgrim-tracking to admin, only let track/ID page be accessible to pilgrims - TENTATIVELY DONE
+
+- Add input field in home page for pilgrim tracking number
 - Add required documents in document collection field
 - Display passport photo in pilgrim details page

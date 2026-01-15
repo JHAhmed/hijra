@@ -19,6 +19,16 @@
 	let locationUpdateInterval = $state(null);
 	let isGeneratingCode = $state(false);
 
+	// Image upload state
+	let journeyImages = $state([]);
+	let isUploadingImage = $state(false);
+	let uploadError = $state(null);
+	let selectedFile = $state(null);
+	let imageCaption = $state('');
+	let imageActivity = $state('');
+	let fileInputRef = $state(null);
+	let imagePreview = $state(null);
+
 	const batchId = $derived($page.params.id);
 
 	const activities = [
@@ -57,11 +67,106 @@
 					startLocationWatch();
 				}
 			}
+
+			// Fetch journey images
+			await fetchImages();
 		} catch (err) {
 			console.error('Failed to fetch batch:', err);
 			error = err.message;
 		} finally {
 			isLoading = false;
+		}
+	}
+
+	async function fetchImages() {
+		try {
+			const response = await fetch(`/api/tracking-images?batchId=${batchId}`);
+			const data = await response.json();
+
+			if (response.ok && data.success) {
+				journeyImages = data.images || [];
+			}
+		} catch (err) {
+			console.error('Failed to fetch images:', err);
+		}
+	}
+
+	function handleFileSelect(event) {
+		const file = event.target.files?.[0];
+		if (file) {
+			selectedFile = file;
+			// Create preview
+			const reader = new FileReader();
+			reader.onload = (e) => {
+				imagePreview = e.target.result;
+			};
+			reader.readAsDataURL(file);
+		}
+	}
+
+	function clearFileSelection() {
+		selectedFile = null;
+		imagePreview = null;
+		imageCaption = '';
+		imageActivity = '';
+		if (fileInputRef) fileInputRef.value = '';
+	}
+
+	async function uploadImage() {
+		if (!selectedFile) return;
+
+		isUploadingImage = true;
+		uploadError = null;
+
+		try {
+			const formData = new FormData();
+			formData.append('file', selectedFile);
+			formData.append('batchId', batchId);
+			formData.append('caption', imageCaption);
+			formData.append('activity', imageActivity || currentActivity || '');
+			formData.append('uploadedBy', 'admin');
+
+			const response = await fetch('/api/tracking-images', {
+				method: 'POST',
+				body: formData
+			});
+
+			const data = await response.json();
+
+			if (response.ok && data.success) {
+				journeyImages = [data.image, ...journeyImages];
+				clearFileSelection();
+				toast.success('Photo uploaded successfully!');
+			} else {
+				uploadError = data.error || 'Failed to upload image';
+				toast.error(uploadError);
+			}
+		} catch (err) {
+			console.error('Failed to upload image:', err);
+			uploadError = 'Failed to upload image';
+			toast.error(uploadError);
+		} finally {
+			isUploadingImage = false;
+		}
+	}
+
+	async function deleteImage(imageId) {
+		if (!confirm('Are you sure you want to delete this image?')) return;
+
+		try {
+			const response = await fetch(`/api/tracking-images?imageId=${imageId}`, {
+				method: 'DELETE'
+			});
+
+			if (response.ok) {
+				journeyImages = journeyImages.filter(img => img.$id !== imageId);
+				toast.success('Photo deleted');
+			} else {
+				toast.error('Failed to delete photo');
+			}
+		} catch (err) {
+			console.error('Failed to delete image:', err);
+			toast.error('Failed to delete photo');
 		}
 	}
 
@@ -220,6 +325,11 @@
 		} else {
 			copyLink();
 		}
+	}
+
+	function getActivityInfo(activity) {
+		const found = activities.find(a => a.value === activity);
+		return found || { value: activity, label: activity, icon: 'mdi:map-marker' };
 	}
 
 	onMount(() => {
@@ -394,6 +504,141 @@
 						{/if}
 					</div>
 				{/if}
+			</div>
+
+			<!-- Journey Photos Card -->
+			<div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+				<div class="mb-4 flex items-center gap-3">
+					<div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
+						<Icon icon="mdi:camera" class="h-5 w-5 text-blue-600" />
+					</div>
+					<div>
+						<h3 class="text-lg font-semibold text-gray-900">Journey Photos</h3>
+						<p class="text-sm text-gray-500">Upload photos to share with pilgrims and families</p>
+					</div>
+				</div>
+
+				<div class="space-y-6">
+					<!-- Upload Form -->
+					<div class="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-4">
+						{#if !selectedFile}
+							<label class="flex cursor-pointer flex-col items-center justify-center gap-2 py-4">
+								<Icon icon="mdi:cloud-upload" class="h-10 w-10 text-gray-400" />
+								<span class="text-sm font-medium text-gray-600">Click to upload a photo</span>
+								<span class="text-xs text-gray-400">JPG, PNG or WebP (max 10MB)</span>
+								<input
+									bind:this={fileInputRef}
+									type="file"
+									accept="image/*"
+									onchange={handleFileSelect}
+									class="hidden"
+								/>
+							</label>
+						{:else}
+							<div class="space-y-4">
+								<!-- Preview -->
+								<div class="relative">
+									<img src={imagePreview} alt="Preview" class="mx-auto h-48 rounded-lg object-contain shadow-sm" />
+									<button
+										onclick={clearFileSelection}
+										class="absolute top-2 right-2 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
+									>
+										<Icon icon="mdi:close" class="h-4 w-4" />
+									</button>
+								</div>
+								
+								<div class="grid gap-4 sm:grid-cols-2">
+									<!-- Caption Input -->
+									<div>
+										<label class="block">
+											<span class="mb-1 block text-xs font-medium text-gray-500">Caption</span>
+											<input
+												type="text"
+												bind:value={imageCaption}
+												placeholder="Add a caption..."
+												class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+											/>
+										</label>
+									</div>
+
+									<!-- Activity Selector -->
+									<div>
+										<label class="block">
+											<span class="mb-1 block text-xs font-medium text-gray-500">Activity Context</span>
+											<select
+												bind:value={imageActivity}
+												class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+											>
+												<option value="">{currentActivity ? `Current: ${getActivityInfo(currentActivity).label}` : 'No specific activity'}</option>
+												{#each activities as activity}
+													<option value={activity.value}>{activity.label}</option>
+												{/each}
+											</select>
+										</label>
+									</div>
+								</div>
+
+								{#if uploadError}
+									<p class="text-sm text-red-500">{uploadError}</p>
+								{/if}
+
+								<!-- Upload Button -->
+								<div class="flex justify-end gap-2">
+									<Button
+										onclick={clearFileSelection}
+										variant="secondary"
+										text="Cancel"
+										size="sm"
+									/>
+									<Button
+										onclick={uploadImage}
+										variant="primary"
+										text={isUploadingImage ? 'Uploading...' : 'Upload Photo'}
+										size="sm"
+										disabled={isUploadingImage}
+									/>
+								</div>
+							</div>
+						{/if}
+					</div>
+
+					<!-- Image Gallery -->
+					{#if journeyImages.length > 0}
+						<div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+							{#each journeyImages as image (image.$id)}
+								<div class="group relative aspect-square overflow-hidden rounded-lg border border-gray-100 bg-gray-50">
+									<img
+										src={image.imageUrl}
+										alt={image.caption || 'Journey photo'}
+										class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+									/>
+									<div class="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/80 via-black/40 to-transparent p-3 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+										{#if image.caption}
+											<p class="truncate text-xs text-white" title={image.caption}>{image.caption}</p>
+										{/if}
+										{#if image.activity}
+											<div class="mt-1 flex items-center gap-1 text-[10px] text-gray-300">
+												<Icon icon={getActivityInfo(image.activity).icon} class="h-3 w-3" />
+												<span class="truncate">{getActivityInfo(image.activity).label}</span>
+											</div>
+										{/if}
+									</div>
+									<button
+										onclick={() => deleteImage(image.$id)}
+										class="absolute top-2 right-2 rounded-full bg-red-500/90 p-1.5 text-white opacity-0 shadow-sm transition-all hover:bg-red-600 group-hover:opacity-100"
+										title="Delete photo"
+									>
+										<Icon icon="mdi:trash-can" class="h-3.5 w-3.5" />
+									</button>
+								</div>
+							{/each}
+						</div>
+					{:else}
+						<div class="py-8 text-center text-gray-400">
+							<p>No photos uploaded yet. Enable sharing to allow pilgrims to see photos.</p>
+						</div>
+					{/if}
+				</div>
 			</div>
 
 			<!-- Info Card -->

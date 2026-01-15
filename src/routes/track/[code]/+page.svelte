@@ -12,6 +12,10 @@
 	let locationLoading = $state(false);
 	let lastGeocodedCoords = $state(null);
 
+	// Image gallery state
+	let journeyImages = $state(data.images || []);
+	let selectedImage = $state(null);
+
 	// Reverse geocode coordinates to human-readable address
 	async function reverseGeocode(lat, lon) {
 		// Skip if we already geocoded these coordinates
@@ -42,7 +46,8 @@
 		}
 	}
 
-	const activities = {
+	// All activities with their metadata
+	const allActivities = {
 		tawaf: { icon: 'mdi:rotate-360', label: 'Performing Tawaf', color: 'text-emerald-600' },
 		sai: { icon: 'mdi:walk', label: 'Performing Sa\'i', color: 'text-blue-600' },
 		mina: { icon: 'mdi:tent', label: 'At Mina', color: 'text-amber-600' },
@@ -53,9 +58,22 @@
 		traveling: { icon: 'mdi:bus', label: 'Traveling', color: 'text-purple-600' }
 	};
 
+	// Activity keys for each package type
+	const umrahActivities = ['tawaf', 'sai', 'resting', 'traveling'];
+	const hajjActivities = ['tawaf', 'sai', 'mina', 'arafat', 'muzdalifah', 'jamarat', 'resting', 'traveling'];
+
+	// Filter activities based on package type
+	const activities = $derived(() => {
+		const packageType = trackingData?.packageType?.toLowerCase();
+		const activityKeys = packageType === 'umrah' ? umrahActivities : hajjActivities;
+		return Object.fromEntries(
+			Object.entries(allActivities).filter(([key]) => activityKeys.includes(key))
+		);
+	});
+
 	function getActivityInfo(activity) {
 		if (!activity) return { icon: 'mdi:map-marker-question', label: 'Activity not set', color: 'text-gray-400' };
-		return activities[activity.toLowerCase()] || { icon: 'mdi:map-marker', label: activity, color: 'text-gray-600' };
+		return allActivities[activity.toLowerCase()] || { icon: 'mdi:map-marker', label: activity, color: 'text-gray-600' };
 	}
 
 	function formatLastUpdated(timestamp) {
@@ -87,6 +105,13 @@
 			if (response.ok) {
 				trackingData = { ...newData, code: data.code };
 				lastRefresh = new Date();
+			}
+
+			// Also refresh images
+			const imagesResponse = await fetch(`/api/tracking-images?trackingCode=${data.code}`);
+			const imagesData = await imagesResponse.json();
+			if (imagesResponse.ok && imagesData.success) {
+				journeyImages = imagesData.images || [];
 			}
 		} catch (error) {
 			console.error('Failed to refresh tracking data:', error);
@@ -124,7 +149,7 @@
 	<meta name="description" content="Live tracking for Hajj/Umrah pilgrimage group" />
 </svelte:head>
 
-<main class="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+<main class="min-h-screen bg-linear-to-b from-gray-50 to-white">
 	<div class="mx-auto mt-12 max-w-2xl px-4 py-12 sm:px-6 lg:px-8">
 		<!-- Header -->
 		<div class="mb-8 text-center">
@@ -228,6 +253,43 @@
 					</div>
 				{/if}
 
+				<!-- Journey Photos Section -->
+				{#if journeyImages.length > 0}
+					<div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+						<div class="border-b border-gray-100 bg-gray-50 px-6 py-4">
+							<h2 class="text-sm font-semibold uppercase tracking-wide text-gray-500">Journey Photos</h2>
+						</div>
+						<div class="p-4">
+							<div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+								{#each journeyImages as image (image.$id)}
+									<button
+										onclick={() => selectedImage = image}
+										class="group relative aspect-square overflow-hidden rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+									>
+										<img
+											src={image.imageUrl}
+											alt={image.caption || 'Journey photo'}
+											class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+											loading="lazy"
+										/>
+										<div class="absolute inset-0 flex items-end bg-linear-to-t from-black/50 to-transparent opacity-0 transition-opacity group-hover:opacity-100">
+											<div class="w-full p-2">
+												{#if image.activity}
+													<span class="inline-flex items-center gap-1 text-xs text-white">
+														<Icon icon={getActivityInfo(image.activity).icon} class="h-3 w-3" />
+														{getActivityInfo(image.activity).label}
+													</span>
+												{/if}
+											</div>
+										</div>
+									</button>
+								{/each}
+							</div>
+						</div>
+					</div>
+				{/if}
+
+
 				<!-- Status Bar -->
 				<div class="flex items-center justify-between rounded-xl bg-gray-100 px-4 py-3 text-sm text-gray-600">
 					<div class="flex items-center gap-2">
@@ -256,3 +318,43 @@
 		</div>
 	</div>
 </main>
+
+<!-- Image Modal -->
+{#if selectedImage}
+	<div
+		class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+		onclick={() => selectedImage = null}
+		onkeydown={(e) => e.key === 'Escape' && (selectedImage = null)}
+		role="dialog"
+		aria-modal="true"
+		tabindex="-1"
+	>
+		<div class="relative max-h-[90vh] max-w-4xl" role="document" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()}>
+			<button
+				onclick={() => selectedImage = null}
+				class="absolute -top-10 right-0 rounded-full p-2 text-white hover:bg-white/20 transition-colors"
+			>
+				<Icon icon="mdi:close" class="h-6 w-6" />
+			</button>
+			<img
+				src={selectedImage.imageUrl}
+				alt={selectedImage.caption || 'Journey photo'}
+				class="max-h-[80vh] w-auto rounded-lg"
+			/>
+			{#if selectedImage.caption || selectedImage.activity}
+				<div class="mt-3 text-center text-white">
+					{#if selectedImage.caption}
+						<p class="text-lg">{selectedImage.caption}</p>
+					{/if}
+					{#if selectedImage.activity}
+						<p class="mt-1 inline-flex items-center gap-1 text-sm text-gray-300">
+							<Icon icon={getActivityInfo(selectedImage.activity).icon} class="h-4 w-4" />
+							{getActivityInfo(selectedImage.activity).label}
+						</p>
+					{/if}
+				</div>
+			{/if}
+		</div>
+	</div>
+{/if}
+

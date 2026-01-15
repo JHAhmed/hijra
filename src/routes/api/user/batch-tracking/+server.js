@@ -51,6 +51,19 @@ export async function GET({ url }) {
 			});
 		}
 
+		// Get package type from the application's package
+		let packageType = null;
+		if (application.packageId) {
+			try {
+				const pkg = await tablesDB.getRow(DATABASE_ID, 'packages', application.packageId);
+				if (pkg && pkg.type) {
+					packageType = pkg.type.toLowerCase();
+				}
+			} catch (err) {
+				console.warn('Failed to fetch package details:', err);
+			}
+		}
+
 		return json({
 			success: true,
 			hasBatch: true,
@@ -63,7 +76,8 @@ export async function GET({ url }) {
 			currentActivity: batch.currentActivity || null,
 			lastUpdated: batch.lastUpdated || null,
 			startDate: batch.startDate,
-			endDate: batch.endDate
+			endDate: batch.endDate,
+			packageType: packageType
 		});
 	} catch (error) {
 		console.error('Failed to get user batch tracking:', error);

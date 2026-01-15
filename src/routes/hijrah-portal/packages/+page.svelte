@@ -8,6 +8,7 @@
 	import { cn } from '$lib/utils.js';
 	import { authStore } from '$lib/auth.svelte.js';
 	import { onMount } from 'svelte';
+	// import { tablesDB } from '$lib/appwrite';
 
 	let { data } = $props();
 
@@ -35,7 +36,9 @@
 	let searchQuery = $state('');
 
 	// Derived Data
+	// let packages = $state([]);
 	const packages = $derived(data?.packages || []);
+
 
 	let filteredPackages = $derived(
 		packages.filter((pkg) => {
@@ -130,12 +133,20 @@
 		}
 	}
 
-	onMount(() => {
+	onMount(async () => {
 		const termsAccepted = localStorage.getItem('portal_terms_accepted');
 		if (termsAccepted !== 'true') {
 			showTerms = true;
 		}
-		checkProgress();
+		await checkProgress();
+
+		// Fetch packages
+		// try {
+		// 	const res = await tablesDB.listRows('hijrah', 'packages');
+		// 	packages = res.rows || [];
+		// } catch (error) {
+		// 	console.error('Failed to fetch packages:', error);
+		// }
 	});
 </script>
 

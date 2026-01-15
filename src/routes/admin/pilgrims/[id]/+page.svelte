@@ -6,6 +6,7 @@
 	import Icon from '@iconify/svelte';
 	import Modal from '$components/ui/Modal.svelte';
 	import Button from '$components/ui/Button.svelte';
+	import CopyButton from '$components/admin/CopyButton.svelte';
 
 	let isLoading = $state(true);
 	let pilgrim = $state(null);
@@ -456,7 +457,7 @@
 								bind:value={editData.firstName}
 								class="h-10 w-full rounded-lg border border-gray-200 px-3 text-sm text-secondary outline-none focus:border-primary" />
 						{:else}
-							<p class="text-secondary">{pilgrim.firstName || '-'}</p>
+							<p class="text-secondary inline-flex items-center gap-2">{pilgrim.firstName || '-'} <CopyButton value={pilgrim.firstName} /></p>
 						{/if}
 					</div>
 
@@ -469,7 +470,7 @@
 								bind:value={editData.lastName}
 								class="h-10 w-full rounded-lg border border-gray-200 px-3 text-sm text-secondary outline-none focus:border-primary" />
 						{:else}
-							<p class="text-secondary">{pilgrim.lastName || '-'}</p>
+							<p class="text-secondary inline-flex items-center gap-2">{pilgrim.lastName || '-'} <CopyButton value={pilgrim.lastName} /></p>
 						{/if}
 					</div>
 
@@ -482,7 +483,7 @@
 								bind:value={editData.email}
 								class="h-10 w-full rounded-lg border border-gray-200 px-3 text-sm text-secondary outline-none focus:border-primary" />
 						{:else}
-							<p class="text-secondary">{pilgrim.email || '-'}</p>
+							<p class="text-secondary inline-flex items-center gap-2">{pilgrim.email || '-'} <CopyButton value={pilgrim.email} /></p>
 						{/if}
 					</div>
 
@@ -495,7 +496,7 @@
 								bind:value={editData.phone}
 								class="h-10 w-full rounded-lg border border-gray-200 px-3 text-sm text-secondary outline-none focus:border-primary" />
 						{:else}
-							<p class="text-secondary">{pilgrim.phone || '-'}</p>
+							<p class="text-secondary inline-flex items-center gap-2">{pilgrim.phone || '-'} <CopyButton value={pilgrim.phone} /></p>
 						{/if}
 					</div>
 
@@ -511,7 +512,7 @@
 								<option value="female">Female</option>
 							</select>
 						{:else}
-							<p class="text-secondary capitalize">{pilgrim.gender || '-'}</p>
+							<p class="text-secondary inline-flex items-center gap-2">{pilgrim.gender || '-'} <CopyButton value={pilgrim.gender} /></p>
 						{/if}
 					</div>
 				</div>
@@ -534,7 +535,7 @@
 								bind:value={editData.passportNumber}
 								class="h-10 w-full rounded-lg border border-gray-200 px-3 text-sm text-secondary outline-none focus:border-primary" />
 						{:else}
-							<p class="font-mono text-secondary">{pilgrim.passportNumber || '-'}</p>
+							<p class="font-mono text-secondary inline-flex items-center gap-2">{pilgrim.passportNumber || '-'} <CopyButton value={pilgrim.passportNumber} /></p>
 						{/if}
 					</div>
 
@@ -547,7 +548,7 @@
 								bind:value={editData.passportExpiry}
 								class="h-10 w-full rounded-lg border border-gray-200 px-3 text-sm text-secondary outline-none focus:border-primary" />
 						{:else}
-							<p class="text-secondary">{formatDate(pilgrim.passportExpiry)}</p>
+							<p class="text-secondary inline-flex items-center gap-2">{formatDate(pilgrim.passportExpiry)} <CopyButton value={pilgrim.passportExpiry} /></p>
 						{/if}
 					</div>
 				</div>
