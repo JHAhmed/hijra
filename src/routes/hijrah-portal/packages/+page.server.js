@@ -1,14 +1,8 @@
-import { tablesDB } from '$lib/appwrite.js';
+import { tablesDB } from '$lib/server/appwrite.js';
 
-export async function load({ fetch, params }) {
-	let packages;
-
-	
+export async function load() {
 	const res = await tablesDB.listRows('hijrah', 'packages');
-	
-	packages = res.rows;
-	
-	return { packages };
+	return { packages: res.rows };
 	// const res = await fetch(`/api/packages`, {
 	// 	method: 'GET',
 	// 	headers: {
