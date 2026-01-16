@@ -30,9 +30,9 @@
 		class="relative flex w-full flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white transition-all duration-500 hover:border-primary hover:shadow-lg md:flex-row">
 		<div class="relative h-64 w-full shrink-0 overflow-hidden md:h-auto md:w-72 lg:w-80">
 			<div class="absolute inset-0 bg-gray-200">
-				{#if travelPackage.image?.url}
+				{#if travelPackage.imageUrl}
 					<img
-						src={travelPackage.image.url}
+						src={travelPackage.imageUrl}
 						alt={travelPackage.name}
 						loading="lazy"
 						class="h-full w-full object-cover transition-transform duration-700" />
@@ -148,7 +148,7 @@
 										</div>
 										<div class="mt-6">
 											<Button
-												href="/contact"
+												href="/hijrah-portal"
 												text="Book This Package"
 												class="w-full justify-center"
 												size="lg" />

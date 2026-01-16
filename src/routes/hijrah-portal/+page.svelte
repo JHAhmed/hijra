@@ -117,7 +117,7 @@
 				userProgress = data;
 				applicationId = data.applicationId;
 				pilgrimComments = data.pilgrimComments || null;
-
+				console.log(data);
 				// Update cards based on current step
 				// Step 0 = no application, show only packages
 				// Step 1 = package selected, show packages + application
