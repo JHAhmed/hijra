@@ -289,6 +289,23 @@
 					</div>
 				{/if}
 
+				<div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+					<div class="border-b border-gray-100 bg-gray-50 px-6 py-4">
+						<h2 class="text-sm font-semibold uppercase tracking-wide text-gray-500">Batch Common Location</h2>
+					</div>
+					<div class="p-6">
+						<div class="flex items-center gap-4">
+							<div class="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+								<Icon icon="ph:navigation-arrow" class="h-8 w-8" />
+							</div>
+							<a href="/hijrah-portal/pilgrim-information">
+								<p class="text-2xl font-semibold text-gray-900">
+									Go to Batch Common Location
+								</p>
+							</a>
+						</div>
+					</div>
+				</div>
 
 				<!-- Status Bar -->
 				<div class="flex items-center justify-between rounded-xl bg-gray-100 px-4 py-3 text-sm text-gray-600">

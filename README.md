@@ -40,3 +40,5 @@
 - Add input field in home page for pilgrim tracking number
 - Add required documents in document collection field
 - Display passport photo in pilgrim details page
+
+- Set up password reset and stuff

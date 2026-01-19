@@ -63,7 +63,10 @@ export async function GET({ url }) {
 							leadPilgrim: leadPilgrim
 								? {
 										firstName: leadPilgrim.firstName,
-										lastName: leadPilgrim.lastName
+										lastName: leadPilgrim.lastName,
+										applicationId: leadPilgrim.applicationId,
+										isLead: leadPilgrim.isLead,
+										$id: leadPilgrim.$id
 									}
 								: null
 						};

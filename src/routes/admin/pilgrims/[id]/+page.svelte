@@ -7,6 +7,7 @@
 	import Modal from '$components/ui/Modal.svelte';
 	import Button from '$components/ui/Button.svelte';
 	import CopyButton from '$components/admin/CopyButton.svelte';
+	import { Toaster, toast } from 'svelte-sonner';
 
 	let isLoading = $state(true);
 	let pilgrim = $state(null);
@@ -315,9 +316,11 @@
 			}
 
 			pilgrim = result.pilgrim;
+			toast.success('Comments saved successfully');
 		} catch (err) {
 			console.error('Failed to save comments:', err);
-			alert('Failed to save comments: ' + err.message);
+			toast.error('Failed to save comments: ' + err.message);
+			// alert('Failed to save comments: ' + err.message);
 		} finally {
 			isSavingComments = false;
 		}
@@ -354,6 +357,8 @@
 		}
 	});
 </script>
+
+<Toaster richColors /> 
 
 {#if isLoading}
 	<Modal text="Loading pilgrim details..." />
@@ -752,6 +757,7 @@
 						bind:value={commentsText}
 						placeholder="Add internal notes or comments about this pilgrim..."
 						rows="4"
+						autocorrect="on"
 						class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-secondary placeholder-gray-400 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/10 resize-none"
 					></textarea>
 

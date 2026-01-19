@@ -17,6 +17,10 @@
 
 	let recentActivity = $state([]);
 
+	$effect(() => {
+		console.log(recentActivity);
+	});
+
 	let batchCapacity = $state([]);
 
 	const batchColors = ['bg-emerald-500', 'bg-blue-500', 'bg-purple-500', 'bg-amber-500', 'bg-rose-500'];
@@ -67,6 +71,7 @@
 			if (result.success && result.applications) {
 				recentActivity = result.applications.map((app) => ({
 					id: app.$id,
+					pilgrimId: app.leadPilgrim.$id,
 					name: app.leadPilgrim
 						? `${app.leadPilgrim.firstName} ${app.leadPilgrim.lastName}`
 						: 'Unknown Pilgrim',
@@ -301,7 +306,7 @@
 				<div class="mb-8 flex items-center justify-between">
 					<h3 class="text-lg font-medium tracking-tight text-secondary">Live Activity</h3>
 					<a
-						href="/admin/users"
+						href="/admin/pilgrims"
 						class="text-[11px] font-bold tracking-widest text-primary uppercase hover:underline"
 						>View All</a>
 				</div>
@@ -318,7 +323,7 @@
 						</div>
 					{:else}
 						{#each recentActivity as activity}
-							<div class="group flex cursor-pointer gap-4 transition-opacity hover:opacity-100">
+							<a href="/admin/pilgrims/{activity.pilgrimId}" class="group flex cursor-pointer gap-4 transition-opacity hover:opacity-100">
 								<div class="relative mt-1">
 									<div
 										class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 text-[10px] font-bold text-secondary ring-1 ring-gray-100 transition-all duration-300 group-hover:bg-secondary group-hover:text-white group-hover:shadow-md">
@@ -342,7 +347,7 @@
 									</div>
 									<span class="text-xs text-gray-400">{activity.action}</span>
 								</div>
-							</div>
+							</a>
 						{/each}
 					{/if}
 				</div>

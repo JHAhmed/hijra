@@ -315,14 +315,14 @@
 
 						<!-- Actions -->
 						<div class="col-span-1 flex justify-end gap-2">
-							<a
+							<!-- <a
 								href="/admin/batches/{batch.$id}/track"
 								class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-colors hover:bg-primary hover:text-white"
 								title="Manage Tracking">
 								<Icon icon="mdi:map-marker-radius" class="h-4 w-4" />
-							</a>
+							</a> -->
 							<a
-								href="/admin/batches/{batch.$id}"
+								href="/admin/batches/{batch.$id}/track"
 								class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-colors hover:bg-gray-200"
 								title="View Batch">
 								<Icon icon="heroicons:chevron-right" class="h-4 w-4" />

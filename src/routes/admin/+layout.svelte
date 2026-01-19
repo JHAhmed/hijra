@@ -49,13 +49,18 @@
 
 {#if authStore.isLoading}
 	<Modal text="Checking authentication..." />
-{:else if authStore.isAuthenticated}
+{:else if authStore.isAuthenticated && authStore.isAdmin}
 	<Sidebar>
 		{@render children?.()}
 	</Sidebar>
+{:else if authStore.isAuthenticated && !authStore.isAdmin}
+	<Modal
+		text="Access Denied. Admins only."
+		description="You are logged in but do not have admin privileges."
+		spinner={false} />
 {:else}
 	<Modal
 		text="Access Denied."
-		description="You do not have permission to access this page."
+		description="Please log in to access this page."
 		spinner={false} />
 {/if}
