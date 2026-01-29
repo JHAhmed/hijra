@@ -112,12 +112,12 @@
 			<h1 class="text-3xl font-medium tracking-tighter text-secondary md:text-4xl">Batches</h1>
 		</div>
 
-		<div class="flex items-center gap-3">
+		<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
 			<!-- Status Filter -->
 			<select
 				bind:value={statusFilter}
 				onchange={handleFilterChange}
-				class="h-10 rounded-full border border-gray-200 bg-white px-4 text-sm text-secondary outline-none focus:border-primary focus:ring-2 focus:ring-primary/10">
+				class="h-10 w-full sm:w-auto rounded-full border border-gray-200 bg-white px-4 text-sm text-secondary outline-none focus:border-primary focus:ring-2 focus:ring-primary/10">
 				<option value="">All Statuses</option>
 				<option value="draft">Draft</option>
 				<option value="open">Open</option>
@@ -126,7 +126,7 @@
 				<option value="completed">Completed</option>
 			</select>
 
-			<Button href="/admin/batches/new" variant="primary" text="Create Batch" size="sm" />
+			<Button href="/admin/batches/new" variant="primary" text="Create Batch" size="sm" class="w-full sm:w-auto" />
 		</div>
 	</div>
 
@@ -245,12 +245,12 @@
 
 	<!-- Pagination -->
 	{#if totalPages > 1}
-		<div class="flex items-center justify-between">
-			<p class="text-sm text-gray-500">
+		<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+			<p class="text-sm text-gray-500 text-center sm:text-left">
 				Showing {(currentPage - 1) * limit + 1} to {Math.min(currentPage * limit, total)} of {total}
 				batches
 			</p>
-			<div class="flex items-center gap-2">
+			<div class="flex items-center justify-center gap-2">
 				<button
 					onclick={() => goToPage(currentPage - 1)}
 					disabled={currentPage === 1}

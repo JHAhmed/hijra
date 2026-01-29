@@ -172,12 +172,12 @@
 			<p class="text-gray-500">Monitor live location sharing for all batches</p>
 		</div>
 
-		<div class="flex items-center gap-3">
+		<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
 			<!-- Tracking Status Filter -->
 			<select
 				bind:value={trackingFilter}
 				onchange={handleFilterChange}
-				class="h-10 rounded-full border border-gray-200 bg-white px-4 text-sm text-secondary outline-none focus:border-primary focus:ring-2 focus:ring-primary/10">
+				class="h-10 w-full sm:w-auto rounded-full border border-gray-200 bg-white px-4 text-sm text-secondary outline-none focus:border-primary focus:ring-2 focus:ring-primary/10">
 				<option value="">All Batches</option>
 				<option value="active">Live Tracking</option>
 				<option value="paused">Tracking Paused</option>
@@ -336,12 +336,12 @@
 
 	<!-- Pagination -->
 	{#if totalPages > 1}
-		<div class="flex items-center justify-between">
-			<p class="text-sm text-gray-500">
+		<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+			<p class="text-sm text-gray-500 text-center sm:text-left">
 				Showing {(currentPage - 1) * limit + 1} to {Math.min(currentPage * limit, total)} of {total}
 				batches
 			</p>
-			<div class="flex items-center gap-2">
+			<div class="flex items-center justify-center gap-2">
 				<button
 					onclick={() => goToPage(currentPage - 1)}
 					disabled={currentPage === 1}

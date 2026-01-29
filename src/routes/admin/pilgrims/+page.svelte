@@ -159,9 +159,9 @@
 			<h1 class="text-3xl font-medium tracking-tighter text-secondary md:text-4xl">Pilgrims</h1>
 		</div>
 
-		<div class="flex items-center gap-3">
+		<div class="flex flex-col gap-3 sm:flex-row sm:items-center">
 			<!-- Search Input -->
-			<div class="relative">
+			<div class="relative w-full sm:w-auto">
 				<Icon
 					icon="heroicons:magnifying-glass"
 					class="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -170,7 +170,7 @@
 					placeholder="Search by name..."
 					bind:value={searchQuery}
 					onkeydown={(e) => e.key === 'Enter' && handleSearch()}
-					class="h-10 w-64 rounded-full border border-gray-200 bg-white pr-4 pl-10 text-sm text-secondary transition-all outline-none focus:border-primary focus:ring-2 focus:ring-primary/10" />
+					class="h-10 w-full sm:w-64 rounded-full border border-gray-200 bg-white pr-4 pl-10 text-sm text-secondary transition-all outline-none focus:border-primary focus:ring-2 focus:ring-primary/10" />
 			</div>
 			<Button onclick={handleSearch} variant="secondary" text="Search" size="sm" />
 		</div>
@@ -325,12 +325,12 @@
 
 	<!-- Pagination -->
 	{#if totalPages > 1}
-		<div class="flex items-center justify-between">
-			<p class="text-sm text-gray-500">
+		<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+			<p class="text-sm text-gray-500 text-center sm:text-left">
 				Showing {(currentPage - 1) * limit + 1} to {Math.min(currentPage * limit, total)} of {total}
 				pilgrims
 			</p>
-			<div class="flex items-center gap-2">
+			<div class="flex items-center justify-center gap-2">
 				<button
 					onclick={() => goToPage(currentPage - 1)}
 					disabled={currentPage === 1}

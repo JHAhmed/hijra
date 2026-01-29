@@ -314,12 +314,6 @@
 		toast.success('Link copied to clipboard!');
 	}
 
-	function copyGuideLink() {
-		const url = `${window.location.origin}/guide/batches/${batchId}/track`;
-		navigator.clipboard.writeText(url);
-		toast.success('Guide link copied to clipboard!');
-	}
-
 	function shareLink() {
 		const url = `${window.location.origin}/track/${trackingCode}`;
 		if (navigator.share) {
@@ -347,13 +341,11 @@
 	});
 </script>
 
-<Toaster />
-
 {#if isLoading}
 	<Modal text="Loading batch tracking..." />
 {/if}
 
-<div class="mx-auto w-full max-w-4xl space-y-8 p-6 md:p-10">
+<div class="mx-auto mt-16 w-full max-w-4xl space-y-8 p-6 md:p-10">
 	<!-- Header -->
 	<div>
 		<a
@@ -430,13 +422,6 @@
 							>
 								<Icon icon="mdi:content-copy" class="h-4 w-4" />
 								Copy Link
-							</button>
-							<button
-								onclick={copyGuideLink}
-								class="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
-							>
-								<Icon icon="mdi:content-copy" class="h-4 w-4" />
-								Copy Guide Link
 							</button>
 							<button
 								onclick={shareLink}

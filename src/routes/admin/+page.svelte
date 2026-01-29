@@ -71,7 +71,7 @@
 			if (result.success && result.applications) {
 				recentActivity = result.applications.map((app) => ({
 					id: app.$id,
-					pilgrimId: app.leadPilgrim.$id,
+					// pilgrimId: app.leadPilgrim.$id,
 					name: app.leadPilgrim
 						? `${app.leadPilgrim.firstName} ${app.leadPilgrim.lastName}`
 						: 'Unknown Pilgrim',
@@ -175,7 +175,7 @@
 				<h1 class="text-3xl font-medium tracking-tighter text-secondary md:text-4xl">Overview</h1>
 			</div>
 
-			<div class="flex items-center gap-3">
+			<div class="hidden items-center gap-3">
 				<Button variant="secondary" text="Export" size="sm" class="group" />
 
 				<Button variant="primary" text="New Pilgrim" size="sm" class="group" />
@@ -185,7 +185,7 @@
 		<div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
 			<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:col-span-2 lg:gap-6">
 				<div
-					class="group relative flex cursor-pointer flex-col justify-between rounded-4xl border border-gray-100 bg-white p-8 transition-all duration-300 hover:border-gray-300 hover:shadow-md">
+					class="group relative flex flex-col justify-between rounded-4xl border border-gray-100 bg-white p-8 transition-all duration-300 hover:border-gray-300 hover:shadow-md">
 					<div class="flex items-start justify-between">
 						<div
 							class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 text-secondary">
@@ -206,7 +206,7 @@
 				</div>
 
 				<div
-					class="group relative flex cursor-pointer flex-col justify-between rounded-4xl border border-gray-100 bg-white p-8 transition-all duration-300 hover:border-gray-300 hover:shadow-md">
+					class="group relative flex flex-col justify-between rounded-4xl border border-gray-100 bg-white p-8 transition-all duration-300 hover:border-gray-300 hover:shadow-md">
 					<div class="flex items-start justify-between">
 						<div
 							class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-blue-600">
@@ -223,7 +223,7 @@
 				</div>
 
 				<div
-					class="group relative flex cursor-pointer flex-col justify-between rounded-4xl border border-gray-100 bg-white p-8 transition-all duration-300 hover:border-amber-200 hover:bg-amber-50/30 hover:shadow-md">
+					class="group relative flex flex-col justify-between rounded-4xl border border-gray-100 bg-white p-8 transition-all duration-300 hover:border-amber-200 hover:bg-amber-50/30 hover:shadow-md">
 					<div class="flex items-start justify-between">
 						<div
 							class="flex h-10 w-10 items-center justify-center rounded-full bg-amber-50 text-amber-600">
@@ -240,7 +240,7 @@
 				</div>
 
 				<div
-					class="group relative flex cursor-pointer flex-col justify-between rounded-4xl border border-gray-900 bg-secondary p-8 text-white transition-all duration-300 hover:shadow-lg hover:shadow-gray-900/20">
+					class="group relative flex flex-col justify-between rounded-4xl border border-gray-900 bg-secondary p-8 text-white transition-all duration-300 hover:shadow-lg hover:shadow-gray-900/20">
 					<div class="flex items-start justify-between">
 						<div
 							class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-emerald-400 backdrop-blur-sm">

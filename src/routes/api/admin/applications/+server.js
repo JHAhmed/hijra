@@ -58,6 +58,9 @@ export async function GET({ url }) {
 
 						const leadPilgrim = pilgrimsResult.rows?.[0] || null;
 
+						// console.log('Lead Pilgrim:', leadPilgrim);
+						// console.log('Application:', app);
+
 						return {
 							...app,
 							leadPilgrim: leadPilgrim

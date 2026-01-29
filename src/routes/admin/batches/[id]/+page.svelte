@@ -377,7 +377,7 @@
 			{/if}
 		</div>
 
-		<div class="flex items-center gap-3">
+		<div class="flex flex-wrap items-center gap-3">
 			{#if isEditing}
 				<Button onclick={() => (isEditing = false)} variant="secondary" text="Cancel" size="sm" />
 				<Button onclick={saveBatch} variant="primary" text="Save Changes" size="sm" />

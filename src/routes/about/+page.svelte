@@ -173,7 +173,7 @@
 	</div>
 </section>
 
-<section class="w-full bg-white px-6 py-24 text-secondary md:px-12">
+<section class="hidden w-full bg-white px-6 py-24 text-secondary md:px-12">
 	<div class="mx-auto flex max-w-8xl flex-col gap-16 md:flex-row md:gap-32">
 		<div class="md:w-1/3">
 			<h2 class="mb-4 text-4xl font-semibold tracking-tighter">Leadership.</h2>

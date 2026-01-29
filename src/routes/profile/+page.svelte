@@ -120,11 +120,11 @@
 								</span>
 							</div>
 
-							<Button variant="secondary" text="Edit Profile" fullWidth={true} class="mb-3" />
+							<Button variant="secondary" text="Edit Profile" fullWidth={true} class="mb-3 hidden" />
 						</div>
 					</div>
 
-					<div class="mt-6 rounded-3xl border border-gray-200 bg-gray-50 p-6">
+					<div class="hidden mt-6 rounded-3xl border border-gray-200 bg-gray-50 p-6">
 						<h3 class="mb-4 text-xs font-bold tracking-widest text-gray-400 uppercase">Security</h3>
 
 						<div class="space-y-4">
@@ -253,7 +253,7 @@
 					</div>
 
 					<div
-						class="rounded-3xl border-2 border-dashed border-gray-200 bg-gray-50/50 p-8 text-center">
+						class="hidden rounded-3xl border-2 border-dashed border-gray-200 bg-gray-50/50 p-8 text-center">
 						<div
 							class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-white text-gray-300 shadow-sm">
 							<Icon icon="ph:airplane-tilt" class="h-6 w-6" />

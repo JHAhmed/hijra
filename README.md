@@ -42,3 +42,9 @@
 - Display passport photo in pilgrim details page
 
 - Set up password reset and stuff
+- Make the admin panel mobile responsive
+- Add links to cards in admin panel
+- Hide all buttons that don't have features implement (add pilgrim, export in admin panel, profile page)
+- Hide all information that is highly customizable (leadership details in about page)
+- Do one proper QC please
+- Add option to copy guide link in admin batch tracking page

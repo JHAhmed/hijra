@@ -20,6 +20,7 @@
 	let initialLoading = $state(true);
 	let loading = $state(false);
 	let uploadProgress = $state('');
+	let uploadStats = $state({ completed: 0, total: 0 });
 	let fetchError = $state(null);
 	
 	// Read-only state
@@ -88,7 +89,7 @@
 		}
 	}
 
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 
 	// Fetch data on mount
 	onMount(() => {
@@ -97,8 +98,9 @@
 
 	/**
 	 * Upload a document for a pilgrim using the server API
+	 * Returns a promise that resolves with the result
 	 */
-	async function uploadDocument(pilgrimId, docType, fileList) {
+	async function uploadDocument(pilgrimId, docType, fileList, pilgrimName) {
 		if (!fileList || fileList.length === 0) return null;
 
 		const file = fileList[0];
@@ -121,7 +123,80 @@
 			throw new Error(result.error || 'Failed to upload document');
 		}
 
+		// Update progress counter
+		uploadStats.completed++;
+		uploadProgress = `Uploaded ${uploadStats.completed} of ${uploadStats.total} documents...`;
+
 		return response.json();
+	}
+
+	/**
+	 * Process upload tasks with controlled concurrency
+	 * This prevents browser hanging by limiting parallel uploads
+	 */
+	async function processWithConcurrency(tasks, concurrency = 3) {
+		const results = [];
+		const executing = new Set();
+
+		for (const task of tasks) {
+			const promise = task().then((result) => {
+				executing.delete(promise);
+				return result;
+			});
+			
+			executing.add(promise);
+			results.push(promise);
+
+			// When we hit concurrency limit, wait for one to finish
+			if (executing.size >= concurrency) {
+				await Promise.race(executing);
+				// Allow UI to update between batches
+				await tick();
+			}
+		}
+
+		return Promise.all(results);
+	}
+
+	/**
+	 * Collect all upload tasks from pilgrims
+	 */
+	function collectUploadTasks() {
+		const tasks = [];
+
+		// Lead pilgrim documents
+		if (leadPilgrim?.$id) {
+			const pilgrimName = `${leadPilgrim.firstName} ${leadPilgrim.lastName}`;
+			
+			if (leadPilgrim.docs?.passportFront) {
+				tasks.push(() => uploadDocument(leadPilgrim.$id, 'passport_front', leadPilgrim.docs.passportFront, pilgrimName));
+			}
+			if (leadPilgrim.docs?.passportBack) {
+				tasks.push(() => uploadDocument(leadPilgrim.$id, 'passport_back', leadPilgrim.docs.passportBack, pilgrimName));
+			}
+			if (leadPilgrim.docs?.photo) {
+				tasks.push(() => uploadDocument(leadPilgrim.$id, 'photo', leadPilgrim.docs.photo, pilgrimName));
+			}
+		}
+
+		// Family member documents
+		for (const member of familyMembers) {
+			if (!member.$id) continue;
+			
+			const memberName = `${member.firstName} ${member.lastName}`;
+			
+			if (member.docs?.passportFront) {
+				tasks.push(() => uploadDocument(member.$id, 'passport_front', member.docs.passportFront, memberName));
+			}
+			if (member.docs?.passportBack) {
+				tasks.push(() => uploadDocument(member.$id, 'passport_back', member.docs.passportBack, memberName));
+			}
+			if (member.docs?.photo) {
+				tasks.push(() => uploadDocument(member.$id, 'photo', member.docs.photo, memberName));
+			}
+		}
+
+		return tasks;
 	}
 
 	async function handleSave() {
@@ -140,39 +215,22 @@
 		loading = true;
 
 		try {
-			// Upload lead pilgrim documents
-			uploadProgress = `Uploading documents for ${leadPilgrim.firstName}...`;
-
-			if (leadPilgrim.docs?.passportFront) {
-				await uploadDocument(leadPilgrim.$id, 'passport_front', leadPilgrim.docs.passportFront);
+			// Collect all upload tasks
+			const uploadTasks = collectUploadTasks();
+			
+			if (uploadTasks.length === 0) {
+				alert('Please select at least one document to upload.');
+				loading = false;
+				return;
 			}
 
-			if (leadPilgrim.docs?.passportBack) {
-				await uploadDocument(leadPilgrim.$id, 'passport_back', leadPilgrim.docs.passportBack);
-			}
+			// Initialize progress tracking
+			uploadStats = { completed: 0, total: uploadTasks.length };
+			uploadProgress = `Uploading 0 of ${uploadTasks.length} documents...`;
 
-			if (leadPilgrim.docs?.photo) {
-				await uploadDocument(leadPilgrim.$id, 'photo', leadPilgrim.docs.photo);
-			}
-
-			// Upload family member documents
-			for (const member of familyMembers) {
-				if (!member.$id) continue;
-
-				uploadProgress = `Uploading documents for ${member.firstName}...`;
-
-				if (member.docs?.passportFront) {
-					await uploadDocument(member.$id, 'passport_front', member.docs.passportFront);
-				}
-
-				if (member.docs?.passportBack) {
-					await uploadDocument(member.$id, 'passport_back', member.docs.passportBack);
-				}
-
-				if (member.docs?.photo) {
-					await uploadDocument(member.$id, 'photo', member.docs.photo);
-				}
-			}
+			// Process uploads with controlled concurrency (3 parallel uploads)
+			// This prevents browser hanging while still being faster than sequential
+			await processWithConcurrency(uploadTasks, 3);
 
 			// Update application status via API
 			uploadProgress = 'Finalizing...';
@@ -207,8 +265,10 @@
 
 {#if loading}
 	<Modal
-		text={uploadProgress || 'Uploading documents...'}
-		description="Please do not close or refresh the page." />
+		text={uploadProgress || 'Preparing uploads...'}
+		description={uploadStats.total > 0 
+			? `Processing ${uploadStats.completed} of ${uploadStats.total} files. Please do not close or refresh the page.` 
+			: 'Please do not close or refresh the page.'} />
 {/if}
 
 {#if isCompleted}
