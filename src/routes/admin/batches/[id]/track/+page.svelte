@@ -4,7 +4,7 @@
 	import Icon from '@iconify/svelte';
 	import Button from '$components/ui/Button.svelte';
 	import Modal from '$components/ui/Modal.svelte';
-	import { toast } from 'svelte-sonner';
+	import { Toaster, toast } from 'svelte-sonner';
 
 	let batch = $state(null);
 	let isLoading = $state(true);
