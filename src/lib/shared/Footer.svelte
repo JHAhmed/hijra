@@ -82,7 +82,8 @@
 							{#each section.items as item}
 								<li>
 									<a
-										href="#"
+										target="_blank"
+										href="https://proflobiz.in/"
 										class="text-sm font-medium text-gray-600 transition-colors duration-200 hover:text-primary md:text-[15px]">
 										{item}
 									</a>

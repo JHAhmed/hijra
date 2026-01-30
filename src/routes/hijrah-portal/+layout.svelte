@@ -12,6 +12,9 @@
 		if (!authStore.isLoading && !authStore.isAuthenticated) {
 			untrack(() => goto('/auth'));
 		}
+		if (!authStore.isLoading && authStore.isAdmin) {
+			untrack(() => goto('/admin'));
+		}
 	});
 </script>
 
