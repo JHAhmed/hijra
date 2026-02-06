@@ -312,9 +312,9 @@
 								in:fly={{ y: 20, duration: 400 }}
 								class="group relative flex flex-col overflow-hidden rounded-3xl border border-gray-100 bg-white transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-2xl hover:shadow-gray-200/50">
 								<div class="relative aspect-4/3 overflow-hidden bg-gray-100">
-									{#if pkg.imageUrl}
+									{#if pkg.imageId}
 										<img
-											src={pkg.imageUrl}
+											src={pkg.imageId}
 											alt={pkg.name}
 											class="h-full w-full object-cover transition-transform duration-700"
 											loading="lazy" />

@@ -70,8 +70,15 @@ export async function uploadFile(file, userId) {
  * @returns {string} - The file URL
  */
 export function getFileUrl(fileId) {
+	// console.log(storage.getFileView(BUCKET_ID, fileId));
+	// console.log('HAIDHAKDHk');
 	return storage.getFileView(BUCKET_ID, fileId);
+	// return `${env.PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/pilgrim-documents/files/${fileId}/view?project=hijrah&mode=admin`;
 }
+
+// export function getImageUrl(imageId) {
+// 	return `${PUBLIC_APPWRITE_ENDPOINT}/storage/buckets/pilgrim-documents/files/${imageId}/view?project=hijrah&mode=admin`;
+// }
 
 /**
  * Delete a file from storage

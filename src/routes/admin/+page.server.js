@@ -11,7 +11,7 @@ export const actions = {
                 const { account } = createSessionClient(sessionCookie);
                 await account.deleteSession('current');
             } catch (error) {
-                // Ignore errors
+                console.error('Error deleting session:', error);
             }
         }
 
