@@ -3,10 +3,13 @@
 	import { fade } from 'svelte/transition';
 	import { onMount } from 'svelte';
 	import { authStore } from '$lib/auth.svelte';
+	import { toast, Toaster } from 'svelte-sonner';
 
 	let isLoading = $state(true);
 	let batch = $state(null);
 	let applicationId = $state(null);
+	let adminDocuments = $state([]);
+	let loadingDocuments = $state(false);
 
 	// Default fallback data
 	const defaultLocation = {
@@ -62,6 +65,9 @@
 				if (batchData.success && batchData.batch) {
 					batch = batchData.batch;
 				}
+
+				// Fetch admin-uploaded documents
+				await fetchDocuments(applicationId);
 			}
 		} catch (error) {
 			console.error('Failed to fetch batch info:', error);
@@ -70,10 +76,59 @@
 		}
 	}
 
+	async function fetchDocuments(appId) {
+		loadingDocuments = true;
+		try {
+			const res = await fetch(`/api/user/pilgrim-documents?applicationId=${appId}`);
+			const data = await res.json();
+			if (data.success) {
+				adminDocuments = data.documents;
+			}
+		} catch (e) {
+			console.error('Failed to fetch documents:', e);
+		} finally {
+			loadingDocuments = false;
+		}
+	}
+
+	async function viewFile(fileId) {
+		if (!fileId) {
+			toast.error('File not available');
+			return;
+		}
+		try {
+			const res = await fetch('/api/admin/get-file-url', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ fileId })
+			});
+			if (res.ok) {
+				const { url } = await res.json();
+				window.open(url, '_blank');
+			} else {
+				toast.error('Failed to get file URL');
+			}
+		} catch (e) {
+			toast.error('Network error');
+			console.error(e);
+		}
+	}
+
+	function formatDocDate(dateString) {
+		if (!dateString) return '';
+		return new Date(dateString).toLocaleDateString('en-GB', {
+			day: 'numeric',
+			month: 'short',
+			year: 'numeric'
+		});
+	}
+
 	onMount(() => {
 		fetchBatchInfo();
 	});
 </script>
+
+<Toaster richColors />
 
 <svelte:head>
 	<title>Pilgrim Information | Hijrah Portal</title>
@@ -168,6 +223,59 @@
 						{groupLeader.phone}
 					</a>
 				</div>
+			</div>
+
+			<!-- Documents from Admin -->
+			<div class="rounded-4xl border border-gray-100 bg-white p-8 shadow-sm transition-all duration-300 hover:shadow-md lg:col-span-3">
+				<div class="mb-6 flex items-center gap-3">
+					<div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+						<Icon icon="ph:folder-open-fill" class="h-5 w-5" />
+					</div>
+					<div>
+						<h3 class="text-lg font-semibold text-secondary">Your Documents</h3>
+						<p class="text-xs text-gray-500">Flight tickets, visa copies, and other travel documents</p>
+					</div>
+				</div>
+
+				{#if loadingDocuments}
+					<div class="py-8 text-center">
+						<Icon icon="heroicons:arrow-path" class="mx-auto mb-2 h-6 w-6 animate-spin text-gray-300" />
+						<p class="text-sm text-gray-400">Loading documents...</p>
+					</div>
+				{:else if adminDocuments.length === 0}
+					<div class="py-8 text-center">
+						<Icon icon="ph:folder-dashed" class="mx-auto mb-2 h-10 w-10 text-gray-200" />
+						<p class="text-sm text-gray-400">No documents available yet</p>
+						<p class="mt-1 text-xs text-gray-300">Documents will appear here once uploaded by the admin.</p>
+					</div>
+				{:else}
+					<div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+						{#each adminDocuments as doc}
+							<button
+								onclick={() => viewFile(doc.fileId)}
+								class="group flex items-start gap-4 rounded-2xl border border-gray-100 bg-gray-50/50 p-4 text-left transition-all hover:border-primary/30 hover:bg-primary/5 hover:shadow-sm"
+							>
+								<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-primary shadow-sm transition-colors group-hover:bg-primary group-hover:text-white">
+									<Icon icon="ph:file-pdf" class="h-5 w-5" />
+								</div>
+								<div class="flex-1 min-w-0">
+									<h4 class="truncate text-sm font-semibold text-secondary group-hover:text-primary">
+										{doc.type}
+									</h4>
+									<p class="mt-0.5 text-xs text-gray-400">
+										{doc.fileName}
+									</p>
+									{#if doc.$createdAt}
+										<p class="mt-1 text-[10px] text-gray-300">
+											Added {formatDocDate(doc.$createdAt)}
+										</p>
+									{/if}
+								</div>
+								<Icon icon="ph:arrow-square-out" class="h-4 w-4 shrink-0 text-gray-300 transition-colors group-hover:text-primary" />
+							</button>
+						{/each}
+					</div>
+				{/if}
 			</div>
 
 			<!-- Accommodation Card -->

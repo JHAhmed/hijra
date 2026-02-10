@@ -27,6 +27,12 @@
 	// Lead pilgrim reference (for non-lead members)
 	let leadPilgrim = $state(null);
 
+	// Admin-uploaded documents state
+	let adminDocuments = $state([]);
+	let isUploadingDoc = $state(false);
+	let deletingDocId = $state(null);
+	let uploadLabel = $state('');
+
 	// Comments state
 	let commentsText = $state('');
 	let isSavingComments = $state(false);
@@ -135,6 +141,17 @@
 
 			// Initialize comments
 			commentsText = pilgrim.comments || '';
+
+			// Load admin-uploaded documents
+			try {
+				const docsRes = await fetch(`/api/admin/pilgrims/${pilgrimId}/documents`);
+				const docsData = await docsRes.json();
+				if (docsData.success) {
+					adminDocuments = docsData.documents;
+				}
+			} catch (e) {
+				console.error('Failed to fetch admin documents:', e);
+			}
 
 			// Fetch related pilgrims based on role
 			if (pilgrim.applicationId) {
@@ -327,6 +344,73 @@
 	}
 
 	/**
+	 * Upload a document for the pilgrim
+	 */
+	async function uploadAdminDocument(event) {
+		const fileInput = event.target;
+		const file = fileInput.files?.[0];
+		if (!file) return;
+
+		isUploadingDoc = true;
+		try {
+			const formData = new FormData();
+			formData.append('file', file);
+			formData.append('label', uploadLabel.trim() || file.name);
+
+			const response = await fetch(`/api/admin/pilgrims/${pilgrimId}/documents`, {
+				method: 'POST',
+				body: formData
+			});
+
+			const result = await response.json();
+
+			if (!response.ok) {
+				throw new Error(result.error || 'Failed to upload document');
+			}
+
+			adminDocuments = [result.document, ...adminDocuments];
+			uploadLabel = '';
+			toast.success('Document uploaded successfully');
+		} catch (err) {
+			console.error('Failed to upload document:', err);
+			toast.error('Failed to upload: ' + err.message);
+		} finally {
+			isUploadingDoc = false;
+			fileInput.value = '';
+		}
+	}
+
+	/**
+	 * Delete an admin-uploaded document
+	 */
+	async function deleteAdminDocument(docId) {
+		if (!confirm('Are you sure you want to delete this document?')) return;
+
+		deletingDocId = docId;
+		try {
+			const response = await fetch(`/api/admin/pilgrims/${pilgrimId}/documents`, {
+				method: 'DELETE',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ documentId: docId })
+			});
+
+			const result = await response.json();
+
+			if (!response.ok) {
+				throw new Error(result.error || 'Failed to delete document');
+			}
+
+			adminDocuments = adminDocuments.filter((d) => d.$id !== docId);
+			toast.success('Document deleted');
+		} catch (err) {
+			console.error('Failed to delete document:', err);
+			toast.error('Failed to delete: ' + err.message);
+		} finally {
+			deletingDocId = null;
+		}
+	}
+
+	/**
 	 * Clear comments
 	 */
 	async function clearComments() {
@@ -352,6 +436,7 @@
 			leadPilgrim = null;
 			showFamilyMembers = false;
 			isEditing = false;
+			adminDocuments = [];
 			
 			fetchPilgrim();
 		}
@@ -738,6 +823,93 @@
 												: 'bg-amber-50 text-amber-600'}">
 										{doc.status || 'Pending'}
 									</span>
+								</div>
+							</div>
+						{/each}
+					</div>
+				{/if}
+			</div>
+
+			<!-- Admin-Uploaded Documents (for pilgrim) -->
+			<div class="rounded-4xl border border-gray-100 bg-white p-6 lg:col-span-3">
+				<h2 class="mb-6 flex items-center gap-2 text-lg font-bold text-secondary">
+					<Icon icon="heroicons:arrow-up-tray" class="h-5 w-5 text-gray-400" />
+					Pilgrim Documents (Admin Uploads)
+				</h2>
+
+				<p class="mb-4 text-xs text-gray-400">
+					Upload documents for this pilgrim (flight tickets, visa copies, etc.). These will be visible to the pilgrim in their portal.
+				</p>
+
+				<!-- Upload Area -->
+				<div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end">
+					<div class="flex-1">
+						<label class="mb-1.5 block text-xs font-bold tracking-wider text-gray-400 uppercase">
+							Document Label
+						</label>
+						<input
+							type="text"
+							bind:value={uploadLabel}
+							placeholder="e.g. Flight Ticket, Visa Copy"
+							class="h-10 w-full rounded-lg border border-gray-200 px-3 text-sm text-secondary outline-none focus:border-primary"
+						/>
+					</div>
+					<label
+						class="flex h-10 shrink-0 cursor-pointer items-center gap-2 rounded-full border border-primary bg-primary/5 px-5 text-sm font-medium text-primary transition-colors hover:bg-primary/10 {isUploadingDoc ? 'pointer-events-none opacity-50' : ''}"
+					>
+						{#if isUploadingDoc}
+							<Icon icon="heroicons:arrow-path" class="h-4 w-4 animate-spin" />
+							Uploading...
+						{:else}
+							<Icon icon="heroicons:arrow-up-tray" class="h-4 w-4" />
+							Upload File
+						{/if}
+						<input
+							type="file"
+							class="hidden"
+							onchange={uploadAdminDocument}
+							disabled={isUploadingDoc}
+							accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+						/>
+					</label>
+				</div>
+
+				<!-- Uploaded Documents List -->
+				{#if adminDocuments.length === 0}
+					<div class="py-8 text-center">
+						<Icon icon="heroicons:cloud-arrow-up" class="mx-auto mb-2 h-8 w-8 text-gray-200" />
+						<p class="text-sm text-gray-400">No documents uploaded yet</p>
+					</div>
+				{:else}
+					<div class="space-y-3">
+						{#each adminDocuments as doc}
+							<div
+								class="flex flex-col gap-3 rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+							>
+								<div class="flex grow items-center gap-3">
+									<Icon icon="heroicons:document-text" class="h-5 w-5 text-primary" />
+									<div class="flex-1 min-w-0">
+										<p class="text-sm font-medium text-secondary truncate">{doc.type}</p>
+										<p class="text-xs text-gray-400">
+											{doc.fileName} • {formatDate(doc.$createdAt)}
+										</p>
+									</div>
+								</div>
+
+								<div class="flex items-center gap-2">
+									<button
+										onclick={() => viewFile(doc.fileId)}
+										class="rounded-full border border-primary px-3 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary hover:text-white"
+									>
+										View
+									</button>
+									<button
+										onclick={() => deleteAdminDocument(doc.$id)}
+										disabled={deletingDocId === doc.$id}
+										class="rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-medium text-red-600 transition-colors hover:bg-red-100 disabled:opacity-50"
+									>
+										{deletingDocId === doc.$id ? 'Deleting...' : 'Delete'}
+									</button>
 								</div>
 							</div>
 						{/each}

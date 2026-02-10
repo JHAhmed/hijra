@@ -8,6 +8,7 @@
 	import { cn } from '$lib/utils.js';
 	import { authStore } from '$lib/auth.svelte.js';
 	import { onMount } from 'svelte';
+	import { getFile, getFileUrl } from '$lib/appwrite.js';
 	// import { tablesDB } from '$lib/appwrite';
 
 	let { data } = $props();
@@ -314,7 +315,7 @@
 								<div class="relative aspect-4/3 overflow-hidden bg-gray-100">
 									{#if pkg.imageId}
 										<img
-											src={pkg.imageId}
+											src={getFileUrl(pkg.imageId)}
 											alt={pkg.name}
 											class="h-full w-full object-cover transition-transform duration-700"
 											loading="lazy" />
