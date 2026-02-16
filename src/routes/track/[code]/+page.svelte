@@ -251,6 +251,15 @@
 							</a>
 						</div>
 					</div>
+				{:else}
+					<div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+						<div class="border-b border-gray-100 bg-gray-50 px-6 py-4">
+							<h2 class="text-sm font-semibold uppercase tracking-wide text-gray-500">Location</h2>
+						</div>
+						<div class="p-6">
+							<p class="text-gray-500">Location data is not available yet.</p>
+						</div>
+					</div>
 				{/if}
 
 				<!-- Journey Photos Section -->
@@ -289,7 +298,7 @@
 					</div>
 				{/if}
 
-				<div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+				<!-- <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
 					<div class="border-b border-gray-100 bg-gray-50 px-6 py-4">
 						<h2 class="text-sm font-semibold uppercase tracking-wide text-gray-500">Batch Common Location</h2>
 					</div>
@@ -305,7 +314,7 @@
 							</a>
 						</div>
 					</div>
-				</div>
+				</div> -->
 
 				<!-- Status Bar -->
 				<div class="flex items-center justify-between rounded-xl bg-gray-100 px-4 py-3 text-sm text-gray-600">
