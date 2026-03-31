@@ -1,6 +1,7 @@
 <script>
 	import Icon from '@iconify/svelte';
 	import logo from '$lib/assets/favicon.svg';
+	import dolphinLogo from '$lib/assets/dolphinLogo.png';
 	import { onMount } from 'svelte';
 	import Button from '$components/ui/Button.svelte';
 	import { authStore } from '$lib/auth.svelte';
@@ -35,12 +36,23 @@
 	</div> -->
 
 	<div class="relative mx-auto flex h-full max-w-8xl items-center justify-between px-6 md:px-12">
-		<a href="/" class="group relative z-50 flex shrink-0 items-center gap-3 select-none">
-			<img src={logo} alt="Hijrah Logo" class="h-9 w-9 object-contain" />
-			<span class="text-2xl font-bold tracking-tighter text-secondary">
-				Hijrah<span class="text-primary">.</span>
-			</span>
-		</a>
+		<div class="relative z-50 flex shrink-0 items-center gap-4 select-none">
+			<a
+				href="https://dolphinhaj.com/"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="group flex items-center gap-2">
+				<img src={dolphinLogo} alt="Dolphin Haj" class="h-10 object-contain" />
+			</a>
+			<span class="hidden h-6 w-px bg-gray-200 sm:block"></span>
+			<a href="/" class="group hidden items-center gap-2 sm:flex">
+				<span class="text-[10px] font-semibold tracking-wider text-gray-400 uppercase">Powered by</span>
+				<img src={logo} alt="Hijrah Logo" class="h-5 w-5 object-contain" />
+				<span class="text-sm font-bold tracking-tight text-secondary">
+					Hijrah<span class="text-primary">.</span>
+				</span>
+			</a>
+		</div>
 
 		<div
 			class="absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-1 md:flex">

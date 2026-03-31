@@ -1,54 +1,49 @@
 <script>
-	import { onMount } from 'svelte';
 	import makkahSkyline from '$lib/assets/images/makkah-skyline.jpg';
-	import islamicBuilding from '$lib/assets/images/islamic-building.jpg';
-	import masjidEntrance from '$lib/assets/images/masjid-entrance.jpg';
-	import minar from '$lib/assets/images/minar.jpg';
 	import CTA from '$shared/CTA.svelte';
 
-	const team = [
-		{ name: 'Sheikh Abdullah', role: 'Head of Guidance' },
-		{ name: 'Yusuf Rahman', role: 'Operations Director' },
-		{ name: 'Fatima Zahra', role: 'Pilgrim Experience' },
-		{ name: 'Omar Farooq', role: 'Logistics Lead' }
-	];
-
-	const principles = [
+	const milestones = [
 		{
-			title: 'Amanah',
-			label: 'Trust',
-			desc: 'Your journey is a sacred trust. We honor it with transparency and unwavering reliability.',
-			img: islamicBuilding
+			period: 'Before 2003 — In 1994',
+			title: 'First Haj Group Tour',
+			desc: 'We organised our very first Haj group tour under our earlier entity. Since then, we have organised Haj pilgrimage tours every year without fail.'
 		},
 		{
-			title: 'Ihsan',
-			label: 'Excellence',
-			desc: 'Perfection in every detail. From the logistics of your flight to the quality of your stay.',
-			img: masjidEntrance
+			period: 'March 2003',
+			title: 'New Beginnings — Dolphin Air Services',
+			desc: 'We transformed and formed a new entity with IATA accreditation. Dolphin Air Services P. Ltd. was born, adding Air Ticketing to our growing portfolio.'
 		},
 		{
-			title: 'Khidmah',
-			label: 'Service',
-			desc: 'Serving the guests of Ar-Rahman is not a job; it is the highest honor we cherish.',
-			img: makkahSkyline
+			period: '2003 – 2009',
+			title: 'Progressive Growth',
+			desc: 'Overwhelming customer support drove our growth. Services expanded to Haj group tours, international & domestic air ticketing, and bulk group bookings.'
 		},
 		{
-			title: 'Ilm',
-			label: 'Knowledge',
-			desc: 'Authentic scholarship ensures every ritual of your Manasik is performed correctly.',
-			img: minar
+			period: 'December 2009',
+			title: 'Transition to Haj Service Operator',
+			desc: 'We received our first recognition from the Government of India as a Haj Service Operator. That same year, we organised our first Haj pilgrimage under the Dolphin Haj brand.'
+		},
+		{
+			period: 'Since Then',
+			title: 'Growing with Our Clients\' Trust',
+			desc: 'We have continued organising Haj pilgrimages and numerous Umrah tours. Authorised by the Ministry of Hajj — one of the first Indian companies to hold this honour.'
+		},
+		{
+			period: 'Today',
+			title: 'Leading Hajj Organiser in Tamilnadu',
+			desc: 'With 29 years of experience, we have served thousands of guests and are proud to be recognised as the leading Hajj travel agency in Tamilnadu.'
 		}
 	];
 </script>
 
 <svelte:head>
-	<title>About Us | Hijrah Portal</title>
+	<title>About Us | Hijrah Portal – Powered by Dolphin Haj</title>
 	<meta
 		name="description"
-		content="Learn more about Hijrah Portal, our mission, and the services we offer to pilgrims." />
+		content="Learn more about Dolphin Air Services (Dolphin Haj), with 29 years of experience as one of the leading Hajj & Umrah tour operators in Tamilnadu, India." />
 	<meta
 		name="keywords"
-		content="Hajj packages, Umrah packages, Hajj from India, Umrah from Chennai, affordable Hajj packages, Makkah hotel booking, Madinah hotel booking, pilgrimage services, Hajj visa, Umrah visa" />
+		content="Dolphin Haj, Hajj packages, Umrah packages, Hajj from Tamilnadu, Umrah from Trichy, affordable Hajj packages, Makkah hotel booking, Madinah hotel booking, pilgrimage services, Hajj visa, Umrah visa" />
 	<link rel="canonical" href="https://hijrah-portal.vercel.app/about" />
 	<script type="application/ld+json">
 		{
@@ -82,14 +77,14 @@
 
 		<h1
 			class="animate-fade-in-up mb-8 translate-y-4 text-5xl leading-[1.1] font-semibold tracking-tighter text-secondary opacity-0 delay-100 md:text-7xl">
-			Bridging the <br class="hidden md:block" />
-			<span class="text-primary">distance.</span>
+			29 Years of <br class="hidden md:block" />
+			<span class="text-primary">Sacred Journeys.</span>
 		</h1>
 
 		<p
 			class="animate-fade-in-up mx-auto max-w-2xl translate-y-4 text-lg leading-relaxed font-medium text-gray-500 opacity-0 delay-200 md:text-xl">
-			We exist to remove the worldly obstacles between you and the Sacred House. Founded on trust,
-			delivered with excellence.
+			Established in 1992, Dolphin Air Services is the first preference for those blessed enough to
+			perform Hajj and Umrah with ease, luxury and comfort.
 		</p>
 	</div>
 </section>
@@ -98,16 +93,25 @@
 	<div class="mx-auto max-w-8xl">
 		<div class="mb-20 grid grid-cols-1 items-end gap-12 lg:grid-cols-2 lg:gap-20">
 			<div>
-				<h1 class="text-5xl leading-none font-semibold tracking-tighter text-secondary md:text-7xl">
+				<h2 class="text-5xl leading-none font-semibold tracking-tighter text-secondary md:text-7xl">
 					Serving the <br />
 					<span class="text-primary">Guests of Allah.</span>
-				</h1>
+				</h2>
 			</div>
 
 			<div class="lg:pb-2">
 				<p class="text-lg leading-relaxed font-medium text-gray-500 md:text-xl">
-					We bridge the gap between your intention and the Sacred House. Founded on trust, delivered
-					with excellence since 2010.
+					With experience of 29 years in the industry, Dolphin Air Services has provided a wide
+					variety of Hajj and Umrah travel packages. We have built a reputation as one of the best
+					Hajj travel agencies in Tamilnadu. In 2009, we received our first government recognition
+					as a Haj Service Operator, and have since organised Haj pilgrimage groups every year
+					under the Dolphin Haj brand.
+				</p>
+				<p class="mt-4 text-lg leading-relaxed font-medium text-gray-500 md:text-xl">
+					Incorporated as a private limited company in 2003, Dolphin Air Services P. Ltd. is
+					authorized by the Ministry of Hajj — one of the first Indian companies to receive this
+					honour. Our team of local and Saudi-based managers, coordinators and volunteers ensures
+					every pilgrim performs their Hajj and Umrah with absolute peace of mind.
 				</p>
 			</div>
 		</div>
@@ -126,54 +130,35 @@
 	<div class="mx-auto max-w-8xl">
 		<div class="mb-20 flex flex-col justify-between gap-8 md:flex-row md:items-end">
 			<h2 class="text-5xl leading-none font-normal tracking-tight text-secondary md:text-7xl">
-				Guiding <span class="text-primary">Principles.</span>
+				Our <span class="text-primary">Journey.</span>
 			</h2>
 
 			<div class="pb-1">
 				<p
 					class="max-w-sm text-left text-lg leading-relaxed font-medium text-gray-500 md:text-right md:text-xl">
-					The four pillars that define our service and uphold every journey we craft.
+					Three decades of trust, growth and service to the Ummah.
 				</p>
 			</div>
 		</div>
 
-		<div class="grid h-auto grid-cols-1 gap-6 md:h-[900px] md:grid-cols-2">
-			{#each principles as item}
+		<div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+			{#each milestones as milestone, i}
 				<div
-					class="group relative h-[500px] w-full overflow-hidden rounded-3xl bg-gray-100 md:h-full">
-					<img
-						src={item.img}
-						loading="lazy"
-						alt={item.title}
-						class="h-full w-full object-cover transition-transform duration-1000 ease-out will-change-transform" />
-
-					<div
-						class="absolute inset-0 bg-linear-to-b from-black/60 via-transparent to-black/80 opacity-80 transition-opacity duration-500 group-hover:opacity-90">
-					</div>
-
-					<div class="absolute top-0 left-0 p-10 md:p-12">
-						<span
-							class="inline-block rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-xs font-bold tracking-widest text-white uppercase backdrop-blur-md">
-							{item.label}
-						</span>
-					</div>
-
-					<div class="absolute bottom-0 left-0 w-full max-w-xl p-10 md:p-12">
-						<h3 class="mb-4 text-5xl font-bold tracking-tight text-white md:text-6xl">
-							{item.title}
-						</h3>
-						<p class="text-base leading-relaxed font-medium text-gray-200 opacity-90 md:text-lg">
-							{item.desc}
-						</p>
-						<div class="mt-6 h-1 w-12 bg-primary"></div>
-					</div>
+					class="group relative flex flex-col border-t border-gray-200 pt-8 transition-colors duration-500 hover:border-primary">
+					<span
+						class="mb-4 text-xs font-bold tracking-widest text-primary uppercase">{milestone.period}</span>
+					<h3
+						class="mb-3 text-xl font-bold tracking-tight text-secondary transition-transform duration-300 group-hover:translate-x-2">
+						{milestone.title}
+					</h3>
+					<p class="text-sm leading-relaxed text-gray-500">{milestone.desc}</p>
 				</div>
 			{/each}
 		</div>
 	</div>
 </section>
 
-<section class="hidden w-full bg-white px-6 py-24 text-secondary md:px-12">
+<!-- <section class="hidden w-full bg-white px-6 py-24 text-secondary md:px-12">
 	<div class="mx-auto flex max-w-8xl flex-col gap-16 md:flex-row md:gap-32">
 		<div class="md:w-1/3">
 			<h2 class="mb-4 text-4xl font-semibold tracking-tighter">Leadership.</h2>
@@ -202,7 +187,7 @@
 			{/each}
 		</div>
 	</div>
-</section>
+</section> -->
 
 <CTA />
 

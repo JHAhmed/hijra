@@ -1,20 +1,33 @@
 <script>
 	import Icon from '@iconify/svelte';
 	import logo from '$lib/assets/favicon.svg';
+	import dolphinLogo from '$lib/assets/dolphinLogo.png';
 
 	const footerData = {
 		links: [
 			{
 				label: 'Services',
-				items: ['Umrah Packages', 'Hajj Services', 'Visa Processing']
+				items: [
+					{ label: 'Umrah Packages', href: '/packages' },
+					{ label: 'Hajj Services', href: '/packages' },
+					{ label: 'Visa Processing', href: '/contact' }
+				]
 			},
 			{
 				label: 'Company',
-				items: ['About PBIS', 'Our Mission', 'Testimonials']
+				items: [
+					{ label: 'About Us', href: '/about' },
+					{ label: 'Our Mission', href: '/about' },
+					{ label: 'Testimonials', href: '/' }
+				]
 			},
 			{
 				label: 'Support',
-				items: ['Pilgrim Guide', 'Contact Us', 'FAQ']
+				items: [
+					{ label: 'Pilgrim Guide', href: '/guide' },
+					{ label: 'Contact Us', href: '/contact' },
+					{ label: 'FAQ', href: '/#faq' }
+				]
 			}
 		]
 	};
@@ -36,38 +49,59 @@
 			class="grid grid-cols-1 gap-10 border-b border-gray-100 pt-8 pb-12 md:pb-16 lg:grid-cols-12 lg:gap-8">
 			<div class="flex flex-col gap-6 md:gap-8 lg:col-span-4">
 				<div>
-					<a href="/" class="group/logo inline-flex items-center gap-3">
-						<img
-							src={logo}
-							alt="hijrah Logo"
-							class="h-8 w-8 object-contain transition-transform duration-300 md:h-10 md:w-10" />
-						<span class="text-3xl font-bold tracking-tighter text-black md:text-4xl">
-							Hijrah<span class="text-primary">.</span>
-						</span>
+					<a
+						href="https://dolphinhaj.com/"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="group/logo inline-flex items-center gap-3">
+						<img src={dolphinLogo} alt="Dolphin Haj" class="h-10 object-contain" />
 					</a>
 
+					<div class="mt-4 flex items-center gap-3">
+						<span class="text-xs font-semibold tracking-wider text-gray-400 uppercase">Powered by</span>
+						<a href="/" class="inline-flex items-center gap-1.5">
+							<img src={logo} alt="Hijrah" class="h-4 w-4 object-contain" />
+							<span class="text-sm font-bold tracking-tight text-secondary">Hijrah<span class="text-primary">.</span></span>
+						</a>
+					</div>
+
 					<p class="mt-4 max-w-xs text-sm leading-relaxed font-medium text-gray-500">
-						Your trusted gateway to the Holy Lands. Facilitating spiritual journeys with comfort and
-						peace of mind.
+						With 29 years of Hajj group organizing experience, Dolphin Air Services is one of the
+						leading Haj Group Organisers in Tamilnadu, India.
 					</p>
 				</div>
 
-				<div class="flex items-center gap-3">
-					{#each socialLinks as { icon, color, label }}
-						<a
-							href="#"
-							aria-label={label}
-							style="--brand-color: {color}"
-							class="group/social flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-400
-                                  transition-all duration-200 hover:hard-shadow-sm hover:border-(--brand-color) hover:text-(--brand-color)
-                                  hover:shadow-[3px_3px_0px_0px_var(--brand-color)]
-                                  
-                                  
-                                  ">
-							<Icon {icon} class="h-5 w-5" />
-						</a>
-					{/each}
+				<div class="flex flex-col gap-3 text-sm text-gray-500">
+					<a
+						href="https://goo.gl/maps/gNqTixa754Lsrbn67"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="flex items-start gap-2 font-medium transition-colors hover:text-primary">
+						<Icon icon="heroicons:map-pin" class="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+						<span>13A Williams Road, Opp. Femina Shopping Mall, Trichy, India</span>
+					</a>
+					<a
+						href="tel:+91-9791969994"
+						class="flex items-center gap-2 font-medium transition-colors hover:text-primary">
+						<Icon icon="heroicons:phone" class="h-4 w-4 shrink-0 text-primary" />
+						<span>+91 97919 69994</span>
+					</a>
+					<a
+						href="https://wa.me/919791969994?text=Hello%20Dolphin,%20I%20have%20an%20enquiry"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="flex items-center gap-2 font-medium transition-colors hover:text-primary">
+						<Icon icon="mdi:whatsapp" class="h-4 w-4 shrink-0 text-primary" />
+						<span>WhatsApp Us</span>
+					</a>
+					<a
+						href="mailto:dolphinairservices@gmail.com"
+						class="flex items-center gap-2 font-medium transition-colors hover:text-primary">
+						<Icon icon="heroicons:envelope" class="h-4 w-4 shrink-0 text-primary" />
+						<span>dolphinairservices@gmail.com</span>
+					</a>
 				</div>
+
 			</div>
 
 			<div class="hidden lg:col-span-2 lg:block"></div>
@@ -82,10 +116,9 @@
 							{#each section.items as item}
 								<li>
 									<a
-										target="_blank"
-										href="https://proflobiz.in/"
+										href={item.href}
 										class="text-sm font-medium text-gray-600 transition-colors duration-200 hover:text-primary md:text-[15px]">
-										{item}
+										{item.label}
 									</a>
 								</li>
 							{/each}
@@ -97,7 +130,7 @@
 
 		<div class="flex flex-col items-center justify-between gap-6 pt-8 md:flex-row">
 			<p class="text-center text-xs font-medium text-gray-400 md:text-left">
-				© {currentYear} Hijrah Portal. All rights reserved.
+				© {currentYear} Dolphin Air Services &middot; Hijrah Portal. All rights reserved.
 			</p>
 
 			<a

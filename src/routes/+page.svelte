@@ -58,22 +58,22 @@
 
 	const stats = [
 		{
-			value: '10',
+			value: '29',
 			suffix: '+',
 			label: 'Years Experience',
-			desc: 'Serving the guests of Allah since 2010.'
+			desc: 'Serving Haj & Umrah pilgrims since 1994 — one of the longest-running Haj organisers in Tamilnadu.'
 		},
 		{
-			value: '15',
+			value: '1000',
 			suffix: '+',
-			label: 'Global Reach',
-			desc: 'Pilgrims served from over 15 different nations.'
+			label: 'Pilgrims Served',
+			desc: 'Thousands of guests have completed their Hajj and Umrah with us over 3 decades.'
 		},
 		{
 			value: '100',
 			suffix: '%',
-			label: 'Satisfaction',
-			desc: 'Based on post-Hajj feedback surveys.'
+			label: 'Commitment',
+			desc: 'We are committed to guiding every pilgrim to the Sacred House with peace of mind.'
 		}
 	];
 
@@ -156,7 +156,7 @@
 				<span class="text-sm font-bold tracking-widest text-secondary uppercase">Hajj 2026</span>
 			</div>
 			<span class="h-3.5 w-px bg-gray-200"></span>
-			<span class="text-sm font-medium text-gray-500">Registrations Open</span>
+			<span class="text-sm font-medium text-gray-500">Registrations Open &mdash; Dolphin Haj</span>
 		</div>
 
 		<h1
@@ -169,8 +169,8 @@
 
 		<p
 			class="animate-fade-in-up mx-auto mb-12 max-w-2xl translate-y-4 text-lg leading-relaxed font-normal text-gray-500 opacity-0 delay-200 md:text-xl">
-			Experience the sacred pilgrimage with a focus on spirituality and comfort. We handle the
-			complex logistics; you focus on the divine connection.
+			With 29 years of experience, Dolphin Haj brings you comprehensive Hajj & Umrah packages from
+			Tamilnadu, India. We handle the complex logistics; you focus on the divine connection.
 		</p>
 
 		<div
@@ -205,8 +205,8 @@
 					<span class="text-primary">trust & tradition.</span>
 				</h3>
 				<p class="text-lg leading-relaxed text-gray-500">
-					Numbers aren't just metrics to us; they represent individual spiritual journeys
-					facilitated with precision, care, and the Amanah (trust) placed in our hands.
+					Three decades of organising Haj &amp; Umrah groups means every pilgrim is in trusted,
+					experienced hands &mdash; authorised by the Ministry of Hajj, Government of India.
 				</p>
 			</div>
 
@@ -325,7 +325,7 @@
 				<div class="flex flex-col justify-center">
 					<span class="mb-0.5 leading-none font-bold tracking-wide text-black uppercase"
 						>Pilgrims Served</span>
-					<span class="text-sm leading-none font-medium text-gray-400">Across 15+ Countries</span>
+					<span class="text-sm leading-none font-medium text-gray-400">Since 1994, Tamilnadu</span>
 				</div>
 			</div>
 		</div>
