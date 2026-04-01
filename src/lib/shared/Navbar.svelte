@@ -42,16 +42,16 @@
 				target="_blank"
 				rel="noopener noreferrer"
 				class="group flex items-center gap-2">
-				<img src={dolphinLogo} alt="Dolphin Haj" class="h-10 object-contain" />
+				<img src={dolphinLogo} alt="Dolphin Haj" class="h-6 md:h-8 object-contain" />
 			</a>
-			<span class="hidden h-6 w-px bg-gray-200 sm:block"></span>
-			<a href="/" class="group hidden items-center gap-2 sm:flex">
+			<!-- <span class="hidden h-6 w-px bg-gray-200 sm:block"></span> -->
+			<!-- <a href="/" class="group hidden items-center gap-2 sm:flex">
 				<span class="text-[10px] font-semibold tracking-wider text-gray-400 uppercase">Powered by</span>
 				<img src={logo} alt="Hijrah Logo" class="h-5 w-5 object-contain" />
 				<span class="text-sm font-bold tracking-tight text-secondary">
 					Hijrah<span class="text-primary">.</span>
 				</span>
-			</a>
+			</a> -->
 		</div>
 
 		<div

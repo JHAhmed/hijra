@@ -60,7 +60,7 @@
 					<div class="mt-4 flex items-center gap-3">
 						<span class="text-xs font-semibold tracking-wider text-gray-400 uppercase">Powered by</span>
 						<a href="/" class="inline-flex items-center gap-1.5">
-							<img src={logo} alt="Hijrah" class="h-4 w-4 object-contain" />
+							<!-- <img src={logo} alt="Hijrah" class="h-4 w-4 object-contain" /> -->
 							<span class="text-sm font-bold tracking-tight text-secondary">Hijrah<span class="text-primary">.</span></span>
 						</a>
 					</div>
